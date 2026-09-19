@@ -1,0 +1,506 @@
+/*
+ * The type wall.
+ *
+ * Every measure inside .wall is in em of --fs, the course size, so the brick,
+ * its labels and its leader lines stay locked to the letterforms at any width.
+ *
+ * Glyph metrics (Archivo, width 110, weight 900, uppercase, per em):
+ *   "GET PAID." 5.888   "LAY A" 3.488   "BRICK." 4.151   cap height 0.686
+ * Those are advance widths; the ink is narrower by the outer side bearings
+ * and the -0.015em tracking. Like a justified forme, the courses mix widths:
+ * 114 for the first (it sets the measure), 110 for the second, 125 for the
+ * third (it reaches under the brick).
+ */
+
+.hero {
+  --nav-h: clamp(64px, 6vw, 115px);
+  --pitch: 0.886em; /* course to course, leaves a mortar joint of 0.2em */
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100svh - var(--nav-h));
+  padding: 0 var(--gutter) clamp(20px, 1.6vw, 30px);
+  overflow: clip;
+}
+
+.wall {
+  --fs: min(
+    calc((100vw - 2 * var(--gutter)) / 5.64),
+    calc((100svh - var(--nav-h) - clamp(236px, 16.2vw, 311px)) / 2.46)
+  );
+  position: relative;
+  font-size: max(var(--fs), 72px);
+  margin-top: calc(clamp(20px, 2.35vw, 45px) - 0.091em);
+  /* trim the descender slack under the last course */
+  margin-bottom: -0.109em;
+}
+
+.type {
+  margin: 0;
+  font-weight: 900;
+  font-stretch: 110%;
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+  line-height: var(--pitch);
+  color: var(--soot);
+  /* the joints are part of the design: never let a course wrap */
+  white-space: nowrap;
+}
+
+.course {
+  display: block;
+  /* pull the first stem onto the gutter: G, L and B carry different side bearings */
+  margin-left: -0.042em;
+  /* the first course defines the measure: set just wide enough for its ink
+     to reach the right gutter */
+  font-stretch: 114%;
+  animation: lay 560ms var(--ease-lay) both;
+}
+.course:nth-child(2) {
+  margin-left: -0.073em;
+  font-stretch: 110%;
+  animation-delay: 70ms;
+}
+/* a forme is justified by mixing widths: the last course is set wider so it
+   reaches under the brick */
+.course:nth-child(3) {
+  margin-left: -0.078em;
+  font-stretch: 125%;
+  animation-delay: 140ms;
+}
+
+/* ---- the brick and its annotations ------------------------------------- */
+
+.stage {
+  --px: 0;
+  --py: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  color: var(--soot);
+}
+
+.flow {
+  position: absolute;
+  left: 3.47em;
+  top: 0.777em;
+  width: 2.34em;
+  height: 0.2em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.05em;
+  font-size: 1em;
+  /* tracking is set per step, in the step's own em */
+  letter-spacing: 0;
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8em;
+  font-size: clamp(9px, 0.069em, 22px);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  animation: reveal 420ms var(--ease-lay) both;
+}
+.step:nth-child(1) {
+  animation-delay: 750ms;
+}
+.step:nth-child(2) {
+  animation-delay: 900ms;
+}
+.step:nth-child(3) {
+  animation-delay: 1050ms;
+}
+
+/* SPYx keeps its lowercase x: it is a ticker, not a word */
+.ticker {
+  text-transform: none;
+}
+
+.flowArrow {
+  width: 2.2em;
+  height: 0.8em;
+  flex: none;
+}
+
+.leaders {
+  position: absolute;
+  left: 3.47em;
+  top: 0.985em;
+  width: 2.41em;
+  height: 0.36em;
+  z-index: 2;
+  overflow: visible;
+}
+
+.leader {
+  stroke-dasharray: 60;
+  animation: draw 380ms var(--ease-lay) both;
+}
+.leader:nth-child(1) {
+  animation-delay: 850ms;
+}
+.leader:nth-child(2) {
+  animation-delay: 1000ms;
+}
+.leader:nth-child(3) {
+  animation-delay: 1150ms;
+}
+
+.brickButton {
+  position: absolute;
+  left: 3.43em;
+  top: 0.76em;
+  width: 2.36em;
+  cursor: pointer;
+  pointer-events: auto;
+  border-radius: var(--radius-card);
+  /* pointer drift composes with the settle animation below */
+  translate: calc(var(--px) * 10px) calc(var(--py) * 8px);
+  rotate: calc(var(--px) * 1.2deg);
+  transition:
+    translate 600ms var(--ease-lay),
+    rotate 600ms var(--ease-lay);
+}
+
+.brick {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* the raster carries its own ~8deg tilt; rest state adds none */
+  user-select: none;
+}
+
+.stage[data-laid] .brick {
+  animation: settle 980ms var(--ease-lay) 320ms both;
+}
+
+/* ---- sentence, action, chips ------------------------------------------- */
+
+.base {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: auto;
+  padding-top: clamp(18px, 2vw, 38px);
+}
+
+.sentence {
+  margin: 0;
+  max-width: 23em;
+  font-size: clamp(1.125rem, 1.9vw, 2.3rem);
+  font-weight: 700;
+  font-stretch: 108%;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(12px, 1.2vw, 24px);
+  margin-top: clamp(16px, 1.7vw, 32px);
+}
+
+/* a brick has thickness: the button stands 8px proud and sinks when pressed */
+.cta {
+  --edge: clamp(5px, 0.42vw, 8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(52px, 3.9vw, 75px);
+  padding: 0 clamp(26px, 3.1vw, 60px);
+  border-radius: 8px;
+  background: var(--laterite);
+  color: var(--lime);
+  font-size: clamp(1.0625rem, 1.56vw, 1.875rem);
+  font-weight: 700;
+  font-stretch: 105%;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 var(--edge) 0 var(--kiln);
+  margin-bottom: var(--edge);
+  transition:
+    transform var(--dur-lay) var(--ease-lay),
+    box-shadow var(--dur-lay) var(--ease-lay),
+    background-color var(--dur-lay) var(--ease-lay);
+}
+.cta:hover {
+  background: var(--ember);
+  transform: translateY(calc(var(--edge) * 0.35));
+  box-shadow: 0 calc(var(--edge) * 0.65) 0 var(--kiln);
+}
+.cta:active {
+  transform: translateY(var(--edge));
+  box-shadow: 0 0 0 var(--kiln);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(8px, 1.15vw, 22px);
+  margin: 0 0 var(--edge, 6px);
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: clamp(34px, 2.7vw, 52px);
+  padding: 0 clamp(12px, 1vw, 20px);
+  border: 2px solid var(--soot);
+  border-radius: 6px;
+  font-size: clamp(10px, 0.94vw, 18px);
+  white-space: nowrap;
+}
+
+.next {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9em;
+  flex: none;
+  padding: 10px 0;
+  color: var(--soot);
+  font-size: clamp(10px, 0.94vw, 18px);
+  text-decoration: none;
+  border-radius: var(--radius-brick);
+}
+.nextArrow {
+  width: 0.9em;
+  height: 1.35em;
+  transition: transform var(--dur-lay) var(--ease-lay);
+}
+.next:hover .nextArrow {
+  transform: translateY(4px);
+}
+
+/* ---- motion ------------------------------------------------------------- */
+
+@keyframes lay {
+  from {
+    transform: translateY(-0.09em);
+  }
+}
+
+@keyframes settle {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.95em) rotate(-10deg);
+  }
+  12% {
+    opacity: 1;
+  }
+  62% {
+    transform: translateY(0.012em) rotate(0.6deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* both start hidden and end at the element's own visible default */
+@keyframes reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 -4% 0 0);
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 60;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course,
+  .step,
+  .leader,
+  .stage[data-laid] .brick {
+    animation: none;
+  }
+  .brickButton {
+    translate: none;
+    rotate: none;
+  }
+}
+
+
+/* ---- wide and short (most laptops): keep the wall full width ------------ */
+/* The sentence, the action and the chips share one row so the type never
+   has to shrink to make room for them: sentence left, action and chips
+   stacked beside it. */
+
+@media (min-aspect-ratio: 161/100) and (min-width: 721px) {
+  .wall {
+    --fs: min(
+      calc((100vw - 2 * var(--gutter)) / 5.64),
+      calc((100svh - var(--nav-h) - clamp(160px, 14.2vw, 272px)) / 2.46)
+    );
+  }
+
+  .base {
+    align-items: center;
+    padding-top: clamp(16px, 1.7vw, 32px);
+  }
+
+  .pitch {
+    display: flex;
+    align-items: center;
+    gap: clamp(20px, 2.6vw, 50px);
+    min-width: 0;
+  }
+
+  .sentence {
+    flex: none;
+    max-width: 26em;
+    font-size: clamp(1rem, 1.42vw, 1.75rem);
+  }
+
+  /* the action sits over its three guarantees, beside the sentence */
+  .actions {
+    flex-direction: column;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    gap: clamp(8px, 0.7vw, 12px);
+    margin-top: 0;
+  }
+
+  .cta {
+    height: clamp(48px, 3.5vw, 66px);
+  }
+
+  .chips {
+    flex-wrap: nowrap;
+    gap: clamp(8px, 0.8vw, 14px);
+    font-size: clamp(11px, 0.8vw, 15px);
+  }
+
+  .chip {
+    height: clamp(30px, 2.3vw, 44px);
+    padding: 0 clamp(9px, 0.8vw, 16px);
+    font-size: inherit;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* ---- narrow: four courses, the brick lands under the wall --------------- */
+
+@media (max-width: 720px) {
+  .wall {
+    --fs: calc((100vw - 2 * var(--gutter)) / 4.02);
+    font-size: var(--fs);
+  }
+
+  .course:nth-child(1),
+  .course:nth-child(3) {
+    font-stretch: 110%;
+  }
+
+  .course:nth-child(3) {
+    margin-left: -0.073em;
+  }
+
+  .word {
+    display: block;
+  }
+
+  .stage {
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    margin-top: -0.22em;
+  }
+
+  .brickButton {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 3.4em;
+    margin-right: 0;
+    align-self: flex-end;
+  }
+
+  .flow {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    height: auto;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: -0.2em 0 0.22em;
+  }
+
+  .step {
+    font-size: 10.5px;
+    gap: 6px;
+    letter-spacing: 0.08em;
+  }
+
+  .chip,
+  .next {
+    font-size: 11px;
+  }
+
+  .leaders {
+    display: none;
+  }
+
+  .base {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .next {
+    align-self: flex-end;
+  }
+}
+
+/* ---- narrow and short: the action comes before the sentence ------------- */
+/* On small phones the wall and the brick already say what this is; the
+   button has to stay inside the first screen. */
+
+@media (max-width: 720px) and (max-height: 760px) {
+  .stage {
+    margin-top: -0.42em;
+  }
+
+  .brickButton {
+    width: 2.7em;
+  }
+
+  .base {
+    padding-top: 10px;
+  }
+
+  .pitch {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .actions {
+    order: -1;
+    margin-top: 0;
+  }
+
+  .sentence {
+    margin-top: 18px;
+  }
+}
