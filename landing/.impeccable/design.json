@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-19T20:00:00Z",
+  "generatedAt": "2026-09-19T21:47:53Z",
   "title": "Design System: Laterite",
   "extensions": {
     "colorMeta": {
@@ -18,7 +18,8 @@
           "oklch(73% 0.154 33.2)",
           "oklch(84% 0.154 33.2)",
           "oklch(95% 0.154 33.2)"
-        ]
+        ],
+        "usage": "Mark, primary action, selected option, cap Seal, and the field of two full-bleed bands."
       },
       "ember-hover": {
         "role": "primary",
@@ -66,7 +67,8 @@
           "oklch(73% 0.092 47.1)",
           "oklch(84% 0.092 47.1)",
           "oklch(95% 0.092 47.1)"
-        ]
+        ],
+        "usage": "Defined; not used by a component."
       },
       "blush-tint": {
         "role": "secondary",
@@ -82,7 +84,8 @@
           "oklch(73% 0.038 51.7)",
           "oklch(84% 0.038 51.7)",
           "oklch(95% 0.038 51.7)"
-        ]
+        ],
+        "usage": "Field of the can't-do band; hover fill of an unselected cap option."
       },
       "gain-moss": {
         "role": "tertiary",
@@ -178,7 +181,8 @@
           "oklch(73% 0.010 87.5)",
           "oklch(84% 0.010 87.5)",
           "oklch(95% 0.010 87.5)"
-        ]
+        ],
+        "usage": "Interface fragment cards; hover fill of the cream primary action."
       },
       "sand-track": {
         "role": "neutral",
@@ -226,7 +230,8 @@
           "oklch(73% 0.021 48.0)",
           "oklch(84% 0.021 48.0)",
           "oklch(95% 0.021 48.0)"
-        ]
+        ],
+        "usage": "Defined; not used by a component."
       },
       "soot-ink": {
         "role": "neutral",
@@ -247,31 +252,43 @@
     },
     "typographyMeta": {
       "display": {
-        "displayName": "Display (type wall)",
-        "purpose": "Hero and section walls only. Archivo 900, uppercase, pitch 0.886em, widths mixed per course (114 / 110 / 125; 110 at 720px and below). Never wraps."
+        "displayName": "Display (hero type wall)",
+        "purpose": "Hero only. Archivo 900, uppercase, pitch 0.886em, widths mixed per course (114 / 110 / 125; 110 at 720px and below). Never wraps."
+      },
+      "headline": {
+        "displayName": "Headline (band)",
+        "purpose": "One per band, four words at most, sentence case with a full stop. Archivo 900 at width 125, balanced, may wrap to two lines. Can't-do band clamp(2.6rem, 5.4vw, 6.4rem); closing band clamp(3rem, 7.2vw, 8.6rem)."
       },
       "title": {
         "displayName": "Title (hero sentence)",
-        "purpose": "The single supporting sentence. Archivo 700 at width 108, balanced, max 23em. Drops to clamp(1rem, 1.42vw, 1.75rem) in the wide-and-short layout."
+        "purpose": "The hero's single supporting sentence. Archivo 700 at width 108, balanced, max 23em. Drops to clamp(1rem, 1.42vw, 1.75rem) in the wide-and-short layout."
       },
       "action": {
         "displayName": "Action",
-        "purpose": "Button labels, sentence case, Archivo 700 at width 105. Nav Launch uses clamp(14px, 1.3vw, 25px)."
+        "purpose": "Button labels, sentence case, Archivo 700 at width 105. Closing action clamp(1.125rem, 2.6vw, 2.6rem); nav Launch clamp(14px, 1.3vw, 25px)."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Inherited default: Archivo 400 at width 100. Text lives at widths 100 to 108 (100 running copy, 105 actions, 108 title). No running text is built yet."
+        "purpose": "Inherited default: Archivo 400 at width 100. The only running Archivo below the hero is the can't-do list: weight 500, width 102, clamp(1.0625rem, 1.62vw, 1.85rem)."
+      },
+      "figure": {
+        "displayName": "Figure (mono)",
+        "purpose": "The wall's running total. Card figures use the same voice at tracking 0: cap figure clamp(1.9rem, 4.9vw, 5.4rem), wallet row clamp(1.8rem, 4.5vw, 5rem)."
+      },
+      "receipt": {
+        "displayName": "Receipt line (mono sentence)",
+        "purpose": "The one sentence a band is allowed, in mono sentence case, twelve words at most; also the footer legal line at clamp(11px, 1.15vw, 18px). The cap sentence is set tight, clamp(13px, 1.4vw, 23px), on one line above 720px."
       },
       "label": {
-        "displayName": "Label (Martian Mono)",
-        "purpose": "Every amount, date, address, program ID, label and chip. Uppercase, tracking 0.14em, tabular figures. Nav link clamp(11px, 0.95vw, 18px); flow steps weight 500 at clamp(9px, 0.069em, 22px) of the course size."
+        "displayName": "Label (mono uppercase)",
+        "purpose": "Chips, next cue, nav link, dates, card labels, notes. Uppercase, tabular, tracking 0.14em (global .mono) opening to 0.16-0.18em inside bands. Tickers keep their case."
       }
     },
     "shadows": [
       {
         "name": "kiln-edge",
         "value": "0 clamp(5px, 0.42vw, 8px) 0 #7a2a1b",
-        "purpose": "Solid bottom edge of the primary action: thickness, not light. Paired with an equal margin-bottom."
+        "purpose": "Solid bottom edge of the terracotta primary action: thickness, not light. Paired with an equal margin-bottom."
       },
       {
         "name": "kiln-edge-hover",
@@ -284,9 +301,14 @@
         "purpose": "Press: fully compressed."
       },
       {
+        "name": "soot-edge",
+        "value": "0 clamp(5px, 0.42vw, 8px) 0 #1e1612",
+        "purpose": "The same edge under the cream primary action on a terracotta band; same hover (65%) and press (0)."
+      },
+      {
         "name": "brick-contact",
-        "value": "baked into public/hero/brick-25.png",
-        "purpose": "The only soft shadow in the system. Part of the raster; never recreated in CSS."
+        "value": "baked into public/hero/brick-25.png and public/body/brick-laid.png",
+        "purpose": "The only soft shadows in the system. Part of the rasters; never recreated in CSS."
       }
     ],
     "motion": [
@@ -298,7 +320,7 @@
       {
         "name": "dur-lay",
         "value": "320ms",
-        "purpose": "Base duration for all state transitions (hover, press, underline, arrow)."
+        "purpose": "Base duration for all state transitions (hover, press, underline, arrow, option select)."
       },
       {
         "name": "lay",
@@ -326,15 +348,56 @@
         "purpose": "The brick follows the pointer by a few pixels."
       },
       {
+        "name": "band-entrance",
+        "value": "transition: transform 620ms ease-lay; [data-in=true] none, otherwise translateY(-14px); useInView threshold 0.35 reports true until hydration, then fires once",
+        "purpose": "The only entrance below the hero: copy and visual drop and settle. Server-rendered settled; transform only, never opacity."
+      },
+      {
+        "name": "payday-drop",
+        "value": "transition: transform 640ms ease-lay; from translateY(-46px); transition-delay index * 110ms; useInView threshold 0.5",
+        "purpose": "Laid payday bricks drop onto the baseline one after another. Server-rendered on the baseline."
+      },
+      {
+        "name": "payday-fall",
+        "value": "transform: translateY(calc((1 - var(--fall)) * -56%)) rotate(calc((1 - var(--fall)) * 14deg)); --fall = slice(progress, 0.34, 0.66)",
+        "purpose": "Today's brick falls as the band scrolls by. Reduced motion: held at translateY(-30%) rotate(9deg)."
+      },
+      {
+        "name": "wall-lay",
+        "value": "laid = round(slice(progress, 0.16, 0.56) * 52); unlaid brick opacity 0, translateY(-34px); transition transform 520ms ease-lay, opacity 160ms linear",
+        "purpose": "The wall fills from the bottom course up as the band scrolls; the figure is 25 x laid. Server-rendered full; bricks are lifted only after hydration."
+      },
+      {
+        "name": "spine-lay",
+        "value": "laid = floor((innerHeight * 0.74 - spine.top) / spine.height * 52); unlaid face opacity 0, translateY(-10px); transition transform 420ms ease-lay, opacity 140ms linear",
+        "purpose": "The spine gains a brick for every stretch the visitor has read. Server-rendered full."
+      },
+      {
+        "name": "stamp",
+        "value": "animation: 420ms ease-lay backwards; from transform: scale(1.24) rotate(-7deg)",
+        "purpose": "A seal comes down hard and stays put. Always rendered; scale plus rotate, transform only. Replays on every cap change (wrapper re-keyed)."
+      },
+      {
+        "name": "wallet-count",
+        "value": "requestAnimationFrame, 1100ms, ease-out cubic, 0.4532 to 0.4944; initial state is the final value",
+        "purpose": "The wallet grows by one brick when its band enters. Screen readers get the final value only."
+      },
+      {
+        "name": "slice",
+        "value": "t = clamp((progress - from) / (to - from), 0, 1); 1 - (1 - t)^3",
+        "purpose": "Remaps a window of a band's scroll progress onto 0..1 with an ease-out. useScrollProgress measures at most once per frame and returns 1 at once under reduced motion."
+      },
+      {
         "name": "reduced-motion",
-        "value": "@media (prefers-reduced-motion: reduce): lay, settle, reveal, draw set to animation: none; drift translate and rotate set to none; globally *, *::before, *::after { transition-duration: 0.01ms !important; scroll-behavior: auto !important }",
-        "purpose": "Settled static alternative, including hover and press. Resting CSS is the visible state, so nothing is hidden when animations are off."
+        "value": "@media (prefers-reduced-motion: reduce): hero lay/settle/reveal/draw animation none; drift none; .lays, .dropped, wall bricks transform none and transition none; unlaid wall bricks opacity 1; spine transition none and fully laid; stamp animation none; falling brick held at translateY(-30%) rotate(9deg); wallet count skipped; globally *, *::before, *::after { transition-duration: 0.01ms !important; scroll-behavior: auto !important }",
+        "purpose": "Every motion has a still alternative, including hover and press."
       }
     ],
     "breakpoints": [
       {
         "name": "narrow",
-        "value": "(max-width: 720px)"
+        "value": "(max-width: 720px)",
+        "purpose": "Four-course hero; bands collapse to one column; spine hidden; five-per-course wall; four paydays; footer stacks."
       },
       {
         "name": "narrow-and-short",
@@ -350,7 +413,7 @@
       }
     ],
     "brandAssets": {
-      "status": "Shipped in public/brand/. Marks are used by the nav; seals, running-bond patterns and the Wall are not yet implemented in code.",
+      "status": "Shipped in public/brand/. The symbol and wordmark are used by the nav and footer. The five state seals and the running-bond tiles are not used by the page: the Seal is drawn in code and the wall is built from a brick raster. They remain available assets.",
       "marks": [
         "symbol-terracotta.svg",
         "symbol-cream.svg",
@@ -415,12 +478,29 @@
           "ground": "#B8452E"
         }
       ],
-      "heroObject": {
-        "file": "public/hero/brick-25.png",
-        "size": "1536x1024",
-        "alpha": true,
-        "status": "placeholder; to be replaced by a commissioned render at the same framing"
-      }
+      "rasters": [
+        {
+          "file": "public/hero/brick-25.png",
+          "size": "1536x1024",
+          "alpha": true,
+          "use": "hero brick",
+          "status": "placeholder; to be replaced by a commissioned render at the same framing"
+        },
+        {
+          "file": "public/body/brick-laid.png",
+          "size": "1090x506",
+          "alpha": true,
+          "use": "payday strip",
+          "status": "placeholder; to be replaced by a commissioned render at the same framing"
+        },
+        {
+          "file": "public/body/brick-face.png",
+          "size": "640x261",
+          "alpha": true,
+          "use": "wall bricks and, cropped, spine brick ends (CSS background)",
+          "status": "placeholder; to be replaced by a commissioned render at the same framing"
+        }
+      ]
     }
   },
   "components": [
@@ -428,25 +508,9 @@
       "name": "Navigation band",
       "kind": "nav",
       "refersTo": "nav-band",
-      "description": "Soot band with the brand lockup left, one mono link (underline bar laid from the left on hover and focus) and the flat Launch button right. Carries on-dark focus rings (lime). The mono link hides at 560px and below.",
+      "description": "Soot band with the brand lockup left, one mono link (underline bar laid from the left on hover and focus) and the flat Launch button right. Carries on-dark focus rings (lime). The mono link hides at 560px and below. Inset by the gutter, like every section.",
       "html": "<header class=\"ds-nav\"><a class=\"ds-lockup\" href=\"/\" aria-label=\"Laterite, home\"><svg class=\"ds-lockup-symbol\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><g fill=\"#B8452E\"><rect x=\"0\" y=\"0\" width=\"60\" height=\"60\" rx=\"7\"/><rect x=\"0\" y=\"70\" width=\"60\" height=\"60\" rx=\"7\"/><rect x=\"0\" y=\"140\" width=\"130\" height=\"60\" rx=\"7\"/><rect x=\"140\" y=\"140\" width=\"60\" height=\"60\" rx=\"7\"/></g></svg><svg class=\"ds-lockup-wordmark\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 454.3 73.7\"><path transform=\"translate(-6.00,72.50)\" d=\"M6.0 0.0V-72.5H28.400000000000002V0.0Z M60.199999999999996 1.2000000000000002Q55.099999999999994 1.2000000000000002 50.699999999999996 0.5000000000000001Q46.3 -0.2 43.05 -1.9500000000000002Q39.8 -3.7 38.0 -6.75Q36.199999999999996 -9.8 36.199999999999996 -14.600000000000001Q36.199999999999996 -20.900000000000002 39.55 -24.550000000000004Q42.9 -28.200000000000003 49.099999999999994 -29.950000000000003Q55.3 -31.700000000000003 63.85 -32.2Q72.4 -32.7 82.9 -32.7V-33.800000000000004Q82.9 -36.5 81.5 -38.150000000000006Q80.1 -39.800000000000004 77.55 -40.550000000000004Q75.0 -41.300000000000004 71.5 -41.300000000000004Q69.4 -41.300000000000004 66.8 -40.95Q64.19999999999999 -40.6 62.3 -39.650000000000006Q60.4 -38.7 60.4 -36.800000000000004V-36.4H37.599999999999994Q37.49999999999999 -36.800000000000004 37.49999999999999 -37.050000000000004Q37.49999999999999 -37.300000000000004 37.49999999999999 -37.7Q37.49999999999999 -42.400000000000006 41.449999999999996 -46.10000000000001Q45.4 -49.800000000000004 53.2 -51.900000000000006Q61.0 -54.0 72.4 -54.0Q82.9 -54.0 90.25 -52.25Q97.6 -50.5 101.45 -46.7Q105.30000000000001 -42.900000000000006 105.30000000000001 -36.5V-16.8Q105.30000000000001 -15.200000000000001 106.10000000000001 -14.05Q106.9 -12.9 108.5 -12.9H114.0V-0.8Q112.19999999999999 -0.1 108.75 0.55Q105.30000000000001 1.2000000000000002 101.5 1.2000000000000002Q96.1 1.2000000000000002 92.69999999999999 0.25000000000000006Q89.3 -0.7000000000000001 87.5 -2.3000000000000003Q85.69999999999999 -3.9000000000000004 84.9 -5.800000000000001H84.1Q81.19999999999999 -3.7 77.64999999999999 -2.1Q74.1 -0.5 69.8 0.3500000000000001Q65.5 1.2000000000000002 60.199999999999996 1.2000000000000002ZM66.9 -11.4Q68.4 -11.4 71.0 -11.75Q73.6 -12.100000000000001 76.35 -13.0Q79.1 -13.9 81.0 -15.400000000000002Q82.9 -16.900000000000002 82.9 -19.3V-22.6Q74.19999999999999 -22.6 68.75 -21.75Q63.3 -20.900000000000002 60.8 -19.400000000000002Q58.3 -17.900000000000002 58.3 -15.8Q58.3 -13.9 59.55 -12.95Q60.8 -12.0 62.8 -11.7Q64.8 -11.4 66.9 -11.4Z M149.20000000000002 1.2000000000000002Q142.0 1.2000000000000002 136.8 -0.19999999999999996Q131.60000000000002 -1.6 128.8 -5.25Q126.00000000000001 -8.9 126.00000000000001 -15.600000000000001V-38.7H115.50000000000001V-52.800000000000004H126.9L131.3 -68.8H148.4V-52.800000000000004H163.5V-38.7H148.4V-21.0Q148.4 -17.1 150.2 -15.0Q152.0 -12.9 157.20000000000002 -12.9H163.5V-0.7000000000000001Q162.10000000000002 -0.2 159.40000000000003 0.25Q156.70000000000002 0.7000000000000001 153.90000000000003 0.9500000000000002Q151.10000000000002 1.2000000000000002 149.20000000000002 1.2000000000000002Z M207.60000000000002 1.2000000000000002Q196.3 1.2000000000000002 187.75 -1.7000000000000002Q179.20000000000002 -4.6000000000000005 174.45000000000002 -10.750000000000002Q169.70000000000002 -16.900000000000002 169.70000000000002 -26.400000000000002Q169.70000000000002 -35.7 174.40000000000003 -41.85Q179.10000000000002 -48.0 187.40000000000003 -51.0Q195.70000000000002 -54.0 206.60000000000002 -54.0Q218.00000000000003 -54.0 226.3 -51.1Q234.60000000000002 -48.2 239.10000000000002 -42.1Q243.60000000000002 -36.0 243.60000000000002 -26.400000000000002V-22.6H193.10000000000002Q193.3 -18.900000000000002 195.0 -16.400000000000002Q196.70000000000002 -13.9 199.95000000000002 -12.7Q203.20000000000002 -11.5 207.8 -11.5Q210.8 -11.5 213.15000000000003 -12.100000000000001Q215.50000000000003 -12.700000000000001 217.10000000000002 -13.75Q218.70000000000002 -14.8 219.5 -16.1Q220.3 -17.400000000000002 220.3 -18.8H243.50000000000003Q243.50000000000003 -13.8 240.65000000000003 -10.05Q237.8 -6.300000000000001 232.85000000000002 -3.8000000000000003Q227.90000000000003 -1.3 221.40000000000003 -0.04999999999999993Q214.90000000000003 1.2000000000000002 207.60000000000002 1.2000000000000002ZM193.20000000000002 -32.800000000000004H219.60000000000002Q219.60000000000002 -34.5 218.8 -36.0Q218.00000000000003 -37.5 216.45000000000005 -38.7Q214.90000000000003 -39.900000000000006 212.65000000000003 -40.60000000000001Q210.40000000000003 -41.300000000000004 207.60000000000002 -41.300000000000004Q203.20000000000002 -41.300000000000004 200.20000000000002 -40.150000000000006Q197.20000000000002 -39.0 195.45000000000002 -37.05Q193.70000000000002 -35.1 193.20000000000002 -32.800000000000004Z M252.00000000000003 0.0V-52.800000000000004H270.20000000000005L271.70000000000005 -44.2H272.6Q274.5 -47.7 277.20000000000005 -49.900000000000006Q279.90000000000003 -52.1 283.0 -53.1Q286.1 -54.1 289.20000000000005 -54.1Q291.40000000000003 -54.1 293.25 -53.8Q295.1 -53.5 296.90000000000003 -52.800000000000004V-36.2H286.6Q283.5 -36.2 281.20000000000005 -35.25Q278.90000000000003 -34.300000000000004 277.40000000000003 -32.650000000000006Q275.90000000000003 -31.0 275.15000000000003 -28.75Q274.40000000000003 -26.5 274.40000000000003 -23.8V0.0Z M302.3 -59.0V-72.5H324.7V-59.0ZM302.3 0.0V-52.800000000000004H324.7V0.0Z M365.9 1.2000000000000002Q358.7 1.2000000000000002 353.5 -0.19999999999999996Q348.3 -1.6 345.5 -5.25Q342.7 -8.9 342.7 -15.600000000000001V-38.7H332.2V-52.800000000000004H343.6L348.0 -68.8H365.1V-52.800000000000004H380.2V-38.7H365.1V-21.0Q365.1 -17.1 366.9 -15.0Q368.7 -12.9 373.9 -12.9H380.2V-0.7000000000000001Q378.8 -0.2 376.1 0.25Q373.4 0.7000000000000001 370.6 0.9500000000000002Q367.8 1.2000000000000002 365.9 1.2000000000000002Z M424.3 1.2000000000000002Q413.0 1.2000000000000002 404.45000000000005 -1.7000000000000002Q395.90000000000003 -4.6000000000000005 391.15000000000003 -10.750000000000002Q386.40000000000003 -16.900000000000002 386.40000000000003 -26.400000000000002Q386.40000000000003 -35.7 391.1 -41.85Q395.8 -48.0 404.1 -51.0Q412.40000000000003 -54.0 423.3 -54.0Q434.70000000000005 -54.0 443.0 -51.1Q451.3 -48.2 455.8 -42.1Q460.3 -36.0 460.3 -26.400000000000002V-22.6H409.8Q410.0 -18.900000000000002 411.70000000000005 -16.400000000000002Q413.40000000000003 -13.9 416.65000000000003 -12.7Q419.90000000000003 -11.5 424.5 -11.5Q427.5 -11.5 429.85 -12.100000000000001Q432.20000000000005 -12.700000000000001 433.80000000000007 -13.75Q435.40000000000003 -14.8 436.20000000000005 -16.1Q437.0 -17.400000000000002 437.0 -18.8H460.20000000000005Q460.20000000000005 -13.8 457.35 -10.05Q454.5 -6.300000000000001 449.55 -3.8000000000000003Q444.6 -1.3 438.1 -0.04999999999999993Q431.6 1.2000000000000002 424.3 1.2000000000000002ZM409.90000000000003 -32.800000000000004H436.3Q436.3 -34.5 435.5 -36.0Q434.70000000000005 -37.5 433.15000000000003 -38.7Q431.6 -39.900000000000006 429.35 -40.60000000000001Q427.1 -41.300000000000004 424.3 -41.300000000000004Q419.90000000000003 -41.300000000000004 416.90000000000003 -40.150000000000006Q413.90000000000003 -39.0 412.15000000000003 -37.05Q410.40000000000003 -35.1 409.90000000000003 -32.800000000000004Z\" fill=\"#F4EEE2\"/></svg></a><nav class=\"ds-nav-links\" aria-label=\"Primary\"><a href=\"#how-it-works\" class=\"ds-nav-link\">How it works</a><a href=\"#\" class=\"ds-btn-launch\">Launch app</a></nav></header>",
-      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: clamp(64px, 6vw, 115px); padding: 0 clamp(20px, 3.6vw, 70px); background: var(--soot); color: var(--lime); } .ds-nav-links { display: flex; align-items: center; gap: clamp(18px, 2.6vw, 50px); } .ds-lockup { display: inline-flex; align-items: flex-end; gap: clamp(10px, 1vw, 19px); border-radius: var(--radius-brick); text-decoration: none; } .ds-lockup:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; } .ds-lockup-symbol { width: auto; height: clamp(34px, 3.55vw, 68px); } .ds-lockup-wordmark { width: auto; height: clamp(17px, 1.77vw, 34px); margin-bottom: -1px; } .ds-nav-link { font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; text-transform: uppercase; letter-spacing: 0.14em; font-size: clamp(11px, 0.95vw, 18px); color: var(--lime); text-decoration: none; padding: 10px 2px; position: relative; } .ds-nav-link::after { content: \"\"; position: absolute; left: 2px; right: 2px; bottom: 4px; height: 2px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform var(--dur-lay) var(--ease-lay); } .ds-nav-link:hover::after, .ds-nav-link:focus-visible::after { transform: scaleX(1); } @media (prefers-reduced-motion: reduce) { .ds-nav-link::after { transition-duration: 0.01ms; } } .ds-nav-link:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; border-radius: var(--radius-brick); } .ds-btn-launch { display: inline-flex; align-items: center; height: clamp(40px, 3.2vw, 62px); padding: 0 clamp(18px, 2vw, 38px); border-radius: 8px; background: var(--laterite); color: var(--lime); font-family: var(--font-archivo), Archivo, system-ui, sans-serif; font-weight: 700; font-stretch: 105%; font-size: clamp(14px, 1.3vw, 25px); text-decoration: none; transition: background-color var(--dur-lay) var(--ease-lay), transform var(--dur-lay) var(--ease-lay); } .ds-btn-launch:hover { background: var(--ember); } .ds-btn-launch:active { transform: translateY(2px); } .ds-btn-launch:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; } @media (max-width: 560px) { .ds-nav-link { display: none; } }"
-    },
-    {
-      "name": "Brand lockup",
-      "kind": "custom",
-      "refersTo": "nav-band",
-      "description": "Terracotta L-Bond symbol plus cream outlined wordmark, bottom-aligned. Wordmark height is half the symbol height so its x-height equals one course of the symbol. Shown on soot.",
-      "html": "<div class=\"ds-lockup-field\"><a class=\"ds-lockup\" href=\"/\" aria-label=\"Laterite, home\"><svg class=\"ds-lockup-symbol\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><g fill=\"#B8452E\"><rect x=\"0\" y=\"0\" width=\"60\" height=\"60\" rx=\"7\"/><rect x=\"0\" y=\"70\" width=\"60\" height=\"60\" rx=\"7\"/><rect x=\"0\" y=\"140\" width=\"130\" height=\"60\" rx=\"7\"/><rect x=\"140\" y=\"140\" width=\"60\" height=\"60\" rx=\"7\"/></g></svg><svg class=\"ds-lockup-wordmark\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 454.3 73.7\"><path transform=\"translate(-6.00,72.50)\" d=\"M6.0 0.0V-72.5H28.400000000000002V0.0Z M60.199999999999996 1.2000000000000002Q55.099999999999994 1.2000000000000002 50.699999999999996 0.5000000000000001Q46.3 -0.2 43.05 -1.9500000000000002Q39.8 -3.7 38.0 -6.75Q36.199999999999996 -9.8 36.199999999999996 -14.600000000000001Q36.199999999999996 -20.900000000000002 39.55 -24.550000000000004Q42.9 -28.200000000000003 49.099999999999994 -29.950000000000003Q55.3 -31.700000000000003 63.85 -32.2Q72.4 -32.7 82.9 -32.7V-33.800000000000004Q82.9 -36.5 81.5 -38.150000000000006Q80.1 -39.800000000000004 77.55 -40.550000000000004Q75.0 -41.300000000000004 71.5 -41.300000000000004Q69.4 -41.300000000000004 66.8 -40.95Q64.19999999999999 -40.6 62.3 -39.650000000000006Q60.4 -38.7 60.4 -36.800000000000004V-36.4H37.599999999999994Q37.49999999999999 -36.800000000000004 37.49999999999999 -37.050000000000004Q37.49999999999999 -37.300000000000004 37.49999999999999 -37.7Q37.49999999999999 -42.400000000000006 41.449999999999996 -46.10000000000001Q45.4 -49.800000000000004 53.2 -51.900000000000006Q61.0 -54.0 72.4 -54.0Q82.9 -54.0 90.25 -52.25Q97.6 -50.5 101.45 -46.7Q105.30000000000001 -42.900000000000006 105.30000000000001 -36.5V-16.8Q105.30000000000001 -15.200000000000001 106.10000000000001 -14.05Q106.9 -12.9 108.5 -12.9H114.0V-0.8Q112.19999999999999 -0.1 108.75 0.55Q105.30000000000001 1.2000000000000002 101.5 1.2000000000000002Q96.1 1.2000000000000002 92.69999999999999 0.25000000000000006Q89.3 -0.7000000000000001 87.5 -2.3000000000000003Q85.69999999999999 -3.9000000000000004 84.9 -5.800000000000001H84.1Q81.19999999999999 -3.7 77.64999999999999 -2.1Q74.1 -0.5 69.8 0.3500000000000001Q65.5 1.2000000000000002 60.199999999999996 1.2000000000000002ZM66.9 -11.4Q68.4 -11.4 71.0 -11.75Q73.6 -12.100000000000001 76.35 -13.0Q79.1 -13.9 81.0 -15.400000000000002Q82.9 -16.900000000000002 82.9 -19.3V-22.6Q74.19999999999999 -22.6 68.75 -21.75Q63.3 -20.900000000000002 60.8 -19.400000000000002Q58.3 -17.900000000000002 58.3 -15.8Q58.3 -13.9 59.55 -12.95Q60.8 -12.0 62.8 -11.7Q64.8 -11.4 66.9 -11.4Z M149.20000000000002 1.2000000000000002Q142.0 1.2000000000000002 136.8 -0.19999999999999996Q131.60000000000002 -1.6 128.8 -5.25Q126.00000000000001 -8.9 126.00000000000001 -15.600000000000001V-38.7H115.50000000000001V-52.800000000000004H126.9L131.3 -68.8H148.4V-52.800000000000004H163.5V-38.7H148.4V-21.0Q148.4 -17.1 150.2 -15.0Q152.0 -12.9 157.20000000000002 -12.9H163.5V-0.7000000000000001Q162.10000000000002 -0.2 159.40000000000003 0.25Q156.70000000000002 0.7000000000000001 153.90000000000003 0.9500000000000002Q151.10000000000002 1.2000000000000002 149.20000000000002 1.2000000000000002Z M207.60000000000002 1.2000000000000002Q196.3 1.2000000000000002 187.75 -1.7000000000000002Q179.20000000000002 -4.6000000000000005 174.45000000000002 -10.750000000000002Q169.70000000000002 -16.900000000000002 169.70000000000002 -26.400000000000002Q169.70000000000002 -35.7 174.40000000000003 -41.85Q179.10000000000002 -48.0 187.40000000000003 -51.0Q195.70000000000002 -54.0 206.60000000000002 -54.0Q218.00000000000003 -54.0 226.3 -51.1Q234.60000000000002 -48.2 239.10000000000002 -42.1Q243.60000000000002 -36.0 243.60000000000002 -26.400000000000002V-22.6H193.10000000000002Q193.3 -18.900000000000002 195.0 -16.400000000000002Q196.70000000000002 -13.9 199.95000000000002 -12.7Q203.20000000000002 -11.5 207.8 -11.5Q210.8 -11.5 213.15000000000003 -12.100000000000001Q215.50000000000003 -12.700000000000001 217.10000000000002 -13.75Q218.70000000000002 -14.8 219.5 -16.1Q220.3 -17.400000000000002 220.3 -18.8H243.50000000000003Q243.50000000000003 -13.8 240.65000000000003 -10.05Q237.8 -6.300000000000001 232.85000000000002 -3.8000000000000003Q227.90000000000003 -1.3 221.40000000000003 -0.04999999999999993Q214.90000000000003 1.2000000000000002 207.60000000000002 1.2000000000000002ZM193.20000000000002 -32.800000000000004H219.60000000000002Q219.60000000000002 -34.5 218.8 -36.0Q218.00000000000003 -37.5 216.45000000000005 -38.7Q214.90000000000003 -39.900000000000006 212.65000000000003 -40.60000000000001Q210.40000000000003 -41.300000000000004 207.60000000000002 -41.300000000000004Q203.20000000000002 -41.300000000000004 200.20000000000002 -40.150000000000006Q197.20000000000002 -39.0 195.45000000000002 -37.05Q193.70000000000002 -35.1 193.20000000000002 -32.800000000000004Z M252.00000000000003 0.0V-52.800000000000004H270.20000000000005L271.70000000000005 -44.2H272.6Q274.5 -47.7 277.20000000000005 -49.900000000000006Q279.90000000000003 -52.1 283.0 -53.1Q286.1 -54.1 289.20000000000005 -54.1Q291.40000000000003 -54.1 293.25 -53.8Q295.1 -53.5 296.90000000000003 -52.800000000000004V-36.2H286.6Q283.5 -36.2 281.20000000000005 -35.25Q278.90000000000003 -34.300000000000004 277.40000000000003 -32.650000000000006Q275.90000000000003 -31.0 275.15000000000003 -28.75Q274.40000000000003 -26.5 274.40000000000003 -23.8V0.0Z M302.3 -59.0V-72.5H324.7V-59.0ZM302.3 0.0V-52.800000000000004H324.7V0.0Z M365.9 1.2000000000000002Q358.7 1.2000000000000002 353.5 -0.19999999999999996Q348.3 -1.6 345.5 -5.25Q342.7 -8.9 342.7 -15.600000000000001V-38.7H332.2V-52.800000000000004H343.6L348.0 -68.8H365.1V-52.800000000000004H380.2V-38.7H365.1V-21.0Q365.1 -17.1 366.9 -15.0Q368.7 -12.9 373.9 -12.9H380.2V-0.7000000000000001Q378.8 -0.2 376.1 0.25Q373.4 0.7000000000000001 370.6 0.9500000000000002Q367.8 1.2000000000000002 365.9 1.2000000000000002Z M424.3 1.2000000000000002Q413.0 1.2000000000000002 404.45000000000005 -1.7000000000000002Q395.90000000000003 -4.6000000000000005 391.15000000000003 -10.750000000000002Q386.40000000000003 -16.900000000000002 386.40000000000003 -26.400000000000002Q386.40000000000003 -35.7 391.1 -41.85Q395.8 -48.0 404.1 -51.0Q412.40000000000003 -54.0 423.3 -54.0Q434.70000000000005 -54.0 443.0 -51.1Q451.3 -48.2 455.8 -42.1Q460.3 -36.0 460.3 -26.400000000000002V-22.6H409.8Q410.0 -18.900000000000002 411.70000000000005 -16.400000000000002Q413.40000000000003 -13.9 416.65000000000003 -12.7Q419.90000000000003 -11.5 424.5 -11.5Q427.5 -11.5 429.85 -12.100000000000001Q432.20000000000005 -12.700000000000001 433.80000000000007 -13.75Q435.40000000000003 -14.8 436.20000000000005 -16.1Q437.0 -17.400000000000002 437.0 -18.8H460.20000000000005Q460.20000000000005 -13.8 457.35 -10.05Q454.5 -6.300000000000001 449.55 -3.8000000000000003Q444.6 -1.3 438.1 -0.04999999999999993Q431.6 1.2000000000000002 424.3 1.2000000000000002ZM409.90000000000003 -32.800000000000004H436.3Q436.3 -34.5 435.5 -36.0Q434.70000000000005 -37.5 433.15000000000003 -38.7Q431.6 -39.900000000000006 429.35 -40.60000000000001Q427.1 -41.300000000000004 424.3 -41.300000000000004Q419.90000000000003 -41.300000000000004 416.90000000000003 -40.150000000000006Q413.90000000000003 -39.0 412.15000000000003 -37.05Q410.40000000000003 -35.1 409.90000000000003 -32.800000000000004Z\" fill=\"#F4EEE2\"/></svg></a></div>",
-      "css": ".ds-lockup-field { display: inline-block; padding: 20px 28px; background: var(--soot); } .ds-lockup { display: inline-flex; align-items: flex-end; gap: clamp(10px, 1vw, 19px); border-radius: var(--radius-brick); text-decoration: none; } .ds-lockup:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; } .ds-lockup-symbol { width: auto; height: clamp(34px, 3.55vw, 68px); } .ds-lockup-wordmark { width: auto; height: clamp(17px, 1.77vw, 34px); margin-bottom: -1px; }"
-    },
-    {
-      "name": "Launch button",
-      "kind": "button",
-      "refersTo": "button-launch",
-      "description": "Flat terracotta nav action. Hover ember, press moves 2px. No kiln edge: only the primary action has thickness.",
-      "html": "<div class=\"ds-launch-field\"><a href=\"#\" class=\"ds-btn-launch\">Launch app</a></div>",
-      "css": ".ds-launch-field { display: inline-block; padding: 16px 24px; background: var(--soot); } .ds-btn-launch { display: inline-flex; align-items: center; height: clamp(40px, 3.2vw, 62px); padding: 0 clamp(18px, 2vw, 38px); border-radius: 8px; background: var(--laterite); color: var(--lime); font-family: var(--font-archivo), Archivo, system-ui, sans-serif; font-weight: 700; font-stretch: 105%; font-size: clamp(14px, 1.3vw, 25px); text-decoration: none; transition: background-color var(--dur-lay) var(--ease-lay), transform var(--dur-lay) var(--ease-lay); } .ds-btn-launch:hover { background: var(--ember); } .ds-btn-launch:active { transform: translateY(2px); } .ds-btn-launch:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }"
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: clamp(64px, 6vw, 115px); padding: 0 var(--gutter); background: var(--soot); color: var(--lime); } .ds-nav-links { display: flex; align-items: center; gap: clamp(18px, 2.6vw, 50px); } .ds-lockup { display: inline-flex; align-items: flex-end; gap: clamp(10px, 1vw, 19px); border-radius: var(--radius-brick); text-decoration: none; } .ds-lockup:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; } .ds-lockup-symbol { width: auto; height: clamp(34px, 3.55vw, 68px); } .ds-lockup-wordmark { width: auto; height: clamp(17px, 1.77vw, 34px); margin-bottom: -1px; } .ds-nav-link { font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; text-transform: uppercase; letter-spacing: 0.14em; font-size: clamp(11px, 0.95vw, 18px); color: var(--lime); text-decoration: none; padding: 10px 2px; position: relative; } .ds-nav-link::after { content: \"\"; position: absolute; left: 2px; right: 2px; bottom: 4px; height: 2px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform var(--dur-lay) var(--ease-lay); } .ds-nav-link:hover::after, .ds-nav-link:focus-visible::after { transform: scaleX(1); } @media (prefers-reduced-motion: reduce) { .ds-nav-link::after { transition-duration: 0.01ms; } } .ds-nav-link:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; border-radius: var(--radius-brick); } .ds-btn-launch { display: inline-flex; align-items: center; height: clamp(40px, 3.2vw, 62px); padding: 0 clamp(18px, 2vw, 38px); border-radius: 8px; background: var(--laterite); color: var(--lime); font-family: var(--font-archivo), Archivo, system-ui, sans-serif; font-weight: 700; font-stretch: 105%; font-size: clamp(14px, 1.3vw, 25px); text-decoration: none; transition: background-color var(--dur-lay) var(--ease-lay), transform var(--dur-lay) var(--ease-lay); } .ds-btn-launch:hover { background: var(--ember); } .ds-btn-launch:active { transform: translateY(2px); } .ds-btn-launch:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; } @media (max-width: 560px) { .ds-nav-link { display: none; } }"
     },
     {
       "name": "Primary button, kiln edge",
@@ -457,12 +521,92 @@
       "css": ".ds-btn-primary { --edge: clamp(5px, 0.42vw, 8px); display: inline-flex; align-items: center; justify-content: center; height: clamp(52px, 3.9vw, 75px); padding: 0 clamp(26px, 3.1vw, 60px); border-radius: 8px; background: var(--laterite); color: var(--lime); font-family: var(--font-archivo), Archivo, system-ui, sans-serif; font-size: clamp(1.0625rem, 1.56vw, 1.875rem); font-weight: 700; font-stretch: 105%; text-decoration: none; white-space: nowrap; box-shadow: 0 var(--edge) 0 var(--kiln); margin-bottom: var(--edge); transition: transform var(--dur-lay) var(--ease-lay), box-shadow var(--dur-lay) var(--ease-lay), background-color var(--dur-lay) var(--ease-lay); } .ds-btn-primary:hover { background: var(--ember); transform: translateY(calc(var(--edge) * 0.35)); box-shadow: 0 calc(var(--edge) * 0.65) 0 var(--kiln); } .ds-btn-primary:active { transform: translateY(var(--edge)); box-shadow: 0 0 0 var(--kiln); } .ds-btn-primary:focus-visible { outline: 3px solid var(--laterite); outline-offset: 3px; }"
     },
     {
+      "name": "Primary button on terracotta",
+      "kind": "button",
+      "refersTo": "button-primary-on-terracotta",
+      "description": "The primary action inverted for a terracotta band: cream field, soot label, soot bottom edge. Hover chalk and sinks 35%; press sinks fully.",
+      "html": "<div class=\"ds-close-field\"><a href=\"#\" class=\"ds-btn-close\">Lay the first brick</a></div>",
+      "css": ".ds-close-field { display: inline-block; padding: 28px 36px; background: var(--laterite); } .ds-btn-close { --edge: clamp(5px, 0.42vw, 8px); display: inline-flex; align-items: center; justify-content: center; height: clamp(56px, 6vw, 96px); margin-bottom: var(--edge); padding: 0 clamp(30px, 5vw, 92px); border-radius: 8px; background: var(--lime); color: var(--soot); font-family: var(--font-archivo), Archivo, system-ui, sans-serif; font-size: clamp(1.125rem, 2.6vw, 2.6rem); font-weight: 700; font-stretch: 105%; text-decoration: none; white-space: nowrap; box-shadow: 0 var(--edge) 0 var(--soot); transition: transform var(--dur-lay) var(--ease-lay), box-shadow var(--dur-lay) var(--ease-lay), background-color var(--dur-lay) var(--ease-lay); } .ds-btn-close:hover { background: var(--chalk); transform: translateY(calc(var(--edge) * 0.35)); box-shadow: 0 calc(var(--edge) * 0.65) 0 var(--soot); } .ds-btn-close:active { transform: translateY(var(--edge)); box-shadow: 0 0 0 var(--soot); } .ds-btn-close:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; } @media (prefers-reduced-motion: reduce) { .ds-btn-close { transition-duration: 0.01ms; } }"
+    },
+    {
       "name": "Outlined mono chip",
       "kind": "chip",
       "refersTo": "chip-outlined",
       "description": "Static guarantee chips: 2px soot outline, 6px radius, never filled, Martian Mono uppercase. Rendered as a list, not as controls.",
       "html": "<ul class=\"ds-chips\"><li class=\"ds-chip\">Non-custodial</li><li class=\"ds-chip\">You set the cap</li><li class=\"ds-chip\">Revoke in one tap</li></ul>",
       "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: clamp(8px, 1.15vw, 22px); margin: 0; padding: 0; list-style: none; } .ds-chip { display: inline-flex; align-items: center; height: clamp(34px, 2.7vw, 52px); padding: 0 clamp(12px, 1vw, 20px); border: 2px solid var(--soot); border-radius: 6px; color: var(--soot); font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; text-transform: uppercase; letter-spacing: 0.14em; font-size: clamp(10px, 0.94vw, 18px); white-space: nowrap; }"
+    },
+    {
+      "name": "Band headline and receipt line",
+      "kind": "custom",
+      "refersTo": "band-lime",
+      "description": "The copy of a band: one Archivo 900 headline at width 125 (four words at most) and the one sentence a band is allowed, set in mono like a receipt line. Drops 14px into place when the band enters; transform only.",
+      "html": "<section class=\"ds-band ds-band-lime\"><div class=\"ds-band-copy\"><h2 class=\"ds-headline\">It stays yours.</h2><p class=\"ds-receipt\">Your stocks land in your wallet. Never ours.</p></div></section>",
+      "css": ".ds-band { padding: clamp(64px, 7.4vw, 128px) var(--gutter); overflow: clip; } .ds-band-lime { background: var(--lime); color: var(--soot); } .ds-headline { margin: 0; font-family: var(--font-archivo), Archivo, system-ui, sans-serif; font-weight: 900; font-stretch: 125%; font-size: clamp(2.8rem, 7.5vw, 8.8rem); line-height: 0.92; letter-spacing: -0.028em; text-wrap: balance; } .ds-receipt { margin: clamp(14px, 1.5vw, 26px) 0 0; font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: clamp(13px, 1.6vw, 26px); line-height: 1.5; letter-spacing: 0.02em; text-wrap: balance; } .ds-band-copy { animation: ds-band-lay 620ms var(--ease-lay) backwards; } @keyframes ds-band-lay { from { transform: translateY(-14px); } } @media (prefers-reduced-motion: reduce) { .ds-band-copy { animation: none; } }"
+    },
+    {
+      "name": "Seal",
+      "kind": "custom",
+      "refersTo": "card-fragment",
+      "description": "A brickmaker's stamp drawn in code so it takes live values. Two borders, a main line in Archivo 900 (width 112) or, for longer stamps, Martian Mono 600 in a wider viewBox. Colour is currentColor: terracotta on a card, lime on a terracotta band. An feTurbulence + feDisplacementMap filter roughens the ink; its seed is derived from the stamp text (character codes summed, mod 97), so no two stamps share the same roughness. Always rendered; only the press is animated (scale and twist, no opacity). Decorative when the words are already on the page, otherwise role=img with a label.",
+      "html": "<div class=\"ds-seal-row\"><div class=\"ds-seal-a ds-stampable\"><svg class=\"ds-seal\" viewBox=\"0 0 300 120\" aria-hidden=\"true\"><defs><filter id=\"ds-ink-300\" x=\"-5%\" y=\"-10%\" width=\"110%\" height=\"120%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.9\" numOctaves=\"2\" seed=\"24\" result=\"grain\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"grain\" scale=\"2.4\"/></filter></defs><g filter=\"url(#ds-ink-300)\" fill=\"none\" stroke=\"currentColor\"><rect x=\"5\" y=\"5\" width=\"290\" height=\"110\" rx=\"16\" stroke-width=\"6\"/><rect x=\"17\" y=\"17\" width=\"266\" height=\"86\" rx=\"9\" stroke-width=\"2\"/><text x=\"150\" y=\"74\" class=\"ds-seal-main\" text-anchor=\"middle\" stroke=\"none\" fill=\"currentColor\">$25 / WK</text></g></svg></div><div class=\"ds-seal-field\"><div class=\"ds-seal-b ds-stampable\"><svg class=\"ds-seal\" viewBox=\"0 0 470 120\" role=\"img\" aria-label=\"TRIAL · 7 DAYS · CAP $5\"><defs><filter id=\"ds-ink-470\" x=\"-5%\" y=\"-10%\" width=\"110%\" height=\"120%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.9\" numOctaves=\"2\" seed=\"47\" result=\"grain\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"grain\" scale=\"2.4\"/></filter></defs><g filter=\"url(#ds-ink-470)\" fill=\"none\" stroke=\"currentColor\"><rect x=\"5\" y=\"5\" width=\"460\" height=\"110\" rx=\"16\" stroke-width=\"6\"/><rect x=\"17\" y=\"17\" width=\"436\" height=\"86\" rx=\"9\" stroke-width=\"2\"/><text x=\"235\" y=\"74\" class=\"ds-seal-mono\" text-anchor=\"middle\" stroke=\"none\" fill=\"currentColor\">TRIAL · 7 DAYS · CAP $5</text></g></svg></div></div></div>",
+      "css": ".ds-seal-row { display: flex; flex-wrap: wrap; align-items: center; gap: 32px; padding: 24px; } .ds-seal-a { width: clamp(150px, 19vw, 290px); color: var(--laterite); rotate: -8deg; } .ds-seal-field { padding: 36px 40px; background: var(--laterite); } .ds-seal-b { width: min(100%, 22rem); color: var(--lime); rotate: -6deg; } .ds-seal { display: block; width: 100%; height: auto; overflow: visible; } .ds-seal-main { font-family: var(--font-archivo), Archivo, system-ui, sans-serif; font-weight: 900; font-stretch: 112%; font-size: 37px; letter-spacing: 0; } .ds-seal-mono { font-family: var(--font-martian-mono), 'Martian Mono', monospace; font-weight: 600; font-size: 21px; letter-spacing: 0.08em; } .ds-stampable { animation: ds-stamp 420ms var(--ease-lay) backwards; } @keyframes ds-stamp { from { transform: scale(1.24) rotate(-7deg); } } @media (prefers-reduced-motion: reduce) { .ds-stampable { animation: none; } }"
+    },
+    {
+      "name": "Cap card (interface fragment)",
+      "kind": "card",
+      "refersTo": "card-fragment",
+      "description": "Product UI cut out and set on a band: chalk field, 2px soot border, 14px radius, all mono. The selector is a native radio group; the inputs are visually hidden and the labels are the buttons. Hover blush, selected terracotta, focus ring on the label. In the build, changing the value updates the figure, the band's receipt line and re-stamps the seal that overhangs the corner. Opens on $25 on purpose, to match the hero's example brick.",
+      "html": "<div class=\"ds-card-stage\"><div class=\"ds-card\"><span class=\"ds-card-label\">Your cap</span><span class=\"ds-card-figure\">$25 / week</span><fieldset class=\"ds-choice\"><legend class=\"ds-sr\">Weekly cap</legend><label class=\"ds-option\"><input type=\"radio\" name=\"ds-cap\" value=\"10\" class=\"ds-sr\">$10</label><label class=\"ds-option\"><input type=\"radio\" name=\"ds-cap\" value=\"25\" class=\"ds-sr\" checked>$25</label></fieldset><div class=\"ds-cap-seal ds-stampable\"><svg class=\"ds-seal\" viewBox=\"0 0 300 120\" aria-hidden=\"true\"><defs><filter id=\"ds-ink-300\" x=\"-5%\" y=\"-10%\" width=\"110%\" height=\"120%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.9\" numOctaves=\"2\" seed=\"24\" result=\"grain\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"grain\" scale=\"2.4\"/></filter></defs><g filter=\"url(#ds-ink-300)\" fill=\"none\" stroke=\"currentColor\"><rect x=\"5\" y=\"5\" width=\"290\" height=\"110\" rx=\"16\" stroke-width=\"6\"/><rect x=\"17\" y=\"17\" width=\"266\" height=\"86\" rx=\"9\" stroke-width=\"2\"/><text x=\"150\" y=\"74\" class=\"ds-seal-main\" text-anchor=\"middle\" stroke=\"none\" fill=\"currentColor\">$25 / WK</text></g></svg></div></div></div>",
+      "css": ".ds-card-stage { padding: 80px 40px 32px 24px; background: var(--lime); max-width: 640px; } .ds-card { position: relative; padding: clamp(20px, 2vw, 34px) clamp(22px, 2.2vw, 38px) clamp(22px, 2.2vw, 38px); background: var(--chalk); color: var(--soot); border: 2px solid var(--soot); border-radius: var(--radius-card); font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; } .ds-card-label { display: block; font-size: clamp(11px, 1.35vw, 22px); letter-spacing: 0.18em; text-transform: uppercase; } .ds-card-figure { display: block; margin-top: 0.35em; font-size: clamp(1.9rem, 4.9vw, 5.4rem); font-weight: 700; line-height: 1.1; } .ds-choice { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 1.2vw, 20px); margin: clamp(16px, 1.6vw, 26px) 0 0; padding: 0; border: 0; } .ds-option { display: flex; align-items: center; justify-content: center; height: clamp(46px, 5vw, 84px); border: 2px solid var(--soot); border-radius: 6px; background: var(--chalk); color: var(--soot); font-size: clamp(15px, 2vw, 32px); font-weight: 600; letter-spacing: 0.06em; cursor: pointer; transition: background-color var(--dur-lay) var(--ease-lay), color var(--dur-lay) var(--ease-lay), border-color var(--dur-lay) var(--ease-lay); } .ds-option:hover { background: var(--blush); } .ds-option:has(:checked) { background: var(--laterite); border-color: var(--laterite); color: var(--lime); } .ds-option:has(:focus-visible) { outline: 3px solid var(--laterite); outline-offset: 3px; } .ds-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; } .ds-cap-seal { position: absolute; right: clamp(-30px, -1.6vw, -10px); top: clamp(-74px, -4.6vw, -34px); width: clamp(150px, 19vw, 290px); color: var(--laterite); rotate: -8deg; pointer-events: none; } .ds-seal { display: block; width: 100%; height: auto; overflow: visible; } .ds-seal-main { font-family: var(--font-archivo), Archivo, system-ui, sans-serif; font-weight: 900; font-stretch: 112%; font-size: 37px; letter-spacing: 0; } .ds-seal-mono { font-family: var(--font-martian-mono), 'Martian Mono', monospace; font-weight: 600; font-size: 21px; letter-spacing: 0.08em; } .ds-stampable { animation: ds-stamp 420ms var(--ease-lay) backwards; } @keyframes ds-stamp { from { transform: scale(1.24) rotate(-7deg); } } @media (prefers-reduced-motion: reduce) { .ds-stampable { animation: none; } } @media (prefers-reduced-motion: reduce) { .ds-option { transition-duration: 0.01ms; } }"
+    },
+    {
+      "name": "Wallet card (interface fragment)",
+      "kind": "card",
+      "refersTo": "card-fragment",
+      "description": "A definition list on the same card: the SPYx balance as a large mono figure (in the build it counts from 0.4532 to 0.4944 when the band enters; screen readers get the final value) and, under a 2px sand divider, the empty Laterite vault in ash.",
+      "html": "<div class=\"ds-wallet-stage\"><dl class=\"ds-card ds-wallet\" aria-label=\"Example balances\"><div class=\"ds-wallet-row\"><dt>SPYx</dt><dd>0.4944</dd></div><div class=\"ds-vault-row\"><dt>Laterite vault</dt><dd>0.00</dd></div></dl></div>",
+      "css": ".ds-wallet-stage { padding: 24px; background: var(--lime); max-width: 640px; } .ds-wallet { margin: 0; padding: clamp(20px, 2vw, 34px) clamp(22px, 2.2vw, 38px) clamp(22px, 2.2vw, 38px); background: var(--chalk); color: var(--soot); border: 2px solid var(--soot); border-radius: var(--radius-card); font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; } .ds-wallet dd { margin: 0; } .ds-wallet-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1em; font-size: clamp(1.8rem, 4.5vw, 5rem); font-weight: 700; line-height: 1.15; } .ds-vault-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1em; margin-top: clamp(16px, 1.6vw, 28px); padding-top: clamp(16px, 1.6vw, 28px); border-top: 2px solid var(--sand); color: var(--ash); font-size: clamp(13px, 1.9vw, 30px); letter-spacing: 0.12em; text-transform: uppercase; }"
+    },
+    {
+      "name": "Payday strip",
+      "kind": "custom",
+      "refersTo": "band-terracotta",
+      "description": "One brick every payday, on a terracotta band. A 3px lime baseline with a tick per payday is painted under the bricks; mono dates hang below. Three states: dropped (laid bricks fall 46px into place, staggered 110ms), falling (today's brick, tied to scroll progress; the snippet holds it at 40% of its fall, and reduced motion holds it at translateY(-30%) rotate(9deg)), ahead (dashed lime outline). The raster is a placeholder.",
+      "html": "<div class=\"ds-strip-field\"><ol class=\"ds-strip\" aria-label=\"Example: one brick every payday\"><li class=\"ds-payday\"><img src=\"/body/brick-laid.png\" alt=\"A brick stamped LAID\" width=\"1090\" height=\"506\" class=\"ds-strip-brick ds-dropped\" draggable=\"false\"><span class=\"ds-date\">Sep 05</span></li><li class=\"ds-payday\"><img src=\"/body/brick-laid.png\" alt=\"A brick stamped LAID\" width=\"1090\" height=\"506\" class=\"ds-strip-brick ds-dropped\" draggable=\"false\"><span class=\"ds-date\">Sep 12</span></li><li class=\"ds-payday\"><img src=\"/body/brick-laid.png\" alt=\"A brick stamped LAID\" width=\"1090\" height=\"506\" class=\"ds-strip-brick ds-dropped\" draggable=\"false\"><span class=\"ds-date\">Sep 19</span></li><li class=\"ds-payday\"><img src=\"/body/brick-laid.png\" alt=\"Today's brick, landing\" width=\"1090\" height=\"506\" class=\"ds-strip-brick ds-falling\" draggable=\"false\"><span class=\"ds-date\">Sep 26</span></li><li class=\"ds-payday\"><span class=\"ds-ahead\" aria-hidden=\"true\"></span><span class=\"ds-date\">Oct 03</span></li></ol></div>",
+      "css": ".ds-strip-field { padding: clamp(64px, 9vw, 150px) var(--gutter) clamp(40px, 4.4vw, 76px); background: var(--laterite); color: var(--lime); overflow: clip; } .ds-strip { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 0; padding: 0 0 clamp(34px, 3vw, 52px); list-style: none; } .ds-strip::before { content: \"\"; position: absolute; left: 0; right: 0; bottom: calc(clamp(34px, 3vw, 52px) - 3px); height: 3px; background: var(--lime); } .ds-payday { position: relative; display: flex; flex-direction: column; align-items: center; } .ds-payday::after { content: \"\"; position: absolute; bottom: -12px; width: 3px; height: 12px; background: var(--lime); z-index: 1; } .ds-date { position: absolute; bottom: calc(-1 * clamp(34px, 3vw, 52px)); font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: clamp(10px, 1vw, 16px); letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap; } .ds-strip-brick { position: relative; z-index: 1; display: block; width: 92%; height: auto; user-select: none; } .ds-dropped { animation: ds-drop 640ms var(--ease-lay) backwards; } .ds-payday:nth-child(2) .ds-dropped { animation-delay: 110ms; } .ds-payday:nth-child(3) .ds-dropped { animation-delay: 220ms; } @keyframes ds-drop { from { transform: translateY(-46px); } } .ds-falling { --fall: 0.4; transform: translateY(calc((1 - var(--fall)) * -56%)) rotate(calc((1 - var(--fall)) * 14deg)); } .ds-ahead { position: relative; z-index: 1; width: 86%; aspect-ratio: 2.15 / 1; margin-bottom: 6px; border: 2px dashed var(--lime); border-radius: 6px; opacity: 0.85; } @media (prefers-reduced-motion: reduce) { .ds-dropped { animation: none; } .ds-falling { transform: translateY(-30%) rotate(9deg); } }"
+    },
+    {
+      "name": "The wall (running bond) and figure",
+      "kind": "custom",
+      "refersTo": "wall-brick",
+      "description": "52 bricks in running bond on soot: seven per course wide, five narrow (both rendered, CSS picks one), numbered from the bottom course up. Offset courses shift half a brick and carry a clipped half-brick. 1.5px slot padding (3px between neighbours), 2px radius, four turns so repeats do not read as a pattern; open slots in the top course are dashed. The mono figure is 25 x bricks laid, captioned 'Laid, not promised'. Server-rendered full; bricks lift away only after hydration and land as the band scrolls. The snippet shows the top four courses at a fixed brick width; the build uses (100vw - spine) / cols. The raster is a 640px placeholder used as a CSS background.",
+      "html": "<div class=\"ds-wall-band\"><p class=\"ds-figure\">$1,300.00<span class=\"ds-figure-note\">Laid, not promised</span></p><div class=\"ds-bond\" aria-hidden=\"true\"><div class=\"ds-course\" data-offset=\"true\"><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"1\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"1\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"0\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"3\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-gap\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-gap\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-gap\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-gap\"></span></div></div><div class=\"ds-course\" data-offset=\"false\"><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"2\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"0\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"1\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"3\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"0\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"2\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"1\"></span></div></div><div class=\"ds-course\" data-offset=\"true\"><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"0\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"0\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"3\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"1\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"2\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"0\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"1\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"3\"></span></div></div><div class=\"ds-course\" data-offset=\"false\"><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"1\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"2\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"0\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"0\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"3\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"1\"></span></div><div class=\"ds-slot\"><span class=\"ds-wall-brick\" data-turn=\"2\"></span></div></div></div></div>",
+      "css": ".ds-wall-band { padding: 40px 0 0; background: var(--soot); color: var(--lime); overflow: clip; } .ds-figure { margin: 0 0 clamp(26px, 3vw, 52px); padding: 0 var(--gutter); font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: clamp(2.4rem, 7.4vw, 8.4rem); font-weight: 700; letter-spacing: 0.04em; line-height: 1.1; } .ds-figure-note { display: block; margin-top: 0.7em; font-weight: 400; font-size: clamp(11px, 1.6vw, 25px); letter-spacing: 0.16em; text-transform: uppercase; } .ds-bond { --brick-w: 120px; display: flex; flex-direction: column; overflow: clip; } .ds-course { display: flex; flex: none; width: max-content; } .ds-course[data-offset=\"true\"] { margin-left: calc(var(--brick-w) / -2); } .ds-slot { flex: none; width: var(--brick-w); aspect-ratio: 2.45 / 1; padding: 1.5px; } .ds-wall-brick, .ds-wall-gap { display: block; width: 100%; height: 100%; border-radius: 2px; } .ds-wall-brick { background: url(\"/body/brick-face.png\") center / 100% 100% no-repeat; } .ds-wall-brick[data-turn=\"1\"] { scale: -1 1; } .ds-wall-brick[data-turn=\"2\"] { scale: 1 -1; filter: brightness(0.94); } .ds-wall-brick[data-turn=\"3\"] { scale: -1 -1; filter: brightness(1.05); } .ds-wall-gap { border: 2px dashed color-mix(in srgb, var(--lime) 70%, transparent); }"
+    },
+    {
+      "name": "The spine",
+      "kind": "custom",
+      "refersTo": "wall-brick",
+      "description": "52 brick ends in one column down the right edge of the bands (clamp(56px, 6.5vw, 100px) wide, on lime, aria-hidden, hidden at 720px and below). Unread bricks are 2px dashed outlines; a brick is laid (the face raster cropped to its middle, 3px radius, four turns) when the reading line at 74% of the viewport passes it. Server-rendered full. The snippet shows eight slots, five laid.",
+      "html": "<ol class=\"ds-spine\" aria-hidden=\"true\"><li class=\"ds-spine-slot\"><span class=\"ds-spine-brick\" data-laid=\"true\" data-turn=\"0\"></span></li><li class=\"ds-spine-slot\"><span class=\"ds-spine-brick\" data-laid=\"true\" data-turn=\"1\"></span></li><li class=\"ds-spine-slot\"><span class=\"ds-spine-brick\" data-laid=\"true\" data-turn=\"2\"></span></li><li class=\"ds-spine-slot\"><span class=\"ds-spine-brick\" data-laid=\"true\" data-turn=\"3\"></span></li><li class=\"ds-spine-slot\"><span class=\"ds-spine-brick\" data-laid=\"true\" data-turn=\"0\"></span></li><li class=\"ds-spine-slot\"><span class=\"ds-spine-brick\" data-laid=\"false\" data-turn=\"1\"></span></li><li class=\"ds-spine-slot\"><span class=\"ds-spine-brick\" data-laid=\"false\" data-turn=\"2\"></span></li><li class=\"ds-spine-slot\"><span class=\"ds-spine-brick\" data-laid=\"false\" data-turn=\"3\"></span></li></ol>",
+      "css": ".ds-spine { display: flex; flex-direction: column; width: clamp(56px, 6.5vw, 100px); height: 560px; margin: 0; padding: clamp(6px, 0.5vw, 10px) 0; list-style: none; background: var(--lime); } .ds-spine-slot { flex: 1 1 0; min-height: 0; display: flex; padding: clamp(2px, 0.22vw, 4px) 16%; } .ds-spine-brick { position: relative; flex: 1; border-radius: 3px; outline: 2px dashed color-mix(in srgb, var(--soot) 55%, transparent); outline-offset: -2px; } .ds-spine-brick::after { content: \"\"; position: absolute; inset: 0; border-radius: inherit; background: url(\"/body/brick-face.png\") center / 260% 100% no-repeat; transform: translateY(-10px); opacity: 0; transition: transform 420ms var(--ease-lay), opacity 140ms linear; } .ds-spine-brick[data-laid=\"true\"] { outline-color: transparent; } .ds-spine-brick[data-laid=\"true\"]::after { transform: none; opacity: 1; } .ds-spine-brick[data-turn=\"1\"]::after { background-position: 18% center; } .ds-spine-brick[data-turn=\"2\"]::after { background-position: 82% center; filter: brightness(0.94); } .ds-spine-brick[data-turn=\"3\"]::after { scale: -1 1; filter: brightness(1.05); } @media (prefers-reduced-motion: reduce) { .ds-spine-brick::after { transition: none; } }"
+    },
+    {
+      "name": "Can't-do list",
+      "kind": "custom",
+      "refersTo": "band-blush",
+      "description": "Four short lines on the blush band in Archivo 500 at width 102, each led by a drawn cross in soot: two strokes, width 3.4, square caps, 0.95em. Negation is drawn in ink: red is the brand, never a warning. Icons are drawn strokes, never glyphs.",
+      "html": "<div class=\"ds-cant-field\"><ul class=\"ds-cant\"><li><svg viewBox=\"0 0 20 20\" class=\"ds-cross\" aria-hidden=\"true\"><path d=\"M3 3l14 14M17 3L3 17\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.4\" stroke-linecap=\"square\"/></svg>Move more than your cap</li><li><svg viewBox=\"0 0 20 20\" class=\"ds-cross\" aria-hidden=\"true\"><path d=\"M3 3l14 14M17 3L3 17\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.4\" stroke-linecap=\"square\"/></svg>Send it anywhere but your wallet</li><li><svg viewBox=\"0 0 20 20\" class=\"ds-cross\" aria-hidden=\"true\"><path d=\"M3 3l14 14M17 3L3 17\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.4\" stroke-linecap=\"square\"/></svg>Hold your stocks</li><li><svg viewBox=\"0 0 20 20\" class=\"ds-cross\" aria-hidden=\"true\"><path d=\"M3 3l14 14M17 3L3 17\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.4\" stroke-linecap=\"square\"/></svg>Stop you from leaving</li></ul></div>",
+      "css": ".ds-cant-field { padding: 40px var(--gutter); background: var(--blush); color: var(--soot); } .ds-cant { margin: 0; padding: 0; list-style: none; display: grid; gap: clamp(12px, 1.3vw, 22px); font-family: var(--font-archivo), Archivo, system-ui, sans-serif; font-size: clamp(1.0625rem, 1.62vw, 1.85rem); font-weight: 500; font-stretch: 102%; } .ds-cant li { display: flex; align-items: center; gap: clamp(14px, 1.4vw, 24px); } .ds-cross { flex: none; width: 0.95em; height: 0.95em; color: var(--soot); }"
+    },
+    {
+      "name": "Built-on chip row",
+      "kind": "chip",
+      "refersTo": "chip-stack",
+      "description": "A slim lime band holding one row of outlined mono chips that grow to fill the width like a single course. Names only, no logos. Wraps and left-aligns on narrow screens.",
+      "html": "<div class=\"ds-stack-band\"><ul class=\"ds-stack\"><li class=\"ds-stack-chip\">Solana Subscriptions &amp; Allowances</li><li class=\"ds-stack-chip\">Pyth</li><li class=\"ds-stack-chip\">xStocks</li><li class=\"ds-stack-chip\">Jupiter</li><li class=\"ds-stack-chip\">Open source</li></ul></div>",
+      "css": ".ds-stack-band { padding: clamp(30px, 3.2vw, 54px) var(--gutter); background: var(--lime); color: var(--soot); } .ds-stack { display: flex; flex-wrap: wrap; gap: 10px clamp(10px, 1vw, 18px); margin: 0; padding: 0; list-style: none; } .ds-stack-chip { display: inline-flex; flex: 1 1 auto; align-items: center; justify-content: center; height: clamp(36px, 3.6vw, 62px); padding: 0 clamp(14px, 1.4vw, 26px); border: 2px solid var(--soot); border-radius: 6px; font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; text-transform: uppercase; letter-spacing: 0.14em; font-size: clamp(10px, 1.1vw, 18px); white-space: nowrap; }"
     },
     {
       "name": "Flow label row",
@@ -476,7 +620,7 @@
       "name": "Hero brick with leader lines",
       "kind": "custom",
       "refersTo": "button-primary",
-      "description": "The one photographic object (placeholder raster with alpha, to be replaced by a commissioned render). Drops and settles; three leader lines then draw to its corners and top edge. In the build it also drifts a few pixels with the mouse and replays on click; it is not in the tab order. Geometry is in em of the course size.",
+      "description": "The hero keeps a single brick (placeholder raster with alpha, to be replaced by a commissioned render). Drops and settles; three leader lines then draw to its corners and top edge. In the build it also drifts a few pixels with the mouse and replays on click; it is not in the tab order. Geometry is in em of the course size.",
       "html": "<div class=\"ds-stage\"><svg class=\"ds-leaders\" viewBox=\"0 0 241 36\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"0.7\" stroke-linecap=\"square\"><path class=\"ds-leader\" d=\"M22 0 L43 7 M43 7 l-3.73 -3.63 M43 7 l-5.16 0.67\"/><path class=\"ds-leader\" d=\"M122 0 L122 16 M122 16 l2.26 -4.68 M122 16 l-2.26 -4.68\"/><path class=\"ds-leader\" d=\"M229 3 L207 29 M207 29 l4.75 -2.11 M207 29 l1.30 -5.04\"/></g></svg><div class=\"ds-brick-hit\"><img class=\"ds-brick\" src=\"/hero/brick-25.png\" alt=\"A red laterite brick stamped with $25\" width=\"1536\" height=\"1024\" draggable=\"false\"></div></div>",
       "css": ".ds-stage { position: relative; font-size: clamp(72px, 14vw, 200px); width: 2.5em; height: 1.95em; color: var(--soot); } .ds-leaders { position: absolute; left: 0.04em; top: 0.225em; width: 2.41em; height: 0.36em; z-index: 2; overflow: visible; } .ds-leader { stroke-dasharray: 60; animation: ds-draw 380ms var(--ease-lay) both; } .ds-leader:nth-child(1) { animation-delay: 850ms; } .ds-leader:nth-child(2) { animation-delay: 1000ms; } .ds-leader:nth-child(3) { animation-delay: 1150ms; } .ds-brick-hit { position: absolute; left: 0; top: 0; width: 2.36em; cursor: pointer; border-radius: var(--radius-card); } .ds-brick { display: block; width: 100%; height: auto; user-select: none; animation: ds-settle 980ms var(--ease-lay) 320ms both; } @keyframes ds-settle { 0% { opacity: 0; transform: translateY(-0.95em) rotate(-10deg); } 12% { opacity: 1; } 62% { transform: translateY(0.012em) rotate(0.6deg); } 100% { transform: none; } } @keyframes ds-draw { from { stroke-dashoffset: 60; } } @media (prefers-reduced-motion: reduce) { .ds-brick, .ds-leader { animation: none; } }"
     },
@@ -492,9 +636,17 @@
       "name": "Next-section cue",
       "kind": "custom",
       "refersTo": "next-cue",
-      "description": "Bottom-right mono link naming the next section, with a two-stroke down arrow that moves 4px on hover.",
-      "html": "<a href=\"#how-it-works\" class=\"ds-next\">01 · The cap<svg viewBox=\"0 0 16 24\" aria-hidden=\"true\" class=\"ds-next-arrow\"><path d=\"M8 1v20M2 15l6 7 6-7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/></svg></a>",
+      "description": "Bottom-right mono link naming the next section (no section number), with a two-stroke down arrow that moves 4px on hover.",
+      "html": "<a href=\"#how-it-works\" class=\"ds-next\">The cap<svg viewBox=\"0 0 16 24\" aria-hidden=\"true\" class=\"ds-next-arrow\"><path d=\"M8 1v20M2 15l6 7 6-7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/></svg></a>",
       "css": ".ds-next { display: inline-flex; align-items: center; gap: 0.9em; padding: 10px 0; color: var(--soot); font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; text-transform: uppercase; letter-spacing: 0.14em; font-size: clamp(10px, 0.94vw, 18px); text-decoration: none; border-radius: var(--radius-brick); } .ds-next-arrow { width: 0.9em; height: 1.35em; transition: transform var(--dur-lay) var(--ease-lay); } .ds-next:hover .ds-next-arrow { transform: translateY(4px); } .ds-next:focus-visible { outline: 3px solid var(--laterite); outline-offset: 3px; }"
+    },
+    {
+      "name": "Footer",
+      "kind": "nav",
+      "refersTo": "footer-band",
+      "description": "One row on soot: lockup bottom-left; bottom-right, an optional row of mono links over one balanced legal line in lime receipt mono (devnet status and country availability). Links render only when they have a real URL; the build currently has none, so the list is not rendered (the snippet shows the legal line only). Stacks left-aligned at 720px and below.",
+      "html": "<footer class=\"ds-footer\"><div class=\"ds-foot-logo\"><svg class=\"ds-foot-symbol\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><g fill=\"#B8452E\"><rect x=\"0\" y=\"0\" width=\"60\" height=\"60\" rx=\"7\"/><rect x=\"0\" y=\"70\" width=\"60\" height=\"60\" rx=\"7\"/><rect x=\"0\" y=\"140\" width=\"130\" height=\"60\" rx=\"7\"/><rect x=\"140\" y=\"140\" width=\"60\" height=\"60\" rx=\"7\"/></g></svg><svg class=\"ds-foot-wordmark\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 454.3 73.7\"><path transform=\"translate(-6.00,72.50)\" d=\"M6.0 0.0V-72.5H28.400000000000002V0.0Z M60.199999999999996 1.2000000000000002Q55.099999999999994 1.2000000000000002 50.699999999999996 0.5000000000000001Q46.3 -0.2 43.05 -1.9500000000000002Q39.8 -3.7 38.0 -6.75Q36.199999999999996 -9.8 36.199999999999996 -14.600000000000001Q36.199999999999996 -20.900000000000002 39.55 -24.550000000000004Q42.9 -28.200000000000003 49.099999999999994 -29.950000000000003Q55.3 -31.700000000000003 63.85 -32.2Q72.4 -32.7 82.9 -32.7V-33.800000000000004Q82.9 -36.5 81.5 -38.150000000000006Q80.1 -39.800000000000004 77.55 -40.550000000000004Q75.0 -41.300000000000004 71.5 -41.300000000000004Q69.4 -41.300000000000004 66.8 -40.95Q64.19999999999999 -40.6 62.3 -39.650000000000006Q60.4 -38.7 60.4 -36.800000000000004V-36.4H37.599999999999994Q37.49999999999999 -36.800000000000004 37.49999999999999 -37.050000000000004Q37.49999999999999 -37.300000000000004 37.49999999999999 -37.7Q37.49999999999999 -42.400000000000006 41.449999999999996 -46.10000000000001Q45.4 -49.800000000000004 53.2 -51.900000000000006Q61.0 -54.0 72.4 -54.0Q82.9 -54.0 90.25 -52.25Q97.6 -50.5 101.45 -46.7Q105.30000000000001 -42.900000000000006 105.30000000000001 -36.5V-16.8Q105.30000000000001 -15.200000000000001 106.10000000000001 -14.05Q106.9 -12.9 108.5 -12.9H114.0V-0.8Q112.19999999999999 -0.1 108.75 0.55Q105.30000000000001 1.2000000000000002 101.5 1.2000000000000002Q96.1 1.2000000000000002 92.69999999999999 0.25000000000000006Q89.3 -0.7000000000000001 87.5 -2.3000000000000003Q85.69999999999999 -3.9000000000000004 84.9 -5.800000000000001H84.1Q81.19999999999999 -3.7 77.64999999999999 -2.1Q74.1 -0.5 69.8 0.3500000000000001Q65.5 1.2000000000000002 60.199999999999996 1.2000000000000002ZM66.9 -11.4Q68.4 -11.4 71.0 -11.75Q73.6 -12.100000000000001 76.35 -13.0Q79.1 -13.9 81.0 -15.400000000000002Q82.9 -16.900000000000002 82.9 -19.3V-22.6Q74.19999999999999 -22.6 68.75 -21.75Q63.3 -20.900000000000002 60.8 -19.400000000000002Q58.3 -17.900000000000002 58.3 -15.8Q58.3 -13.9 59.55 -12.95Q60.8 -12.0 62.8 -11.7Q64.8 -11.4 66.9 -11.4Z M149.20000000000002 1.2000000000000002Q142.0 1.2000000000000002 136.8 -0.19999999999999996Q131.60000000000002 -1.6 128.8 -5.25Q126.00000000000001 -8.9 126.00000000000001 -15.600000000000001V-38.7H115.50000000000001V-52.800000000000004H126.9L131.3 -68.8H148.4V-52.800000000000004H163.5V-38.7H148.4V-21.0Q148.4 -17.1 150.2 -15.0Q152.0 -12.9 157.20000000000002 -12.9H163.5V-0.7000000000000001Q162.10000000000002 -0.2 159.40000000000003 0.25Q156.70000000000002 0.7000000000000001 153.90000000000003 0.9500000000000002Q151.10000000000002 1.2000000000000002 149.20000000000002 1.2000000000000002Z M207.60000000000002 1.2000000000000002Q196.3 1.2000000000000002 187.75 -1.7000000000000002Q179.20000000000002 -4.6000000000000005 174.45000000000002 -10.750000000000002Q169.70000000000002 -16.900000000000002 169.70000000000002 -26.400000000000002Q169.70000000000002 -35.7 174.40000000000003 -41.85Q179.10000000000002 -48.0 187.40000000000003 -51.0Q195.70000000000002 -54.0 206.60000000000002 -54.0Q218.00000000000003 -54.0 226.3 -51.1Q234.60000000000002 -48.2 239.10000000000002 -42.1Q243.60000000000002 -36.0 243.60000000000002 -26.400000000000002V-22.6H193.10000000000002Q193.3 -18.900000000000002 195.0 -16.400000000000002Q196.70000000000002 -13.9 199.95000000000002 -12.7Q203.20000000000002 -11.5 207.8 -11.5Q210.8 -11.5 213.15000000000003 -12.100000000000001Q215.50000000000003 -12.700000000000001 217.10000000000002 -13.75Q218.70000000000002 -14.8 219.5 -16.1Q220.3 -17.400000000000002 220.3 -18.8H243.50000000000003Q243.50000000000003 -13.8 240.65000000000003 -10.05Q237.8 -6.300000000000001 232.85000000000002 -3.8000000000000003Q227.90000000000003 -1.3 221.40000000000003 -0.04999999999999993Q214.90000000000003 1.2000000000000002 207.60000000000002 1.2000000000000002ZM193.20000000000002 -32.800000000000004H219.60000000000002Q219.60000000000002 -34.5 218.8 -36.0Q218.00000000000003 -37.5 216.45000000000005 -38.7Q214.90000000000003 -39.900000000000006 212.65000000000003 -40.60000000000001Q210.40000000000003 -41.300000000000004 207.60000000000002 -41.300000000000004Q203.20000000000002 -41.300000000000004 200.20000000000002 -40.150000000000006Q197.20000000000002 -39.0 195.45000000000002 -37.05Q193.70000000000002 -35.1 193.20000000000002 -32.800000000000004Z M252.00000000000003 0.0V-52.800000000000004H270.20000000000005L271.70000000000005 -44.2H272.6Q274.5 -47.7 277.20000000000005 -49.900000000000006Q279.90000000000003 -52.1 283.0 -53.1Q286.1 -54.1 289.20000000000005 -54.1Q291.40000000000003 -54.1 293.25 -53.8Q295.1 -53.5 296.90000000000003 -52.800000000000004V-36.2H286.6Q283.5 -36.2 281.20000000000005 -35.25Q278.90000000000003 -34.300000000000004 277.40000000000003 -32.650000000000006Q275.90000000000003 -31.0 275.15000000000003 -28.75Q274.40000000000003 -26.5 274.40000000000003 -23.8V0.0Z M302.3 -59.0V-72.5H324.7V-59.0ZM302.3 0.0V-52.800000000000004H324.7V0.0Z M365.9 1.2000000000000002Q358.7 1.2000000000000002 353.5 -0.19999999999999996Q348.3 -1.6 345.5 -5.25Q342.7 -8.9 342.7 -15.600000000000001V-38.7H332.2V-52.800000000000004H343.6L348.0 -68.8H365.1V-52.800000000000004H380.2V-38.7H365.1V-21.0Q365.1 -17.1 366.9 -15.0Q368.7 -12.9 373.9 -12.9H380.2V-0.7000000000000001Q378.8 -0.2 376.1 0.25Q373.4 0.7000000000000001 370.6 0.9500000000000002Q367.8 1.2000000000000002 365.9 1.2000000000000002Z M424.3 1.2000000000000002Q413.0 1.2000000000000002 404.45000000000005 -1.7000000000000002Q395.90000000000003 -4.6000000000000005 391.15000000000003 -10.750000000000002Q386.40000000000003 -16.900000000000002 386.40000000000003 -26.400000000000002Q386.40000000000003 -35.7 391.1 -41.85Q395.8 -48.0 404.1 -51.0Q412.40000000000003 -54.0 423.3 -54.0Q434.70000000000005 -54.0 443.0 -51.1Q451.3 -48.2 455.8 -42.1Q460.3 -36.0 460.3 -26.400000000000002V-22.6H409.8Q410.0 -18.900000000000002 411.70000000000005 -16.400000000000002Q413.40000000000003 -13.9 416.65000000000003 -12.7Q419.90000000000003 -11.5 424.5 -11.5Q427.5 -11.5 429.85 -12.100000000000001Q432.20000000000005 -12.700000000000001 433.80000000000007 -13.75Q435.40000000000003 -14.8 436.20000000000005 -16.1Q437.0 -17.400000000000002 437.0 -18.8H460.20000000000005Q460.20000000000005 -13.8 457.35 -10.05Q454.5 -6.300000000000001 449.55 -3.8000000000000003Q444.6 -1.3 438.1 -0.04999999999999993Q431.6 1.2000000000000002 424.3 1.2000000000000002ZM409.90000000000003 -32.800000000000004H436.3Q436.3 -34.5 435.5 -36.0Q434.70000000000005 -37.5 433.15000000000003 -38.7Q431.6 -39.900000000000006 429.35 -40.60000000000001Q427.1 -41.300000000000004 424.3 -41.300000000000004Q419.90000000000003 -41.300000000000004 416.90000000000003 -40.150000000000006Q413.90000000000003 -39.0 412.15000000000003 -37.05Q410.40000000000003 -35.1 409.90000000000003 -32.800000000000004Z\" fill=\"#F4EEE2\"/></svg></div><div class=\"ds-foot-aside\"><p class=\"ds-foot-small\">Running on Solana devnet. Tokenized stocks are not available in every country.</p></div></footer>",
+      "css": ".ds-footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; padding: clamp(48px, 5.6vw, 100px) var(--gutter); background: var(--soot); color: var(--lime); } .ds-foot-logo { display: flex; align-items: flex-end; gap: clamp(12px, 1.2vw, 22px); } .ds-foot-symbol { width: auto; height: clamp(44px, 4.6vw, 84px); } .ds-foot-wordmark { width: auto; height: clamp(22px, 2.3vw, 42px); } .ds-foot-aside { display: flex; flex-direction: column; align-items: flex-end; gap: clamp(14px, 1.5vw, 26px); text-align: right; } .ds-foot-links { display: flex; gap: clamp(22px, 3.2vw, 60px); margin: 0; padding: 0; list-style: none; font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; text-transform: uppercase; letter-spacing: 0.14em; font-size: clamp(11px, 0.95vw, 16px); } .ds-foot-link { color: var(--lime); text-decoration: none; padding: 8px 0; } .ds-foot-link:hover { text-decoration: underline; } .ds-foot-link:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; border-radius: var(--radius-brick); } .ds-foot-small { margin: 0; font-family: var(--font-martian-mono), 'Martian Mono', ui-monospace, monospace; font-size: clamp(11px, 1.15vw, 18px); letter-spacing: 0.02em; line-height: 1.5; text-wrap: balance; } @media (max-width: 720px) { .ds-footer { flex-direction: column; align-items: flex-start; } .ds-foot-aside { align-items: flex-start; text-align: left; } }"
     },
     {
       "name": "Skip link and focus ring",
@@ -507,19 +659,25 @@
   ],
   "narrative": {
     "northStar": "The Letterpress Forme",
-    "overview": "Laterite is red earth cut into bricks that harden with time. The system treats the screen as a printer's forme: heavy uppercase type is locked up in courses like brick, the gaps between courses are mortar joints, and one real brick sits in the forme where a word would go. Everything else is annotation in a monospaced hand: amounts, labels, leader lines, outlined chips. The stance is anti-hype: slow, solid, in plain sight.\n\nOnly the nav and the hero are built. This document records the system those two establish so the rest of the page and the product app can be built from it. Tokens live in `app/globals.css`; the hero's geometry lives in `components/hero.module.css`. Where a rule below is pinned by `PRODUCT.md` but not yet exercised in code, it says so.\n\nThe field is flat and warm: lime ground, soot type, a soot nav band. Terracotta is scarce on purpose. There is one photographic object per view. There are no gradients, glows or drop shadows anywhere in the build.",
+    "overview": "Laterite is red earth cut into bricks that harden with time. The system treats the screen as a printer's forme: heavy type is locked up in courses like brick, the gaps between courses are mortar joints, and one real brick sits in the hero where a word would go. Everything else is annotation in a monospaced hand: amounts, dates, labels, receipt lines, outlined chips, stamped seals. The stance is anti-hype: slow, solid, in plain sight.\n\nThe page is one scroll: a soot nav band, the type-wall hero, seven full-bleed bands of flat colour with a 52-brick spine running down their right edge, and a one-row soot footer. Each band holds one idea and one large visual: an interface fragment, a strip of bricks, a wall. This record describes what ships. Tokens live in `app/globals.css`; hero geometry in `components/hero.module.css`; the bands in `components/story/story.module.css`.\n\nFields are flat and warm. There are no gradients, glows, blurs or drop shadows anywhere in the build. The only photographic material is the brick. The direction contract embedded in `app/layout.tsx` says the same: colours are whole fields or objects, the brick is the only photographic material, seals are drawn in code.",
     "keyCharacteristics": [
-      "Type is the structure. The headline is the wall; layout is measured in em of the course size.",
-      "Three field colors (lime, soot, terracotta) carry the whole first viewport.",
-      "Two voices: Archivo for words, Martian Mono for every amount, date, label and chip.",
-      "Everything derives from the brick: 2:1 units, 10px joints, small radii, running-bond offsets.",
-      "One motion grammar, \"lay a brick\": drop and settle, no bounce.",
-      "Depth comes from thickness, never from light: a solid kiln edge under the primary action, a baked contact shadow under the brick."
+      "Type is the structure. The hero headline is a wall measured in em of its course size; band headlines run at 7.5vw.",
+      "Four field colours (lime, terracotta, soot, blush) in full-bleed bands; no two adjacent bands share a field.",
+      "Two voices: Archivo for words, Martian Mono for every amount, date, label, chip, receipt line and card.",
+      "Everything derives from the brick: running bond, tight joints, small radii, brick-end spine.",
+      "One motion grammar, \"lay a brick\": drop and settle, no bounce. Scroll lays the bricks.",
+      "Finished by default: the server renders the full wall, the final figure and every seal; nothing is hidden on first paint.",
+      "Depth comes from thickness, never from light: a solid edge under the primary action, a contact shadow baked into the brick rasters."
     ],
     "rules": [
       {
-        "name": "The Three Places Rule",
-        "body": "Terracotta appears in exactly three kinds of place: the mark, the primary action, the brick (including Seals, which are the brick's stamp). It is never a heading color, a link color, a background wash or a chart series.",
+        "name": "The Object Or Field Rule",
+        "body": "Terracotta is either a whole object or a whole field, never words. As an object on a light field it is the mark, the primary action (and a selected option), the brick and its stamp. As a field it is a full-bleed band, at most two per page and never adjacent; on it everything is lime and the primary action inverts to cream with a soot edge. It is never a heading color, a link color, a partial wash or a chart series.",
+        "section": "colors"
+      },
+      {
+        "name": "The Negation In Ink Rule",
+        "body": "\"No\", \"can't\" and \"never\" are drawn in soot, like the can't-do crosses. Red is the brand, never a warning.",
         "section": "colors"
       },
       {
@@ -528,67 +686,110 @@
         "section": "colors"
       },
       {
-        "name": "The No Red Text On Soot Rule",
-        "body": "On the soot band, terracotta may be a shape (3.33:1), never words. Text on soot is lime.",
+        "name": "The Lime On Dark Rule",
+        "body": "On soot and on terracotta, all text is lime, including the footer's legal line. Terracotta on soot may be a shape (the symbol, 3.33:1), never words. Dark bands carry the `.on-dark` class so focus rings flip to lime.",
+        "section": "colors"
+      },
+      {
+        "name": "The Alternating Field Rule",
+        "body": "Band order is lime, terracotta, lime, soot, blush, lime, terracotta, then the soot footer. Lime is the rest between statements; no two neighbours share a field.",
         "section": "colors"
       },
       {
         "name": "The Justified Forme Rule",
-        "body": "A stack of display courses is justified by mixing widths, not by changing size or tracking. The first course sets the measure; later courses are set narrower or wider (110 to 125) to reach their mark. Each course also carries its own negative left margin (-0.042em to -0.078em) so its first stem sits on the gutter.",
+        "body": "The hero's display courses are justified by mixing widths, not by changing size or tracking. The first course sets the measure; later courses are set narrower or wider (110 to 125) to reach their mark. Each course carries its own negative left margin (-0.042em to -0.078em) so its first stem sits on the gutter.",
         "section": "typography"
       },
       {
         "name": "The Mortar Rule",
-        "body": "Course pitch is 0.886em. With Archivo's 0.686em cap height that leaves a 0.2em joint between courses. The joint is part of the design: annotation (the flow label row) is set inside it, and nothing else may close it.",
+        "body": "Hero course pitch is 0.886em. With Archivo's 0.686em cap height that leaves a 0.2em joint between courses. The joint is part of the design: annotation (the flow label row) is set inside it, and nothing else may close it.",
+        "section": "typography"
+      },
+      {
+        "name": "The Receipt Line Rule",
+        "body": "Support copy under a band headline is one sentence, twelve words at most, set in mono sentence case like a line on a receipt. Bands never carry Archivo paragraphs.",
         "section": "typography"
       },
       {
         "name": "The Ticker Rule",
-        "body": "Mono labels are uppercase except tickers, which keep their own case (`SPYx`, via `text-transform: none`).",
+        "body": "Mono labels are uppercase except tickers, which keep their own case (`SPYx`, via `text-transform: none` in the hero flow row).",
         "section": "typography"
       },
       {
+        "name": "The One Left Edge Rule",
+        "body": "Nav, hero type, bands and footer all take their horizontal inset from `--gutter` (the bands' `--pad-x` is `var(--gutter)`), so the logo, the hero's first stem, every band headline and the footer lockup share one left edge: 20px on phones, 41px at 1440, 55px at 1920 and up. Never give a section its own inset.",
+        "section": "layout"
+      },
+      {
         "name": "The First Viewport Rule",
-        "body": "The primary action is inside the first viewport, in every layout. In the tall and wide layouts the course size yields to viewport height so the wall and the base always fit. In the narrow layout the course size is width-only, so short phones get their own layout: the brick gives up size and the action moves ahead of the sentence. When space runs out, the sentence yields; the action never does.",
+        "body": "The primary action is inside the first viewport, in every hero layout. In the tall and wide layouts the course size yields to viewport height. On short phones the brick gives up size and the action moves ahead of the sentence. When space runs out, the sentence yields; the action never does.",
+        "section": "layout"
+      },
+      {
+        "name": "The One Idea Rule",
+        "body": "A band holds one headline, at most one receipt line, and one large visual. Nothing else: no kicker, no section number, no second paragraph, no card grid.",
         "section": "layout"
       },
       {
         "name": "The Thickness Rule",
-        "body": "A thing may have a bottom edge if it is a brick you can press. Only the primary action qualifies. The nav Launch button is flat and moves 2px on press. Nothing floats.",
+        "body": "A thing may have a bottom edge if it is a brick you can press. Only the primary action qualifies, in either colourway. The nav Launch button is flat and moves 2px on press. Cards are flat. Nothing floats.",
         "section": "elevation"
       },
       {
-        "name": "The Visible By Default Rule",
-        "body": "Every element's resting CSS is its final, visible state. Keyframes animate FROM hidden with `animation-fill-mode: both`; nothing depends on JavaScript or an observer to become visible.",
+        "name": "The Dashed Means Not Yet Rule",
+        "body": "A 2px dashed outline marks a brick that has not been laid: the payday still ahead (lime on terracotta), the open slots in the wall's top course (lime at 70%), the unread bricks of the spine (soot at 55%). Solid is laid. Dashes are never decoration.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Finished By Default Rule",
+        "body": "The server renders the finished page, in state and in position: the wall full, the figure at `$1,300.00`, the spine full, every seal stamped, the wallet at its final balance, band copy and payday bricks settled (`data-in=\"true\"`). Things are lifted away only after hydration, when the script asks, and then laid again as the visitor reaches them. In the hero, resting CSS is the visible state and keyframes animate FROM hidden with `animation-fill-mode: both`. Nothing depends on JavaScript or an observer to become visible.",
+        "section": "components"
+      },
+      {
+        "name": "The Transform Only Rule",
+        "body": "Below the hero, entrances move; they never fade. The band entrance, the payday drop and the stamp animate `transform` alone, so content is readable before, during and without the animation. Opacity is used only for bricks the script has already lifted out of a finished wall or spine (and, in the hero, for the first 12% of the brick's own settle).",
+        "section": "components"
+      },
+      {
+        "name": "The Still Alternative Rule",
+        "body": "Every motion has a still alternative, including hover and press. Under `prefers-reduced-motion: reduce`: hero animations and pointer drift are removed; band entrances, payday drops and stamps are off; the wall and spine render full and the figure final; the wallet shows its final value; the falling brick holds its tilted pose; and a global rule sets every transition to 0.01ms with `scroll-behavior: auto`, so hover and press change instantly.",
         "section": "components"
       }
     ],
     "dos": [
-      "**Do** keep terracotta to the mark, the primary action and the brick. Hover is ember; the edge is kiln.",
-      "**Do** set every amount, date, address, program ID, label and chip in Martian Mono: uppercase, tracking 0.14em, tabular figures. Keep ticker case (`SPYx`).",
-      "**Do** measure anything attached to display type in em of the course size, and justify stacked courses by mixing Archivo widths (110 to 125) at weight 900, pitch 0.886em, tracking -0.015em.",
-      "**Do** keep the primary action inside the first viewport, one per view, with the kiln edge that compresses on press.",
-      "**Do** state the cap wherever the mechanism is shown (`$25 cap`, `You set the cap`), and say what Laterite cannot do before what it does.",
-      "**Do** frame every illustrative amount as an example.",
-      "**Do** write within the word budget: hero 20 words (headline plus sentence currently use 19), section headline 4, section support 12, whole page 130, legal footer excluded.",
-      "**Do** make the resting state the visible state, animate from hidden, and ship a settled static alternative under `prefers-reduced-motion`.",
+      "**Do** treat terracotta as an object or a whole field: the mark, the primary action, the brick and its stamp, or a full-bleed band. Hover is ember; the edge is kiln.",
+      "**Do** alternate band fields (lime, terracotta, lime, soot, blush, lime, terracotta) and set everything on soot or terracotta in lime.",
+      "**Do** give each band one headline (four words, Archivo 900 at width 125, 7.5vw), at most one mono receipt line (twelve words), and one large visual.",
+      "**Do** set every amount, date, address, label, chip, card and receipt line in Martian Mono with tabular figures. Labels are uppercase and tracked 0.14em or wider; keep ticker case (`SPYx`).",
+      "**Do** measure anything attached to the hero type in em of the course size, and justify its courses by mixing Archivo widths (110 to 125) at weight 900, pitch 0.886em.",
+      "**Do** show product UI as a flat fragment card: chalk, 2px soot border, 14px radius, mono, with native form controls underneath.",
+      "**Do** draw seals with the Seal component, feed them live values, and mark them `decorative` when the words are already on the page.",
+      "**Do** build repeated units as bricks: running bond, numbered bottom-up, 2 to 3px radius, 3px between neighbours, dashed when not yet laid.",
+      "**Do** render the finished state on the server, position included, and lift things away only after hydration. Drive scroll pieces with `useScrollProgress` and `slice`, entrances with `useInView` and `transform`.",
+      "**Do** ship a still alternative for every motion, hover and press included.",
+      "**Do** keep the primary action inside the first viewport, with an edge that compresses on press; on terracotta it is cream with a soot edge.",
+      "**Do** state the cap wherever the mechanism is shown, frame every illustrative amount as an example, and caption any total as laid, not promised.",
+      "**Do** render a link only when it has a real destination.",
+      "**Do** draw negation in soot: crosses, \"can't\", \"never\". Red is the brand, never a warning.",
+      "**Do** inset every section by `--gutter` so nav, hero, bands and footer share one left edge.",
       "**Do** pair every semantic color with a sign, icon or word. Loss is slate with a minus sign; danger is cold crimson with an icon; gain is moss.",
       "**Do** use the vocabulary: Brick (one purchase), Course (one period), Cap (permission limit), First course (trial week), Laid (executed), The wall (history).",
-      "**Do** request produced imagery (render, photography, motion) with exact specs when a section needs an object."
+      "**Do** replace the three placeholder rasters with commissioned renders at the same framing, and request any new produced imagery with exact specs."
     ],
     "donts": [
+      "**Don't** use any photographic material other than the brick: no people, scenes, devices, coins or other objects. The hero keeps a single brick; below it the brick repeats only as masonry (strip, wall, spine).",
+      "**Don't** set terracotta as text, as a link color, or as a partial wash. Never terracotta words on soot (3.33:1), blush (3.87:1) or sand (3.94:1).",
       "**Don't** use red for loss, error or decline. Red is the brand.",
-      "**Don't** set terracotta text on soot (3.33:1) or on sand (3.94:1).",
       "**Don't** use purple, neon lime, mint or bank blue. Lime here means the cream mortar color only.",
-      "**Don't** use gradients, glow, blur, drop shadows, or a dark hero with a gradient. Flat fields only.",
-      "**Don't** show stock photos of people, coins, candlestick charts, or a line chart of the index going up.",
-      "**Don't** lay out a grid of identical cards. Repeated units take brick proportions and running-bond offsets.",
-      "**Don't** promise or imply returns: no yield figures, no projections, no urgency.",
-      "**Don't** invent traction: no customer counts, logos, press, testimonials or usage numbers. None exist.",
+      "**Don't** use gradients, glow, blur, drop shadows, or a CSS shadow on a brick. Flat fields only; depth is a solid bottom edge.",
+      "**Don't** show candlestick charts or a line chart of the index going up, and don't present a figure that could be read as a return.",
+      "**Don't** lay out a grid of identical cards, put a device frame around a fragment, or add kickers, eyebrows or section numbers to bands.",
+      "**Don't** fade content in on scroll, hide anything until an observer fires, or let hydration shift the layout (render both variants and let CSS pick, as the wall does with its two bonds).",
       "**Don't** bounce, spring or overshoot upward. Things drop and settle.",
-      "**Don't** let a display course wrap, close a mortar joint, or fake a weight or width (`font-synthesis: none`).",
-      "**Don't** add a second photographic object to a view, or a CSS shadow to the brick.",
-      "**Don't** put the hero brick, or any replay flourish, in the tab order.",
+      "**Don't** let a hero course wrap, close a mortar joint, or fake a weight or width (`font-synthesis: none`).",
+      "**Don't** put the hero brick, the wall, the spine or any replay flourish in the tab order or the accessibility tree.",
+      "**Don't** use icon fonts or glyph icons; arrows and crosses are drawn strokes.",
+      "**Don't** render placeholder links, invent traction (counts, logos, press, testimonials), or promise returns, yield or urgency.",
       "**Don't** capitalize the wordmark or recolor the marks outside terracotta, cream and ink."
     ]
   }

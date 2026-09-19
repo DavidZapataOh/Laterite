@@ -31,11 +31,11 @@ export const viewport: Viewport = {
 // Direction contract. Kept in the emitted markup so the build can be audited
 // against the decision that produced it.
 const DIRECTION_CONTRACT = `<!--
-THESIS: The headline is the wall. The words are laid like courses of brick and one real brick settles into the gap, carrying the whole mechanism. Refuses the category default of headline-left, phone-mockup-right.
-OWN-WORLD: Lime ground #F4EEE2, soot #1E1612 type, terracotta #B8452E reserved for the brick, the primary action and the mark. Archivo at width 110, weight 900, uppercase, stacked with mortar-thin gaps. Martian Mono uppercase labels with leader arrows. Small radii, flat fields, one photographic object.
-STORY: Visitor reads "get paid, lay a brick", sees $1,000 become a $25 brick of SPYx, believes the cap is the limit, and opens the app.
-FIRST VIEWPORT: Soot nav band. Three full-width courses of type from the left margin: GET PAID. / LAY A + brick in the gap / BRICK. Mono labels and arrows annotate the brick. Bottom-left: one sentence, the terracotta button, three outlined chips. Bottom-right: next-section cue.
-FORM: Letterpress forme. Candidate 6 of 7. Seed 9d8d3cbc.
+THESIS: The page lays a wall. The hero's headline is set like courses of brick with one real brick settling into the gap; below it, flat bands of colour each hold one idea and one large visual, while a spine of 52 brick ends fills as the visitor reads. Refuses the category default of headline-left, phone-mockup-right, and of feature-card grids.
+OWN-WORLD: Lime #F4EEE2, soot #1E1612, terracotta #B8452E, blush #F2D6C6, used as whole fields or as objects, never as gradients. Archivo on its width axis, weight 900, for display; Martian Mono for every amount, date and label. The brick is the only photographic material. Seals are drawn in code. Small radii, hard edges, no shadows except a control's solid bottom edge.
+STORY: Get paid, lay a brick. You set the cap. It runs itself. It stays yours. One year, 52 bricks. What it cannot do. What it is built on. Hardens with time. Open the app.
+FIRST VIEWPORT: Soot nav band. Three full-width courses of type: GET PAID. / LAY A + brick in the gap / BRICK. Mono labels and arrows annotate the brick. Below: one sentence, the terracotta button, three outlined chips, and a cue to the first band.
+FORM: Hero, letterpress forme, candidate 6 of 7, seed 9d8d3cbc. Body, bands of colour, candidate 6 of 7, seed 6584684c.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
 -->`;
 

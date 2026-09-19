@@ -2,32 +2,33 @@
 version: 1
 slug: "app-page-tsx"
 primary_target: "app/page.tsx"
-related_targets: ["components/hero.tsx"]
+related_targets: ["components/hero.tsx","components/story/story.tsx"]
 ---
 
-# Surface brief: landing page, hero
+# Surface brief: landing page
 
-**Scope and mode:** `/` first viewport. Persuade.
+**Scope and mode:** `/`, whole page. Persuade.
 
-**Audience and job:** people paid in digital dollars, and hackathon judges. In seconds they must see that one payday becomes one capped brick of S&P 500, and open the app.
+**Audience and job:** people paid in digital dollars, and hackathon judges. In seconds they must see that one payday becomes one capped brick of S&P 500, believe the cap is the limit, and open the app.
 
-**Chosen direction:** "The headline is the wall" (letterpress forme). Approved comp: `.impeccable/mocks/decision/type-wall.png` (approved 2026-09-19, seed 9d8d3cbc).
+**Chosen directions**
+- Hero: "The headline is the wall" (letterpress forme). Approved comp `.impeccable/mocks/decision/type-wall.png`, seed 9d8d3cbc, 2026-09-19.
+- Body: "Bands of colour". Approved comp `.impeccable/mocks/decision-body/bands.png`, seed 6584684c, 2026-09-19.
 
-**Memorable moment:** a real brick stamped $25 drops and settles into the gap in the second course of type; mono labels and leader arrows then draw in: +$1,000 USDC, $25 cap, 0.0412 SPYx.
+**Story, top to bottom:** Get paid, lay a brick · You set the cap · It runs itself · It stays yours · One year, 52 bricks · What Laterite can't do · Built on · Hardens with time · footer.
 
-**Design system read from the comp:** soot nav band; lime ground; three uppercase courses of Archivo (width 110, weight 900) at a 0.886em pitch, leaving 0.2em joints; terracotta only on the brick, the mark and the primary action; 2px soot outlined mono chips, 6px radius; button 8px radius with an 8px kiln bottom edge; no shadows except the brick's own baked contact shadow.
+**Memorable moments:** the hero brick settling into the gap in the type; the wall of 52 laying itself bottom-up with the scroll while the figure counts what was laid; the spine of 52 brick ends filling as the visitor reads.
 
 **Inventory and medium**
 
 | Ingredient | Medium |
 |---|---|
-| Nav, logo | HTML + brand SVG |
-| Type wall | HTML text, em-locked CSS |
-| Brick stamped $25 | Raster with alpha (`public/hero/brick-25.png`), placeholder generated; final to be commissioned as 3D render / alpha video |
-| Flow labels, leader arrows | HTML list + inline SVG |
-| Sentence, CTA, chips, next cue | HTML/CSS |
-| Settle, reveal, draw, pointer drift, lay-again | CSS keyframes + small client component |
+| Type wall, bands, cards, chips, footer | HTML/CSS |
+| Seals | SVG drawn in code, live values |
+| Hero brick, LAID brick, brick face | Rasters with alpha in `public/hero` and `public/body`; placeholders, finals to be commissioned |
+| Wall, spine | HTML bricks tiled from the face raster, scroll-driven |
+| Motion | CSS keyframes and transitions driven by `useInView`, `useScrollProgress`, `useHydrated` |
 
-**Responsive:** tall and 16:10 viewports stack sentence over actions; wide-and-short viewports put sentence, action and chips on one row so the wall keeps the width; under 720px the wall becomes four courses and the brick lands under it.
+**Reviews:** hero and body each passed an independent finish review (verdict ship on the scored fixes).
 
-**Unresolved:** final brick asset; whether the cap on the brick becomes switchable ($10 / $25); sections below the hero.
+**Unresolved:** final rasters and alpha video; real URLs for Docs, GitHub and X; final app URL; Spanish locale.

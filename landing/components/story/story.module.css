@@ -1,0 +1,593 @@
+/*
+ * The page below the hero: full-bleed bands of flat colour, one idea and one
+ * large visual per band, with the spine wall running down the right edge.
+ */
+
+.story {
+  --spine-w: clamp(56px, 6.5vw, 100px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--spine-w);
+}
+
+.bands {
+  min-width: 0;
+}
+
+.band {
+  /* one left edge for the whole page: nav, hero type, bands and footer */
+  --pad-x: var(--gutter);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 96px);
+  padding: clamp(64px, 7.4vw, 128px) var(--pad-x);
+  overflow: clip;
+}
+
+.lime {
+  background: var(--lime);
+  color: var(--soot);
+}
+.terracotta {
+  background: var(--laterite);
+  color: var(--lime);
+}
+.soot {
+  background: var(--soot);
+  color: var(--lime);
+}
+.blush {
+  background: var(--blush);
+  color: var(--soot);
+}
+
+.headline {
+  margin: 0;
+  font-weight: 900;
+  font-stretch: 125%;
+  font-size: clamp(2.8rem, 7.5vw, 8.8rem);
+  line-height: 0.92;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+
+/* the one sentence a band is allowed: set like a receipt line */
+.line {
+  margin: clamp(14px, 1.5vw, 26px) 0 0;
+  font-family: var(--font-martian-mono), ui-monospace, monospace;
+  font-size: clamp(13px, 1.6vw, 26px);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  text-wrap: balance;
+}
+
+/* the cap sentence sets on one line, as a receipt line would */
+.lineTight {
+  font-size: clamp(13px, 1.4vw, 23px);
+  white-space: nowrap;
+}
+
+.copy,
+.visual {
+  min-width: 0;
+}
+
+/* drop and settle: the only entrance on the page */
+.lays {
+  transition: transform 620ms var(--ease-lay);
+  transform: translateY(-14px);
+}
+.lays[data-in="true"] {
+  transform: none;
+}
+
+/* ---- interface fragments ------------------------------------------------ */
+
+.card {
+  position: relative;
+  width: 100%;
+  margin-left: auto;
+  padding: clamp(20px, 2vw, 34px) clamp(22px, 2.2vw, 38px) clamp(22px, 2.2vw, 38px);
+  background: var(--chalk);
+  color: var(--soot);
+  border: 2px solid var(--soot);
+  border-radius: var(--radius-card);
+  font-family: var(--font-martian-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.cardLabel {
+  display: block;
+  font-size: clamp(11px, 1.35vw, 22px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.cardFigure {
+  display: block;
+  margin-top: 0.35em;
+  font-size: clamp(1.9rem, 4.9vw, 5.4rem);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+}
+
+.choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(10px, 1.2vw, 20px);
+  margin: clamp(16px, 1.6vw, 26px) 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(46px, 5vw, 84px);
+  border: 2px solid var(--soot);
+  border-radius: 6px;
+  background: var(--chalk);
+  color: var(--soot);
+  font: inherit;
+  font-size: clamp(15px, 2vw, 32px);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-lay) var(--ease-lay),
+    color var(--dur-lay) var(--ease-lay),
+    border-color var(--dur-lay) var(--ease-lay);
+}
+.option:hover {
+  background: var(--blush);
+}
+.option:has(:checked) {
+  background: var(--laterite);
+  border-color: var(--laterite);
+  color: var(--lime);
+}
+.option:has(:focus-visible) {
+  outline: 3px solid var(--laterite);
+  outline-offset: 3px;
+}
+
+.capSeal {
+  position: absolute;
+  right: clamp(-30px, -1.6vw, -10px);
+  top: clamp(-74px, -4.6vw, -34px);
+  width: clamp(150px, 19vw, 290px);
+  color: var(--laterite);
+  rotate: -8deg;
+  pointer-events: none;
+}
+
+/* a stamp comes down hard and stays put; it is always on the page and only
+   the press is animated */
+.stampable[data-in="true"] {
+  animation: stamp 420ms var(--ease-lay) backwards;
+}
+
+.walletRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+  font-size: clamp(1.8rem, 4.5vw, 5rem);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+
+.vaultRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+  margin-top: clamp(16px, 1.6vw, 28px);
+  padding-top: clamp(16px, 1.6vw, 28px);
+  border-top: 2px solid var(--sand);
+  color: var(--ash);
+  font-size: clamp(13px, 1.9vw, 30px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ---- it runs itself: the payday strip ----------------------------------- */
+
+.stripBand {
+  grid-template-columns: minmax(0, 1fr);
+  /* room for today's brick to fall without touching the copy */
+  gap: clamp(64px, 9vw, 150px);
+  padding-bottom: clamp(40px, 4.4vw, 76px);
+}
+
+.stripBand .copy {
+  text-align: right;
+}
+
+.strip {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0 0 clamp(34px, 3vw, 52px);
+  list-style: none;
+}
+
+/* the baseline the bricks stand on: painted first, so bricks sit over it */
+.strip::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(clamp(34px, 3vw, 52px) - 3px);
+  height: 3px;
+  background: var(--lime);
+}
+
+.payday {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.payday::after {
+  content: "";
+  position: absolute;
+  bottom: -12px;
+  width: 3px;
+  height: 12px;
+  background: var(--lime);
+  z-index: 1;
+}
+
+.date {
+  position: absolute;
+  bottom: calc(-1 * clamp(34px, 3vw, 52px));
+  font-family: var(--font-martian-mono), ui-monospace, monospace;
+  font-size: clamp(10px, 1vw, 16px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.stripBrick {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 92%;
+  height: auto;
+  user-select: none;
+}
+
+.dropped {
+  transform: translateY(-46px);
+  transition: transform 640ms var(--ease-lay);
+}
+.strip[data-in="true"] .dropped {
+  transform: none;
+}
+
+/* today's brick falls as the band scrolls by */
+.falling {
+  transform: translateY(calc((1 - var(--fall, 0)) * -56%)) rotate(calc((1 - var(--fall, 0)) * 14deg));
+  will-change: transform;
+}
+
+.ahead {
+  position: relative;
+  z-index: 1;
+  width: 86%;
+  aspect-ratio: 2.15 / 1;
+  margin-bottom: 6px;
+  border: 2px dashed var(--lime);
+  border-radius: 6px;
+  opacity: 0.85;
+}
+
+/* ---- one year, 52 bricks ------------------------------------------------ */
+
+.wallBand {
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(26px, 3vw, 52px);
+  padding-bottom: 0;
+}
+
+.figure {
+  display: block;
+  margin-top: 0.3em;
+  font-family: var(--font-martian-mono), ui-monospace, monospace;
+  font-size: clamp(2.4rem, 7.4vw, 8.4rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.figureNote {
+  display: block;
+  margin-top: 0.7em;
+  font-size: clamp(11px, 1.6vw, 25px);
+  letter-spacing: 0.16em;
+}
+
+.wall {
+  --cols: 7;
+  --brick-w: calc((100vw - var(--spine-w)) / var(--cols));
+  display: flex;
+  flex-direction: column;
+  margin: 0 calc(-1 * var(--pad-x));
+  overflow: clip;
+}
+
+.course {
+  display: flex;
+  flex: none;
+  width: max-content;
+}
+.course[data-offset="true"] {
+  margin-left: calc(var(--brick-w) / -2);
+}
+
+.slot {
+  position: relative;
+  flex: none;
+  width: var(--brick-w);
+  aspect-ratio: 2.45 / 1;
+  padding: 1.5px;
+}
+
+.wallBrick,
+.wallGap {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+}
+
+.wallBrick {
+  background: url("/body/brick-face.png") center / 100% 100% no-repeat;
+  transition:
+    transform 520ms var(--ease-lay),
+    opacity 160ms linear;
+}
+/* laid is the default; a brick is only lifted away once the script asks */
+.wallBrick[data-laid="false"] {
+  opacity: 0;
+  transform: translateY(-34px);
+}
+.wallBrick[data-turn="1"] {
+  scale: -1 1;
+}
+.wallBrick[data-turn="2"] {
+  scale: 1 -1;
+  filter: brightness(0.94);
+}
+.wallBrick[data-turn="3"] {
+  scale: -1 -1;
+  filter: brightness(1.05);
+}
+
+.wallGap {
+  border: 2px dashed color-mix(in srgb, var(--lime) 70%, transparent);
+}
+
+/* both bonds are in the document; the viewport picks one */
+.wallNarrow {
+  display: none;
+}
+
+/* ---- what Laterite can't do --------------------------------------------- */
+
+.cantBand {
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: clamp(24px, 3vw, 56px);
+}
+
+.cantBand .headline {
+  font-size: clamp(2.6rem, 5.4vw, 6.4rem);
+}
+
+.cant {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: clamp(12px, 1.3vw, 22px);
+  font-size: clamp(1.0625rem, 1.62vw, 1.85rem);
+  font-weight: 500;
+  font-stretch: 102%;
+}
+
+.cant li {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 1.4vw, 24px);
+}
+
+.cross {
+  flex: none;
+  width: 0.95em;
+  height: 0.95em;
+  /* negation is drawn in ink: red is the brand, never a warning */
+  color: var(--soot);
+}
+
+/* ---- built on ------------------------------------------------------------ */
+
+.builtOn {
+  grid-template-columns: minmax(0, 1fr);
+  padding-top: clamp(30px, 3.2vw, 54px);
+  padding-bottom: clamp(30px, 3.2vw, 54px);
+}
+
+.stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px clamp(10px, 1vw, 18px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stackChip {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  height: clamp(36px, 3.6vw, 62px);
+  padding: 0 clamp(14px, 1.4vw, 26px);
+  border: 2px solid var(--soot);
+  border-radius: 6px;
+  font-size: clamp(10px, 1.1vw, 18px);
+  white-space: nowrap;
+}
+
+/* ---- close ---------------------------------------------------------------- */
+
+.closeBand {
+  grid-template-columns: minmax(0, 1.32fr) minmax(0, 1fr);
+  gap: clamp(20px, 2.4vw, 44px);
+  padding-top: clamp(72px, 8vw, 140px);
+  padding-bottom: clamp(72px, 8vw, 140px);
+}
+
+.closeHeadline {
+  font-size: clamp(3rem, 7.2vw, 8.6rem);
+}
+
+.closeCta {
+  --edge: clamp(5px, 0.42vw, 8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(56px, 6vw, 96px);
+  margin-top: clamp(24px, 3vw, 52px);
+  margin-bottom: var(--edge);
+  padding: 0 clamp(30px, 5vw, 92px);
+  border-radius: 8px;
+  background: var(--lime);
+  color: var(--soot);
+  font-size: clamp(1.125rem, 2.6vw, 2.6rem);
+  font-weight: 700;
+  font-stretch: 105%;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 var(--edge) 0 var(--soot);
+  transition:
+    transform var(--dur-lay) var(--ease-lay),
+    box-shadow var(--dur-lay) var(--ease-lay),
+    background-color var(--dur-lay) var(--ease-lay);
+}
+.closeCta:hover {
+  background: var(--chalk);
+  transform: translateY(calc(var(--edge) * 0.35));
+  box-shadow: 0 calc(var(--edge) * 0.65) 0 var(--soot);
+}
+.closeCta:active {
+  transform: translateY(var(--edge));
+  box-shadow: 0 0 0 var(--soot);
+}
+
+.trialSeal {
+  width: min(100%, 36vw);
+  margin-left: auto;
+  color: var(--lime);
+  rotate: -6deg;
+}
+
+/* ---- motion ---------------------------------------------------------------- */
+
+@keyframes stamp {
+  from {
+    transform: scale(1.24) rotate(-7deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lays,
+  .dropped,
+  .wallBrick,
+  .wallBrick[data-laid="false"] {
+    transform: none;
+    transition: none;
+  }
+  .wallBrick[data-laid="false"] {
+    opacity: 1;
+  }
+  /* held in the pose of a brick about to land */
+  .falling {
+    transform: translateY(-30%) rotate(9deg);
+  }
+  .stampable[data-in="true"] {
+    animation: none;
+  }
+}
+
+/* ---- narrow ---------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .story {
+    --spine-w: 0px;
+  }
+
+  .band,
+  .cantBand,
+  .closeBand {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+  }
+
+  .stripBand .copy {
+    order: 0;
+    text-align: left;
+  }
+
+  .card {
+    margin-left: 0;
+  }
+
+  .card {
+    margin-top: 22px;
+  }
+
+  .capSeal {
+    right: -6px;
+    top: -40px;
+    width: 140px;
+  }
+
+  .strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .payday:nth-child(1) {
+    display: none;
+  }
+
+  .wallWide {
+    display: none;
+  }
+  .wallNarrow {
+    display: flex;
+  }
+
+  .stack {
+    justify-content: flex-start;
+  }
+
+  .trialSeal {
+    width: min(100%, 22rem);
+    margin-left: 0;
+  }
+
+  .cant li,
+  .lineTight {
+    white-space: normal;
+  }
+}

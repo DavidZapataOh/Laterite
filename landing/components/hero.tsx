@@ -41,7 +41,7 @@ export function Hero() {
         </div>
 
         <a href="#how-it-works" className={`${styles.next} mono`}>
-          01 · The cap
+          The cap
           <svg viewBox="0 0 16 24" aria-hidden="true" className={styles.nextArrow}>
             <path d="M8 1v20M2 15l6 7 6-7" fill="none" stroke="currentColor" strokeWidth="2" />
           </svg>

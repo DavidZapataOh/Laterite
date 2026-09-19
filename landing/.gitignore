@@ -44,3 +44,4 @@ next-env.d.ts
 .impeccable/mocks/
 .impeccable/review/
 .playwright-mcp/
+.impeccable/questions/
