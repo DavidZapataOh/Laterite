@@ -1,0 +1,28 @@
+.seal {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.main {
+    font-family: var(--font-archivo), sans-serif;
+    font-weight: 900;
+    font-stretch: 112%;
+    font-size: 37px;
+    letter-spacing: 0;
+}
+
+.mainMono {
+    font-family: var(--font-martian-mono), monospace;
+    font-weight: 600;
+    font-size: 21px;
+    letter-spacing: 0.08em;
+}
+
+.label {
+    font-family: var(--font-martian-mono), monospace;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+}

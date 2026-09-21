@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "Running format check..."
+if ! just fmt-check; then
+    echo "Error: format check failed. Run 'just fmt'."
+    exit 1
+fi
+
+echo "Running lint check..."
+if ! just lint-check; then
+    echo "Error: lint check failed. Run 'just lint'."
+    exit 1
+fi

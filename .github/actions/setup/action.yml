@@ -1,0 +1,121 @@
+name: Setup
+description: Install the Laterite toolchain
+
+inputs:
+  install-rust:
+    description: Install the Rust toolchain
+    default: 'true'
+  rust-toolchain:
+    description: Rust toolchain version
+    default: '1.95.0'
+  enable-rust-cache:
+    description: Restore the Rust build cache
+    default: 'true'
+  save-rust-cache:
+    description: Save the Rust build cache (one producer job per key; main only)
+    default: 'false'
+  rust-cache-key:
+    description: Shared Rust cache key
+    default: 'rust-dev'
+  install-solana:
+    description: Install the Solana CLI
+    default: 'true'
+  solana-version:
+    description: Solana CLI version
+    default: '4.1.2'
+  install-anchor:
+    description: Install the Anchor CLI
+    default: 'true'
+  anchor-version:
+    description: Anchor CLI version
+    default: '1.2.0'
+  install-just:
+    description: Install just
+    default: 'true'
+  install-pnpm:
+    description: Install pnpm and Node.js
+    default: 'true'
+  install-pnpm-dependencies:
+    description: Run pnpm install
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Rust
+      if: inputs.install-rust == 'true'
+      uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # v1
+      with:
+        toolchain: ${{ inputs.rust-toolchain }}
+        components: rustfmt, clippy
+
+    - name: Rust cache
+      if: inputs.install-rust == 'true' && inputs.enable-rust-cache == 'true'
+      uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2.9.2
+      with:
+        shared-key: ${{ inputs.rust-cache-key }}
+        save-if: ${{ inputs.save-rust-cache == 'true' && github.ref == 'refs/heads/main' }}
+        cache-on-failure: true
+
+    - name: Cache Solana CLI
+      if: inputs.install-solana == 'true'
+      id: solana-cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: |
+          ~/.local/share/solana
+          ~/.cache/solana
+        key: ${{ runner.os }}-solana-${{ inputs.solana-version }}
+
+    - name: Install Solana CLI
+      if: inputs.install-solana == 'true' && steps.solana-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: curl -sSfL "https://release.anza.xyz/v${{ inputs.solana-version }}/install" | sh
+
+    - name: Add Solana to PATH
+      if: inputs.install-solana == 'true'
+      shell: bash
+      run: echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+
+    - name: Cache Anchor CLI
+      if: inputs.install-anchor == 'true'
+      id: anchor-cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.local/bin/anchor
+        key: ${{ runner.os }}-anchor-${{ inputs.anchor-version }}
+
+    - name: Install Anchor CLI
+      if: inputs.install-anchor == 'true' && steps.anchor-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        mkdir -p ~/.local/bin
+        curl -sSfL -o ~/.local/bin/anchor \
+            "https://github.com/otter-sec/anchor/releases/download/v${{ inputs.anchor-version }}/anchor-${{ inputs.anchor-version }}-x86_64-unknown-linux-gnu"
+        chmod +x ~/.local/bin/anchor
+
+    - name: Add local bin to PATH
+      shell: bash
+      run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+    - name: Install just
+      if: inputs.install-just == 'true'
+      uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
+      with:
+        just-version: '1.58.0'
+
+    - name: Install pnpm
+      if: inputs.install-pnpm == 'true'
+      uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+    - name: Setup Node.js
+      if: inputs.install-pnpm == 'true'
+      uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+      with:
+        node-version-file: .nvmrc
+        cache: pnpm
+
+    - name: Install pnpm dependencies
+      if: inputs.install-pnpm == 'true' && inputs.install-pnpm-dependencies == 'true'
+      shell: bash
+      run: pnpm install --frozen-lockfile

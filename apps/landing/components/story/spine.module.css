@@ -1,0 +1,68 @@
+/* Fifty-two brick ends in a single stack, outlined until they are laid. */
+.spine {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: clamp(6px, 0.5vw, 10px) 0;
+    list-style: none;
+    background: var(--lime);
+}
+
+.slot {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    padding: clamp(2px, 0.22vw, 4px) 16%;
+}
+
+.brick {
+    position: relative;
+    flex: 1;
+    border-radius: 2px;
+    outline: 2px dashed color-mix(in srgb, var(--soot) 55%, transparent);
+    outline-offset: -2px;
+}
+
+/* the end of a brick: the middle of the face raster, cropped to the slot */
+.brick::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: url('/body/brick-face.png') center / 260% 100% no-repeat;
+    transform: translateY(-10px);
+    opacity: 0;
+    transition:
+        transform 420ms var(--ease-lay),
+        opacity 140ms linear;
+}
+.brick[data-laid='true'] {
+    outline-color: transparent;
+}
+.brick[data-laid='true']::after {
+    transform: none;
+    opacity: 1;
+}
+.brick[data-turn='1']::after {
+    background-position: 18% center;
+}
+.brick[data-turn='2']::after {
+    background-position: 82% center;
+    filter: brightness(0.94);
+}
+.brick[data-turn='3']::after {
+    scale: -1 1;
+    filter: brightness(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .brick::after {
+        transition: none;
+    }
+}
+
+@media (max-width: 720px) {
+    .spine {
+        display: none;
+    }
+}

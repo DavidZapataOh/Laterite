@@ -1,0 +1,19 @@
+node_modules/
+.DS_Store
+*.log
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.vercel
+
+# Solana / Anchor
+target/
+.anchor/
+test-ledger/
+keys/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/

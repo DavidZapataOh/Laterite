@@ -1,0 +1,12 @@
+node_modules/
+pnpm-lock.yaml
+package.json
+target/
+.anchor/
+**/.next/
+**/test-results/
+**/playwright-report/
+**/*-snapshots/
+apps/landing/next-env.d.ts
+apps/landing/.impeccable/
+apps/landing/*.md
