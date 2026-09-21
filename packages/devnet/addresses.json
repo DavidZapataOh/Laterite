@@ -1,0 +1,90 @@
+{
+    "cpmm": {
+        "ammConfig": "8zfcVMo8dgJZUECxJELLrPNjAfK7CeC8o9hYgYGPsyQQ",
+        "program": "GVSWUkxEj83o4xmcNRDc4p6wSTE7mB3g8BXZRXq8Wcx3"
+    },
+    "issuer": "EV2vaD2qgQqaBBKTGZ8Hmv7M3nPu5mbCmNdfzuCA8uQW",
+    "pools": {
+        "SPYx-USDC": {
+            "address": "DgyosfpJ2cxnm1mAoB4mgE2XSwKCJJR6jjD9stsCaLTP",
+            "base": "SPYx",
+            "lpMint": "GmkMNWbqE3BGDZSXtGwUZhLiPj5VgtvNUxkr4NSBtYXM",
+            "observation": "4XxfjDUvQxQ5zUk42B23hJFN9fx4baCDC2gAMLrwGxmz",
+            "quote": "USDC",
+            "token0Mint": "Av85xasqSyE6KfyW85h1RJXBs631sExR5ncFoHhtEDnU",
+            "token0Vault": "9kxJhx8xjATHKznRdtn3k9NJNqUkCMgrWw7Lh2iunYUZ",
+            "token1Mint": "GHxn9udETkoqKzXgeqk24gT2RzptcjTo2p9WtWxo618c",
+            "token1Vault": "E54M3Mnyk9sxuNz8SQ4ddhjj48kUwZYrnwioPFmgTTF3"
+        },
+        "SPYx-USDT": {
+            "address": "DVksHcPfMUttsUtoT8EwSHHVmNYyM6Lr9EHr8oQbRMkm",
+            "base": "SPYx",
+            "lpMint": "CTPFxasFCxxChmeazffAKgKyvvu6Ks8F9nRLP5iKs3YE",
+            "observation": "5DwKvikLgTsAC44gMbvPib29A1W8CzY1x14CM4n1jnFc",
+            "quote": "USDT",
+            "token0Mint": "Av85xasqSyE6KfyW85h1RJXBs631sExR5ncFoHhtEDnU",
+            "token0Vault": "CRarcATyPyjGkBnpNBW1agwsTcYQKPFGSM2kPQBQoQ5k",
+            "token1Mint": "J2jptCQwMHYw6PK5qdGVmd85SYU4FxUGk1tViJ18WG4x",
+            "token1Vault": "9w91fL95LatF9L8seod2fJxp2Kw5PCje2ShNGpnAXUkf"
+        },
+        "QQQx-USDC": {
+            "address": "5YQMCKnFmVxiNhnJvPJFjecFtUvF4dx9oRz9r7gmNZXP",
+            "base": "QQQx",
+            "lpMint": "7hXgC17jW3qfrJazyyGV4xmitPTCZoS2iY2LnmuKLdbn",
+            "observation": "8xndDN7YyqZsVnbJ94Ap9Y3vRrKiCqrKAKNT5ic1e7sB",
+            "quote": "USDC",
+            "token0Mint": "8zYS2UR5aFM6PxDWsEjyRWHsco1PSxHubDC8pSetwxcN",
+            "token0Vault": "7BM6mfhSVjFjjmqr7YKaqhhiaL4up7CPxxKNhLYShrbk",
+            "token1Mint": "GHxn9udETkoqKzXgeqk24gT2RzptcjTo2p9WtWxo618c",
+            "token1Vault": "5ttnh7ZizzBYiS46Ngjq4yL7TJXEdxQcMFaTNznXMcCd"
+        },
+        "QQQx-USDT": {
+            "address": "3UD3uKRqJC7oz3ysJ6ByT2bkfRc35webk5fBWUSxSaUT",
+            "base": "QQQx",
+            "lpMint": "9BJXMvMXDCdFdBNg3g7jbkksswAuLWA5NyTB8aBrzuc1",
+            "observation": "FfowEBDrZHzYVT5mYseKhtXT1Z5o7db3aqN54i1bEZmF",
+            "quote": "USDT",
+            "token0Mint": "8zYS2UR5aFM6PxDWsEjyRWHsco1PSxHubDC8pSetwxcN",
+            "token0Vault": "7zXyZb2TSf9e7yrC5zm34gXzndGEgEk2W1DTtiLR2PFB",
+            "token1Mint": "J2jptCQwMHYw6PK5qdGVmd85SYU4FxUGk1tViJ18WG4x",
+            "token1Vault": "5xZRTGv68xV61AFSi5HdUapYEK3EoDAcua99XenNGGCu"
+        }
+    },
+    "tokens": {
+        "QQQx": {
+            "decimals": 8,
+            "mint": "8zYS2UR5aFM6PxDWsEjyRWHsco1PSxHubDC8pSetwxcN",
+            "pyth": {
+                "feedId": "178a6f73a5aede9d0d682e86b0047c9f333ed0efe5c6537ca937565219c4054d",
+                "proId": 1837
+            },
+            "supportMint": "A2YwvdadRezPo8ShPAer54BFZvKQQz16FQfDNhCvtsXv",
+            "tokenProgram": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        "SPYx": {
+            "decimals": 8,
+            "mint": "Av85xasqSyE6KfyW85h1RJXBs631sExR5ncFoHhtEDnU",
+            "pyth": {
+                "feedId": "2817b78438c769357182c04346fddaad1178c82f4048828fe0997c3c64624e14",
+                "proId": 1843
+            },
+            "supportMint": "3frEhv3WUHiveSM8g1m6f7iL7FD9JfFtEz7NjFVnEZk8",
+            "tokenProgram": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        "USDC": {
+            "decimals": 6,
+            "mint": "GHxn9udETkoqKzXgeqk24gT2RzptcjTo2p9WtWxo618c",
+            "tokenProgram": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        "USDT": {
+            "decimals": 6,
+            "mint": "J2jptCQwMHYw6PK5qdGVmd85SYU4FxUGk1tViJ18WG4x",
+            "tokenProgram": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "pyth": {
+                "feedId": "2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b",
+                "proId": 8
+            }
+        }
+    },
+    "treasury": "34csTeiN6CgBUdYgkuEYnkgy13aTbp8EJU1A5qsYTt17"
+}

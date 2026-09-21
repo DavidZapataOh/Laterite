@@ -58,7 +58,12 @@ build-landing:
 # ============================================
 
 # Run every suite CI runs
-test: unit-test
+test: unit-test devnet-unit-test
+
+# Type-check the devnet package and run its offline tests
+devnet-unit-test:
+    pnpm --filter @laterite/devnet typecheck
+    pnpm --filter @laterite/devnet test:unit
 
 # Run the program tests against the built binary
 unit-test: build-program
@@ -123,6 +128,148 @@ test-fork: build-program
     just kill-validator
     just _start-surfpool fork
     pnpm --filter @laterite/fork-tests test
+# ============================================
+# Devnet assets
+# ============================================
+
+# Generate any missing devnet keypair in keys/ and print every public key
+devnet-keys:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p keys
+    for name in issuer faucet treasury cpmm usdc usdt spyx qqqx; do
+        file="keys/devnet-$name.json"
+        [[ -f "$file" ]] || solana-keygen new --no-bip39-passphrase --silent --outfile "$file"
+        echo "$name $(solana-keygen pubkey "$file")"
+    done
+
+cpmm_commit := "59fb845a9e5bb569c8b2f3415f13b0c0ebcc6b92"
+cpmm_src := "target/cp-swap"
+
+# Print the RPC and WebSocket URLs of a devnet target (local or devnet)
+_devnet-urls cluster:
+    #!/usr/bin/env bash
+    case "{{cluster}}" in
+        local) echo "http://127.0.0.1:18899 ws://127.0.0.1:18900" ;;
+        devnet) echo "https://api.devnet.solana.com wss://api.devnet.solana.com" ;;
+        *) echo "Error: unknown cluster {{cluster}} (local or devnet)" >&2; exit 1 ;;
+    esac
+
+# Start a local Surfpool that forks devnet on port 18899 and fund the issuer
+devnet-local: devnet-keys
+    #!/usr/bin/env bash
+    set -euo pipefail
+    health='{"jsonrpc":"2.0","id":1,"method":"getHealth"}'
+    if curl -sf http://127.0.0.1:18899 -H 'Content-Type: application/json' -d "$health" >/dev/null; then
+        echo "✓ Local devnet already running"
+        exit 0
+    fi
+    mkdir -p .surfpool
+    nohup surfpool start --ci --no-tui --no-deploy --block-production-mode transaction \
+        --rpc-url https://api.devnet.solana.com --port 18899 --ws-port 18900 \
+        > .surfpool/devnet.log 2>&1 &
+    echo $! > .surfpool/devnet-pid.txt
+    for _ in {1..30}; do
+        if curl -sf http://127.0.0.1:18899 -H 'Content-Type: application/json' -d "$health" >/dev/null; then
+            solana airdrop 100 "$(solana-keygen pubkey keys/devnet-issuer.json)" -u http://127.0.0.1:18899 >/dev/null
+            echo "✓ Local devnet ready"
+            exit 0
+        fi
+        sleep 2
+    done
+    cat .surfpool/devnet.log
+    just devnet-local-stop
+    exit 1
+
+# Stop the local devnet
+devnet-local-stop:
+    #!/usr/bin/env bash
+    surfpool stop --port 18899 >/dev/null 2>&1 || true
+    if [[ -f .surfpool/devnet-pid.txt ]]; then kill "$(cat .surfpool/devnet-pid.txt)" 2>/dev/null || true; fi
+    rm -f .surfpool/devnet-pid.txt
+    echo "✓ Local devnet stopped"
+
+# Build Raydium CPMM from its pinned source with our devnet ids, then regenerate its client
+build-cpmm: devnet-keys
+    #!/usr/bin/env bash
+    set -euo pipefail
+    src="{{cpmm_src}}"
+    [[ -d "$src/.git" ]] || git clone --quiet https://github.com/raydium-io/raydium-cp-swap "$src"
+    git -C "$src" fetch --quiet origin {{cpmm_commit}}
+    git -C "$src" checkout --quiet --force {{cpmm_commit}}
+    eval "$(pnpm --silent --filter @laterite/devnet cpmm-constants)"
+    files=(programs/cp-swap/src/lib.rs
+        programs/cp-swap/src/instructions/admin/create_support_mint_associated.rs
+        programs/cp-swap/src/instructions/admin/create_permission_pda.rs)
+    (
+        cd "$src"
+        sed -i.orig \
+            -e "s/DRaycpLY18LhpbydsBWbVJtxpNv9oXPgjRSfpF2bWpYb/$PROGRAM_ID/" \
+            -e "s/DRayqG9RXYi8WHgWEmRQGrUWRWbhjYWYkCRJDd6JBBak/$ADMIN/" \
+            -e "s/3oE58BKVt8KuYkGxx8zBojugnymWmBiyafWgMrnb6eYy/$POOL_FEE_RECEIVER/" \
+            -e "s/DRaydJNq54dSDHUqYCE3G8YySgaXfZucbh7dTXw9fBMs/$ADMIN/" \
+            -e "s/DRay33UmULQCeawH3dVpJfN3uqLj6Qtq4ymSRx2pAgGK/$ADMIN/" \
+            -e "s/DRaypyeDL6y1dUusMgwyeDM5JebjhsSi8aRXobKQ9DcQ/$ADMIN/" \
+            -e "s/DRayJkSKsijbcEqdooK4uUGcT6gjbEuwUh7V6Nmqct7M/$ADMIN/" \
+            "${files[@]}"
+        for f in "${files[@]}"; do rm "$f.orig"; done
+        if grep -rqE 'DRay|3oE58BKV' programs/cp-swap/src; then
+            echo "Error: an upstream devnet key survived the patch"
+            exit 1
+        fi
+        anchor build --ignore-keys -- --features devnet
+    )
+    # The pinned source's Anchor.toml switches the active Solana CLI; switch back to ours
+    agave-install init "$(sed -n 's/^solana_version = "\(.*\)"/\1/p' Anchor.toml)" >/dev/null
+    mkdir -p packages/devnet/idl
+    cp "$src/target/idl/raydium_cp_swap.json" packages/devnet/idl/
+    pnpm --filter @laterite/devnet generate-client
+    pnpm exec prettier --write packages/devnet/idl packages/devnet/src/generated >/dev/null
+    echo "✓ CPMM built: $(shasum -a 256 "$src/target/deploy/raydium_cp_swap.so" | cut -d' ' -f1)"
+
+# Deploy the CPMM build unless the cluster already runs the same binary
+deploy-cpmm cluster="local": build-cpmm
+    #!/usr/bin/env bash
+    set -euo pipefail
+    read -r url _ < <(just _devnet-urls {{cluster}})
+    so="{{cpmm_src}}/target/deploy/raydium_cp_swap.so"
+    id=$(solana-keygen pubkey keys/devnet-cpmm.json)
+    if [[ "{{cluster}}" == local ]]; then
+        # An idle Surfpool 1.6 fork stalls the first transaction that fetches a remote account if a read fetched one before it
+        fresh=$(solana-keygen new --no-outfile --no-bip39-passphrase | sed -n 's/^pubkey: //p')
+        solana transfer "$fresh" 0.001 --allow-unfunded-recipient -u "$url" --keypair keys/devnet-issuer.json >/dev/null
+    fi
+    if solana program dump -u "$url" "$id" "{{cpmm_src}}/onchain.so" >/dev/null 2>&1 \
+        && cmp -s "$so" "{{cpmm_src}}/onchain.so"; then
+        echo "✓ CPMM $id already deployed on {{cluster}}"
+        exit 0
+    fi
+    solana program deploy "$so" -u "$url" --program-id keys/devnet-cpmm.json \
+        --upgrade-authority keys/devnet-issuer.json --keypair keys/devnet-issuer.json --use-rpc
+    echo "✓ CPMM $id deployed on {{cluster}}"
+
+# Create or verify every devnet asset and write addresses.json (idempotent)
+devnet-assets cluster="local": (deploy-cpmm cluster)
+    #!/usr/bin/env bash
+    set -euo pipefail
+    read -r rpc ws < <(just _devnet-urls {{cluster}})
+    DEVNET_RPC_URL=$rpc DEVNET_WS_URL=$ws pnpm --filter @laterite/devnet create-assets
+    pnpm exec prettier --write packages/devnet/addresses.json >/dev/null
+
+# Run the devnet asset suite (needs keys/ and network; not part of `just test`)
+test-devnet cluster="local":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    read -r rpc ws < <(just _devnet-urls {{cluster}})
+    DEVNET_RPC_URL=$rpc DEVNET_WS_URL=$ws pnpm --filter @laterite/devnet test:devnet
+
+# Swap every pool back to the live mainnet price
+devnet-repeg cluster="local":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    read -r rpc ws < <(just _devnet-urls {{cluster}})
+    DEVNET_RPC_URL=$rpc DEVNET_WS_URL=$ws pnpm --filter @laterite/devnet repeg
+
 # ============================================
 # Format and lint
 # ============================================
