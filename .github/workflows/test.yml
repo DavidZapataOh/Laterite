@@ -25,5 +25,5 @@ jobs:
           install-pnpm: 'true'
           install-pnpm-dependencies: 'true'
           save-rust-cache: 'true'
-      - name: Run program tests
-        run: just unit-test
+      - name: Run tests
+        run: just test
