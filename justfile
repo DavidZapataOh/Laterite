@@ -2,6 +2,7 @@
 # https://github.com/casey/just
 
 set shell := ["bash", "-uc"]
+set dotenv-load
 
 program_dir := "programs/laterite"
 
@@ -17,7 +18,7 @@ default:
 setup: setup-hooks
     #!/usr/bin/env bash
     set -euo pipefail
-    for cmd in pnpm cargo solana anchor; do
+    for cmd in pnpm cargo solana anchor surfpool; do
         if ! command -v "$cmd" &>/dev/null; then
             echo "Error: $cmd is required but not installed"
             exit 1
@@ -67,6 +68,61 @@ unit-test: build-program
 test-visual: build-landing
     pnpm --filter @laterite/landing test:visual
 
+# ============================================
+# Local validator
+# ============================================
+
+# Start Surfpool with the programs installed; mode is fork (mainnet datasource) or offline
+_start-surfpool mode="fork":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    program_id=$(just program-id)
+    offline=""
+    if [[ "{{mode}}" == "offline" ]]; then offline="--offline"; fi
+    mkdir -p .surfpool
+    nohup surfpool start --ci --no-tui --block-production-mode transaction $offline \
+        --runbook surfnet-setup --port 8899 > .surfpool/surfpool.log 2>&1 &
+    echo $! > .surfpool/pid.txt
+    for _ in {1..30}; do
+        if curl -sf http://127.0.0.1:8899 -H 'Content-Type: application/json' \
+            -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"getAccountInfo\",\"params\":[\"$program_id\",{\"encoding\":\"base64\"}]}" \
+            | grep -q '"executable":true'; then
+            echo "✓ Surfpool ({{mode}}) ready"
+            exit 0
+        fi
+        sleep 2
+    done
+    cat .surfpool/surfpool.log
+    just kill-validator
+    exit 1
+
+# Start Surfpool unless one is already answering on port 8899
+ensure-surfpool mode="fork": build-program
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if curl -sf http://127.0.0.1:8899 -H 'Content-Type: application/json' \
+        -d '{"jsonrpc":"2.0","id":1,"method":"getHealth"}' >/dev/null; then
+        echo "✓ Surfpool already running"
+    else
+        just _start-surfpool {{mode}}
+    fi
+
+# Stop the local Surfpool
+kill-validator:
+    #!/usr/bin/env bash
+    surfpool stop --port 8899 >/dev/null 2>&1 || true
+    if [[ -f .surfpool/pid.txt ]]; then kill "$(cat .surfpool/pid.txt)" 2>/dev/null || true; fi
+    rm -f .surfpool/pid.txt
+    echo "✓ Surfpool stopped"
+
+# Run the mainnet-fork suite (needs network and a datasource RPC; not part of `just test`)
+test-fork: build-program
+    #!/usr/bin/env bash
+    set -euo pipefail
+    trap 'just kill-validator' EXIT
+    just kill-validator
+    just _start-surfpool fork
+    pnpm --filter @laterite/fork-tests test
 # ============================================
 # Format and lint
 # ============================================

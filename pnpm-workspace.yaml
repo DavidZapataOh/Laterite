@@ -1,5 +1,17 @@
 packages:
   - 'apps/*'
+  - 'tests/*'
 
 allowBuilds:
   unrs-resolver: true
+
+minimumReleaseAgeExclude:
+  - '@solana-program/record@0.5.0'
+  - '@solana-program/system@0.15.0'
+  - '@solana-program/token-2022@0.19.0'
+  - '@solana-program/token@0.17.0'
+
+peerDependencyRules:
+  allowedVersions:
+    '@solana/kit': '8'
+    '@solana/kit-plugin-rpc': '0.19'

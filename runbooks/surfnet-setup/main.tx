@@ -1,0 +1,14 @@
+addon "svm" {
+    rpc_api_url = input.rpc_api_url
+    network_id = input.network_id
+}
+
+action "install_laterite" "svm::setup_surfnet" {
+    description = "Install the laterite program at its declared address"
+    rpc_api_url = input.rpc_api_url
+
+    deploy_program {
+        program_id = "LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf"
+        binary_path = "target/deploy/laterite.so"
+    }
+}

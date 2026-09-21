@@ -1,0 +1,11 @@
+---
+name: laterite
+id: laterite
+runbooks:
+  - name: surfnet-setup
+    description: Install the programs at their declared addresses on a local surfnet
+    location: runbooks/surfnet-setup
+environments:
+  localnet:
+    network_id: localnet
+    rpc_api_url: http://127.0.0.1:8899

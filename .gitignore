@@ -17,3 +17,7 @@ keys/
 test-results/
 playwright-report/
 blob-report/
+
+# Surfpool
+.surfpool/
+tests/fork/report.json
