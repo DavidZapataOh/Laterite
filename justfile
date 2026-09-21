@@ -58,7 +58,12 @@ build-landing:
 # ============================================
 
 # Run every suite CI runs
-test: unit-test devnet-unit-test
+test: unit-test devnet-unit-test ui-test
+
+# Type-check the shared UI package and run its tests
+ui-test:
+    pnpm --filter @laterite/ui typecheck
+    pnpm --filter @laterite/ui test
 
 # Type-check the devnet package and run its offline tests
 devnet-unit-test:

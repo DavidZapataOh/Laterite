@@ -437,16 +437,11 @@
 }
 
 .stackChip {
-    display: inline-flex;
     flex: 1 1 auto;
-    align-items: center;
     justify-content: center;
     height: clamp(36px, 3.6vw, 62px);
     padding: 0 clamp(14px, 1.4vw, 26px);
-    border: 2px solid var(--soot);
-    border-radius: 6px;
     font-size: clamp(10px, 1.1vw, 18px);
-    white-space: nowrap;
 }
 
 /* ---- close ---------------------------------------------------------------- */
@@ -463,36 +458,10 @@
 }
 
 .closeCta {
-    --edge: clamp(5px, 0.42vw, 8px);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     height: clamp(56px, 6vw, 96px);
     margin-top: clamp(24px, 3vw, 52px);
-    margin-bottom: var(--edge);
     padding: 0 clamp(30px, 5vw, 92px);
-    border-radius: 8px;
-    background: var(--lime);
-    color: var(--soot);
     font-size: clamp(1.125rem, 2.6vw, 2.6rem);
-    font-weight: 700;
-    font-stretch: 105%;
-    text-decoration: none;
-    white-space: nowrap;
-    box-shadow: 0 var(--edge) 0 var(--soot);
-    transition:
-        transform var(--dur-lay) var(--ease-lay),
-        box-shadow var(--dur-lay) var(--ease-lay),
-        background-color var(--dur-lay) var(--ease-lay);
-}
-.closeCta:hover {
-    background: var(--chalk);
-    transform: translateY(calc(var(--edge) * 0.35));
-    box-shadow: 0 calc(var(--edge) * 0.65) 0 var(--soot);
-}
-.closeCta:active {
-    transform: translateY(var(--edge));
-    box-shadow: 0 0 0 var(--soot);
 }
 
 .trialSeal {

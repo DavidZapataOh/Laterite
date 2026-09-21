@@ -63,26 +63,9 @@
 }
 
 .launch {
-    display: inline-flex;
-    align-items: center;
     height: clamp(40px, 3.2vw, 62px);
     padding: 0 clamp(18px, 2vw, 38px);
-    border-radius: 8px;
-    background: var(--laterite);
-    color: var(--lime);
-    font-weight: 700;
-    font-stretch: 105%;
     font-size: clamp(14px, 1.3vw, 25px);
-    text-decoration: none;
-    transition:
-        background-color var(--dur-lay) var(--ease-lay),
-        transform var(--dur-lay) var(--ease-lay);
-}
-.launch:hover {
-    background: var(--ember);
-}
-.launch:active {
-    transform: translateY(2px);
 }
 
 @media (max-width: 560px) {

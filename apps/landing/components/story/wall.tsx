@@ -1,8 +1,8 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import { useHydrated } from '@/lib/use-hydrated';
-import { slice, useScrollProgress } from '@/lib/use-scroll-progress';
+import { useHydrated } from '@laterite/ui/use-hydrated';
+import { slice, useScrollProgress } from '@laterite/ui/use-scroll-progress';
 import styles from './story.module.css';
 
 const BRICKS = 52;

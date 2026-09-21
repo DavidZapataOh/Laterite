@@ -188,7 +188,7 @@ components:
 
 Laterite is red earth cut into bricks that harden with time. The system treats the screen as a printer's forme: heavy type is locked up in courses like brick, the gaps between courses are mortar joints, and one real brick sits in the hero where a word would go. Everything else is annotation in a monospaced hand: amounts, dates, labels, receipt lines, outlined chips, stamped seals. The stance is anti-hype: slow, solid, in plain sight.
 
-The page is one scroll: a soot nav band, the type-wall hero, seven full-bleed bands of flat colour with a 52-brick spine running down their right edge, and a one-row soot footer. Each band holds one idea and one large visual: an interface fragment, a strip of bricks, a wall. This record describes what ships. Tokens live in `app/globals.css`; hero geometry in `components/hero.module.css`; the bands in `components/story/story.module.css`.
+The page is one scroll: a soot nav band, the type-wall hero, seven full-bleed bands of flat colour with a 52-brick spine running down their right edge, and a one-row soot footer. Each band holds one idea and one large visual: an interface fragment, a strip of bricks, a wall. This record describes what ships. Tokens live in `packages/ui/src/styles.css`; hero geometry in `components/hero.module.css`; the bands in `components/story/story.module.css`.
 
 Fields are flat and warm. There are no gradients, glows, blurs or drop shadows anywhere in the build. The only photographic material is the brick. The direction contract embedded in `app/layout.tsx` says the same: colours are whole fields or objects, the brick is the only photographic material, seals are drawn in code.
 
@@ -342,16 +342,18 @@ Brick logic. In the brand assets a stretcher is 130 x 60, a header is 60 x 60, c
 Soot band, lime content, `clamp(64px, 6vw, 115px)` tall, inset by the gutter, not sticky, `.on-dark`. Left: brand lockup. Right: one mono text link (hidden at 560px and below) and the Launch button, gap `clamp(18px, 2.6vw, 50px)`.
 
 ### Brand lockup
-Terracotta symbol plus cream wordmark from `public/brand/`, bottom-aligned. Wordmark height is half the symbol height so its x-height equals one course of the symbol. Nav: symbol `clamp(34px, 3.55vw, 68px)`, both images decorative, the link carries `aria-label="Laterite, home"`. Footer: symbol `clamp(44px, 4.6vw, 84px)`, not a link, the wordmark carries the alt text. The wordmark is always lowercase.
+Terracotta symbol plus cream wordmark from `packages/ui/brand/`, bottom-aligned. Wordmark height is half the symbol height so its x-height equals one course of the symbol. Nav: symbol `clamp(34px, 3.55vw, 68px)`, both images decorative, the link carries `aria-label="Laterite, home"`. Footer: symbol `clamp(44px, 4.6vw, 84px)`, not a link, the wordmark carries the alt text. The wordmark is always lowercase.
 
 ### Buttons
 - **Primary, "kiln edge"** (`Lay the first brick`, hero): terracotta field, lime label, 8px radius, height `clamp(52px, 3.9vw, 75px)`, kiln bottom edge per Elevation. Hover: ember, sinks 35%. Active: sinks fully.
 - **Primary on terracotta** (same label, closing band): cream field, soot label, soot edge, height `clamp(56px, 6vw, 96px)`, padding `0 clamp(30px, 5vw, 92px)`. Hover: chalk, sinks 35%. Active: sinks fully.
 - **Launch** (nav): terracotta, flat, height `clamp(40px, 3.2vw, 62px)`. Hover: ember. Active: `translateY(2px)`.
 - One primary action per view; the page has two, in the hero and at the close. All transitions: 320ms, `--ease-lay`.
+- Shape, colour, edge and press live in `packages/ui/src/button.module.css` (`primary`, `inverse`, `flat`); each placement sets only its size.
 
 ### Chips
 Outlined, never filled: 2px soot border, 6px radius, transparent field, mono label. Static facts, not controls; rendered as lists. Hero guarantees: height `clamp(34px, 2.7vw, 52px)`. **Built-on row:** five chips (`Solana Subscriptions & Allowances`, `Pyth`, `xStocks`, `Jupiter`, `Open source`), height `clamp(36px, 3.6vw, 62px)`, each `flex: 1 1 auto` so the row fills the band like one course; wraps and left-aligns on narrow screens. Names only, no logos.
+Shape lives in `packages/ui/src/chip.module.css`; each placement sets only its size.
 
 ### Interface fragment cards
 Real product UI, cut out and set on a band: chalk field, 2px soot border, 14px radius, everything inside in Martian Mono with tabular figures. No shadow, no device frame. Full column width.
@@ -359,11 +361,11 @@ Real product UI, cut out and set on a band: chalk field, 2px soot border, 14px r
 - **Wallet card:** a definition list. The `SPYx` row is a large figure that counts from 0.4532 to 0.4944 over 1100ms (ease-out cubic) when the band enters; screen readers get the final value only. Under a 2px sand divider, the `Laterite vault` row reads `0.00` in ash, uppercase.
 
 ### Seal
-A brickmaker's stamp, drawn in code (`components/seal.tsx`) so it takes live values. An SVG with a 6-unit outer rounded border (radius 16), a 2-unit inner border (radius 9), an optional mono overline (600, 11 units, tracking 0.16em) and a main line: Archivo 900 at width 112, 37 units, in a 300 x 120 viewBox, or, with `mono`, Martian Mono 600 at 21 units in a 470 x 120 viewBox for longer stamps. Colour is `currentColor`: terracotta on the cap card, lime on the closing band. An ink-roughness filter (`feTurbulence` fractal noise, base frequency 0.9, 2 octaves, into `feDisplacementMap` at scale 2.4) breaks every edge, because a dry rubber stamp never prints clean. The turbulence seed is derived from the stamp's text (character codes summed, mod 97), so no two stamps share the same roughness. Placement supplies the tilt (-8 and -6 degrees). Pass `decorative` when the same words are already on the page (it becomes `aria-hidden`); otherwise it is `role="img"` with the label and main line as its name. Shipped stamps: `$25 / WK` (live) and `TRIAL · 7 DAYS · CAP $5`.
+A brickmaker's stamp, drawn in code (`packages/ui/src/seal.tsx`) so it takes live values. An SVG with a 6-unit outer rounded border (radius 16), a 2-unit inner border (radius 9), an optional mono overline (600, 11 units, tracking 0.16em) and a main line: Archivo 900 at width 112, 37 units, in a 300 x 120 viewBox, or, with `mono`, Martian Mono 600 at 21 units in a 470 x 120 viewBox for longer stamps. Colour is `currentColor`: terracotta on the cap card, lime on the closing band. An ink-roughness filter (`feTurbulence` fractal noise, base frequency 0.9, 2 octaves, into `feDisplacementMap` at scale 2.4) breaks every edge, because a dry rubber stamp never prints clean. The turbulence seed is derived from the stamp's text (character codes summed, mod 97), so no two stamps share the same roughness. Placement supplies the tilt (-8 and -6 degrees). Pass `decorative` when the same words are already on the page (it becomes `aria-hidden`); otherwise it is `role="img"` with the label and main line as its name. Shipped stamps: `$25 / WK` (live) and `TRIAL · 7 DAYS · CAP $5`.
 
 **Stamp motion:** 420ms, `--ease-lay`, from `scale(1.24) rotate(-7deg)`, `animation-fill-mode: backwards`. Transform only: the seal is always rendered and only the press is animated. It plays when the band enters and again on every cap change (the wrapper is re-keyed). The keyframe is scale plus a twist on purpose; what is fixed is that it never touches opacity.
 
-The five state seals in `public/brand/` (laid, capped, trial, paused, revoked) are an older, fuller anatomy (symbol, width-125 state word, -3 degree tilt, dashed border for paused). They are not used by the page and remain available assets.
+The five state seals in `packages/ui/brand/` (laid, capped, trial, paused, revoked) are an older, fuller anatomy (symbol, width-125 state word, -3 degree tilt, dashed border for paused). They are not used by the page and remain available assets.
 
 ### Payday strip
 An ordered list labelled as an example: five paydays in equal columns (four at 720px and below; the first is dropped). A 3px lime baseline with a 12px tick per payday is painted first, under the bricks; mono dates hang below it. Three states:
@@ -414,7 +416,7 @@ Hero sequence (CSS only, about 1.5s):
 | Flow steps | `reveal`: `clip-path` wipe from the left | 420ms | 750 / 900 / 1050ms |
 | Leaders | `draw`: `stroke-dashoffset` 60 to 0 | 380ms | 850 / 1000 / 1150ms |
 
-Below the hero, three small hooks in `lib/` drive everything:
+Below the hero, three small hooks in `packages/ui/src/` drive everything:
 - **`useInView(threshold = 0.35)`**: reports true until hydration (via `useHydrated`), then false until the element enters, then true for good. Sets `data-in` for the one entrance on the page: copy and visual drop 14px over 620ms. Also triggers the payday drop (threshold 0.5), the stamp and the wallet count.
 - **`useScrollProgress()` and `slice(progress, from, to)`**: progress of a band through the viewport, 0 to 1, measured at most once per frame; `slice` remaps a window of it onto 0 to 1 with an ease-out cubic. Drives the falling brick and the wall. Returns 1 at once under reduced motion.
 - **`useHydrated()`**: false on the server and during hydration. Scroll-driven pieces render finished until it flips.

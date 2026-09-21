@@ -413,7 +413,7 @@
       }
     ],
     "brandAssets": {
-      "status": "Shipped in public/brand/. The symbol and wordmark are used by the nav and footer. The five state seals and the running-bond tiles are not used by the page: the Seal is drawn in code and the wall is built from a brick raster. They remain available assets.",
+      "status": "Shipped in packages/ui/brand/. The symbol and wordmark are used by the nav and footer. The five state seals and the running-bond tiles are not used by the page: the Seal is drawn in code and the wall is built from a brick raster. They remain available assets.",
       "marks": [
         "symbol-terracotta.svg",
         "symbol-cream.svg",
@@ -659,7 +659,7 @@
   ],
   "narrative": {
     "northStar": "The Letterpress Forme",
-    "overview": "Laterite is red earth cut into bricks that harden with time. The system treats the screen as a printer's forme: heavy type is locked up in courses like brick, the gaps between courses are mortar joints, and one real brick sits in the hero where a word would go. Everything else is annotation in a monospaced hand: amounts, dates, labels, receipt lines, outlined chips, stamped seals. The stance is anti-hype: slow, solid, in plain sight.\n\nThe page is one scroll: a soot nav band, the type-wall hero, seven full-bleed bands of flat colour with a 52-brick spine running down their right edge, and a one-row soot footer. Each band holds one idea and one large visual: an interface fragment, a strip of bricks, a wall. This record describes what ships. Tokens live in `app/globals.css`; hero geometry in `components/hero.module.css`; the bands in `components/story/story.module.css`.\n\nFields are flat and warm. There are no gradients, glows, blurs or drop shadows anywhere in the build. The only photographic material is the brick. The direction contract embedded in `app/layout.tsx` says the same: colours are whole fields or objects, the brick is the only photographic material, seals are drawn in code.",
+    "overview": "Laterite is red earth cut into bricks that harden with time. The system treats the screen as a printer's forme: heavy type is locked up in courses like brick, the gaps between courses are mortar joints, and one real brick sits in the hero where a word would go. Everything else is annotation in a monospaced hand: amounts, dates, labels, receipt lines, outlined chips, stamped seals. The stance is anti-hype: slow, solid, in plain sight.\n\nThe page is one scroll: a soot nav band, the type-wall hero, seven full-bleed bands of flat colour with a 52-brick spine running down their right edge, and a one-row soot footer. Each band holds one idea and one large visual: an interface fragment, a strip of bricks, a wall. This record describes what ships. Tokens live in `packages/ui/src/styles.css`; hero geometry in `components/hero.module.css`; the bands in `components/story/story.module.css`.\n\nFields are flat and warm. There are no gradients, glows, blurs or drop shadows anywhere in the build. The only photographic material is the brick. The direction contract embedded in `app/layout.tsx` says the same: colours are whole fields or objects, the brick is the only photographic material, seals are drawn in code.",
     "keyCharacteristics": [
       "Type is the structure. The hero headline is a wall measured in em of its course size; band headlines run at 7.5vw.",
       "Four field colours (lime, terracotta, soot, blush) in full-bleed bands; no two adjacent bands share a field.",

@@ -1,0 +1,72 @@
+/* a brick has thickness: an edged button stands proud and sinks when pressed */
+.primary,
+.inverse {
+    --edge: clamp(5px, 0.42vw, 8px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--edge);
+    border-radius: 8px;
+    font-weight: 700;
+    font-stretch: 105%;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+        transform var(--dur-lay) var(--ease-lay),
+        box-shadow var(--dur-lay) var(--ease-lay),
+        background-color var(--dur-lay) var(--ease-lay);
+}
+.primary:hover,
+.inverse:hover {
+    transform: translateY(calc(var(--edge) * 0.35));
+}
+.primary:active,
+.inverse:active {
+    transform: translateY(var(--edge));
+}
+
+.primary {
+    background: var(--laterite);
+    color: var(--lime);
+    box-shadow: 0 var(--edge) 0 var(--kiln);
+}
+.primary:hover {
+    background: var(--ember);
+    box-shadow: 0 calc(var(--edge) * 0.65) 0 var(--kiln);
+}
+.primary:active {
+    box-shadow: 0 0 0 var(--kiln);
+}
+
+.inverse {
+    background: var(--lime);
+    color: var(--soot);
+    box-shadow: 0 var(--edge) 0 var(--soot);
+}
+.inverse:hover {
+    background: var(--chalk);
+    box-shadow: 0 calc(var(--edge) * 0.65) 0 var(--soot);
+}
+.inverse:active {
+    box-shadow: 0 0 0 var(--soot);
+}
+
+.flat {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 8px;
+    background: var(--laterite);
+    color: var(--lime);
+    font-weight: 700;
+    font-stretch: 105%;
+    text-decoration: none;
+    transition:
+        background-color var(--dur-lay) var(--ease-lay),
+        transform var(--dur-lay) var(--ease-lay);
+}
+.flat:hover {
+    background: var(--ember);
+}
+.flat:active {
+    transform: translateY(2px);
+}

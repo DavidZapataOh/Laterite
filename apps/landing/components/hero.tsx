@@ -1,3 +1,5 @@
+import { button } from '@laterite/ui/button';
+import { chip } from '@laterite/ui/chip';
 import { site } from '@/lib/site';
 import { HeroBrick } from './hero-brick';
 import styles from './hero.module.css';
@@ -24,13 +26,13 @@ export function Hero() {
                         Every payday, a slice of your dollars becomes S&amp;P&nbsp;500. From your own wallet.
                     </p>
                     <div className={styles.actions}>
-                        <a href={site.appUrl} className={styles.cta}>
+                        <a href={site.appUrl} className={`${button.primary} ${styles.cta}`}>
                             Lay the first brick
                         </a>
                         <ul className={styles.chips}>
-                            {CHIPS.map(chip => (
-                                <li key={chip} className={`${styles.chip} mono`}>
-                                    {chip}
+                            {CHIPS.map(label => (
+                                <li key={label} className={`${chip} ${styles.chip} mono`}>
+                                    {label}
                                 </li>
                             ))}
                         </ul>

@@ -48,7 +48,7 @@ Stance: anti-hype. Slow, solid, in plain sight.
 ## Brand Commitments
 
 - Name: Laterite (lowercase wordmark "laterite"). Laterite is the red earth that is cut into bricks and hardens with time.
-- Binding assets: `public/brand/` (L-Bond symbol, outlined wordmark, lockups, seals, running-bond patterns).
+- Binding assets: `packages/ui/brand/` (L-Bond symbol, outlined wordmark, lockups, seals, running-bond patterns).
 - Fonts (pinned): Archivo on its width axis (display at weight 900, widths 110–125, mixed per line like a justified forme; text at widths 100–108) and Martian Mono (all amounts, receipts, addresses, program IDs, labels).
 - Palette (pinned): terracotta #B8452E, lime #F4EEE2, soot #1E1612, plus ember #9C3822, kiln #7A2A1B, clay #E3A07F, blush #F2D6C6, chalk #FBF8F1, sand #E6DCCB, ash #6B5D54, char #3A2E28, and info #1F4E5A for external links. Light is the hero theme.
 - Red is the brand, not loss: losses render in slate #5B5550 with a minus sign; danger is cold crimson #A3123A with an icon; gains are moss #4F6B3A.
@@ -64,7 +64,7 @@ Stance: anti-hype. Slow, solid, in plain sight.
 
 ## Evidence on Hand
 
-- Brand assets in `public/brand/`.
+- Brand assets in `packages/ui/brand/`.
 - No customers, press, usage numbers or testimonials exist. Future work must not fabricate any.
 - Custom video, photography, 3D and motion graphics can be commissioned on request; request them with exact specs instead of substituting generic chrome.
 

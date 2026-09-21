@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import type { CSSProperties } from 'react';
-import { useInView } from '@/lib/use-in-view';
-import { slice, useScrollProgress } from '@/lib/use-scroll-progress';
+import { useInView } from '@laterite/ui/use-in-view';
+import { slice, useScrollProgress } from '@laterite/ui/use-scroll-progress';
 import styles from './story.module.css';
 
 // Illustrative paydays: three laid, today's falling, one still ahead.

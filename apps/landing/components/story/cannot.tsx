@@ -1,6 +1,6 @@
 'use client';
 
-import { useInView } from '@/lib/use-in-view';
+import { useInView } from '@laterite/ui/use-in-view';
 import styles from './story.module.css';
 
 const LIMITS = [

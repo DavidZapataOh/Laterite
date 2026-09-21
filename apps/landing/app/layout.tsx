@@ -1,22 +1,6 @@
 import type { Metadata, Viewport } from 'next';
-import { Archivo, Martian_Mono } from 'next/font/google';
+import { fontVariables } from '@laterite/ui/fonts';
 import './globals.css';
-
-// Archivo carries both voices: width 110-125 at weight 900 for display,
-// width 100 for running text. The width axis must be requested explicitly.
-const archivo = Archivo({
-    variable: '--font-archivo',
-    subsets: ['latin'],
-    axes: ['wdth'],
-    display: 'swap',
-});
-
-// Every amount, date, label and address is set in Martian Mono.
-const martianMono = Martian_Mono({
-    variable: '--font-martian-mono',
-    subsets: ['latin'],
-    display: 'swap',
-});
 
 export const metadata: Metadata = {
     title: 'Laterite · Get paid. Lay a brick.',
@@ -40,7 +24,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
     return (
-        <html lang="en" className={`${archivo.variable} ${martianMono.variable}`}>
+        <html lang="en" className={fontVariables}>
             <body>
                 <div hidden dangerouslySetInnerHTML={{ __html: DIRECTION_CONTRACT }} />
                 {children}

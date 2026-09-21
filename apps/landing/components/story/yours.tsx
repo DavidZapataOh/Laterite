@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useInView } from '@/lib/use-in-view';
+import { useInView } from '@laterite/ui/use-in-view';
 import styles from './story.module.css';
 
 const BEFORE = 0.4532;

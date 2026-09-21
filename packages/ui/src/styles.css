@@ -1,0 +1,138 @@
+:root {
+    /* brand */
+    --laterite: #b8452e;
+    --ember: #9c3822;
+    --kiln: #7a2a1b;
+    --clay: #e3a07f;
+    --blush: #f2d6c6;
+
+    /* warm neutrals, never pure gray */
+    --chalk: #fbf8f1;
+    --lime: #f4eee2;
+    --sand: #e6dccb;
+    --ash: #6b5d54;
+    --char: #3a2e28;
+    --soot: #1e1612;
+
+    /* semantic: red is the brand, never the loss */
+    --gain: #4f6b3a;
+    --loss: #5b5550;
+    --danger: #a3123a;
+    --info: #1f4e5a;
+
+    /* shape: everything derives from the brick */
+    --radius-brick: 7px;
+    --radius-card: 14px;
+    --joint: 10px;
+
+    /* motion: lay a brick. drop, settle, no bounce */
+    --ease-lay: cubic-bezier(0.2, 0.9, 0.25, 1);
+    --dur-lay: 320ms;
+
+    --gutter: clamp(20px, 2.86vw, 55px);
+}
+
+@theme inline {
+    --color-laterite: var(--laterite);
+    --color-ember: var(--ember);
+    --color-kiln: var(--kiln);
+    --color-clay: var(--clay);
+    --color-blush: var(--blush);
+    --color-chalk: var(--chalk);
+    --color-lime: var(--lime);
+    --color-sand: var(--sand);
+    --color-ash: var(--ash);
+    --color-char: var(--char);
+    --color-soot: var(--soot);
+    --color-gain: var(--gain);
+    --color-loss: var(--loss);
+    --color-danger: var(--danger);
+    --color-info: var(--info);
+    --font-sans: var(--font-archivo), system-ui, sans-serif;
+    --font-mono: var(--font-martian-mono), ui-monospace, monospace;
+}
+
+html {
+    background: var(--lime);
+    color: var(--soot);
+    font-family: var(--font-archivo), system-ui, sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scrollbar-color: var(--laterite) var(--sand);
+    scrollbar-width: thin;
+    caret-color: var(--laterite);
+    accent-color: var(--laterite);
+}
+
+body {
+    min-height: 100svh;
+    background: var(--lime);
+}
+
+::selection {
+    background: var(--laterite);
+    color: var(--lime);
+}
+
+:focus-visible {
+    outline: 3px solid var(--laterite);
+    outline-offset: 3px;
+    border-radius: var(--radius-brick);
+}
+
+/* on soot or terracotta fields the ring flips to lime */
+.on-dark :focus-visible,
+.on-dark:focus-visible {
+    outline-color: var(--lime);
+}
+
+a {
+    text-underline-offset: 0.22em;
+    text-decoration-thickness: 0.08em;
+}
+
+.mono {
+    font-family: var(--font-martian-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link {
+    position: absolute;
+    left: var(--gutter);
+    top: -100px;
+    z-index: 50;
+    padding: 12px 18px;
+    background: var(--lime);
+    color: var(--soot);
+    border-radius: var(--radius-brick);
+    font-weight: 700;
+}
+.skip-link:focus-visible {
+    top: 12px;
+}
+
+/* every motion has a still alternative, including hover and press */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

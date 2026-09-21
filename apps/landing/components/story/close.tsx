@@ -1,8 +1,9 @@
 'use client';
 
+import { button } from '@laterite/ui/button';
+import { useInView } from '@laterite/ui/use-in-view';
+import { Seal } from '@laterite/ui/seal';
 import { site } from '@/lib/site';
-import { useInView } from '@/lib/use-in-view';
-import { Seal } from '../seal';
 import styles from './story.module.css';
 
 export function Close() {
@@ -18,7 +19,7 @@ export function Close() {
                 <h2 id="close-title" className={`${styles.headline} ${styles.closeHeadline}`}>
                     Hardens with time.
                 </h2>
-                <a href={site.appUrl} className={styles.closeCta}>
+                <a href={site.appUrl} className={`${button.inverse} ${styles.closeCta}`}>
                     Lay the first brick
                 </a>
             </div>

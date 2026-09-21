@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useInView } from '@/lib/use-in-view';
-import { Seal } from '../seal';
+import { useInView } from '@laterite/ui/use-in-view';
+import { Seal } from '@laterite/ui/seal';
 import styles from './story.module.css';
 
 const CAPS = [10, 25] as const;

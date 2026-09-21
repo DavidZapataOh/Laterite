@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useHydrated } from '@/lib/use-hydrated';
+import { useHydrated } from '@laterite/ui/use-hydrated';
 import styles from './spine.module.css';
 
 const BRICKS = 52;
