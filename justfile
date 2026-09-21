@@ -234,7 +234,10 @@ deploy-cpmm cluster="local": build-cpmm
     read -r url _ < <(just _devnet-urls {{cluster}})
     so="{{cpmm_src}}/target/deploy/raydium_cp_swap.so"
     id=$(solana-keygen pubkey keys/devnet-cpmm.json)
+    transport=()
     if [[ "{{cluster}}" == local ]]; then
+        # Surfpool exposes no TPU, so program writes go through RPC
+        transport=(--use-rpc)
         # An idle Surfpool 1.6 fork stalls the first transaction that fetches a remote account if a read fetched one before it
         fresh=$(solana-keygen new --no-outfile --no-bip39-passphrase | sed -n 's/^pubkey: //p')
         solana transfer "$fresh" 0.001 --allow-unfunded-recipient -u "$url" --keypair keys/devnet-issuer.json >/dev/null
@@ -245,7 +248,7 @@ deploy-cpmm cluster="local": build-cpmm
         exit 0
     fi
     solana program deploy "$so" -u "$url" --program-id keys/devnet-cpmm.json \
-        --upgrade-authority keys/devnet-issuer.json --keypair keys/devnet-issuer.json --use-rpc
+        --upgrade-authority keys/devnet-issuer.json --keypair keys/devnet-issuer.json ${transport[@]+"${transport[@]}"}
     echo "✓ CPMM $id deployed on {{cluster}}"
 
 # Create or verify every devnet asset and write addresses.json (idempotent)
