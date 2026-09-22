@@ -1,0 +1,555 @@
+{
+    "address": "LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf",
+    "metadata": {
+        "name": "laterite",
+        "version": "0.1.0",
+        "spec": "0.1.0",
+        "description": "Non-custodial autopilot that turns a capped slice of every payday into tokenized S&P 500.",
+        "repository": "https://github.com/DavidZapataOh/Laterite"
+    },
+    "instructions": [
+        {
+            "name": "accept_admin",
+            "docs": ["Second step: the proposed admin signs to take over."],
+            "discriminator": [112, 42, 45, 90, 116, 181, 13, 170],
+            "accounts": [
+                {
+                    "name": "pending_admin",
+                    "signer": true,
+                    "relations": ["config"]
+                },
+                {
+                    "name": "config",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [99, 111, 110, 102, 105, 103]
+                            }
+                        ]
+                    }
+                }
+            ],
+            "args": []
+        },
+        {
+            "name": "initialize",
+            "docs": [
+                "Creates the config; only the program's upgrade authority can call it, once. Remaining accounts: the",
+                "tables' mint accounts in order, the assets then the payment tokens."
+            ],
+            "discriminator": [175, 175, 109, 31, 13, 152, 155, 237],
+            "accounts": [
+                {
+                    "name": "authority",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "config",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [99, 111, 110, 102, 105, 103]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "program",
+                    "address": "LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf"
+                },
+                {
+                    "name": "program_data"
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": [
+                {
+                    "name": "params",
+                    "type": {
+                        "defined": {
+                            "name": "ConfigParams"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "propose_admin",
+            "docs": ["First step of an admin handover; `Pubkey::default()` cancels a pending one."],
+            "discriminator": [121, 214, 199, 212, 87, 39, 117, 234],
+            "accounts": [
+                {
+                    "name": "admin",
+                    "signer": true,
+                    "relations": ["config"]
+                },
+                {
+                    "name": "config",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [99, 111, 110, 102, 105, 103]
+                            }
+                        ]
+                    }
+                }
+            ],
+            "args": [
+                {
+                    "name": "new_admin",
+                    "type": "pubkey"
+                }
+            ]
+        },
+        {
+            "name": "set_paused",
+            "docs": ["Kill switch: stops enrollment and sweeps while set."],
+            "discriminator": [91, 60, 125, 192, 176, 225, 166, 218],
+            "accounts": [
+                {
+                    "name": "admin",
+                    "signer": true,
+                    "relations": ["config"]
+                },
+                {
+                    "name": "config",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [99, 111, 110, 102, 105, 103]
+                            }
+                        ]
+                    }
+                }
+            ],
+            "args": [
+                {
+                    "name": "paused",
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "update_config",
+            "docs": [
+                "Replaces the settings: router, attestor, sponsor and beta caps. The tables are fixed at `initialize`."
+            ],
+            "discriminator": [29, 158, 252, 191, 10, 83, 219, 99],
+            "accounts": [
+                {
+                    "name": "admin",
+                    "signer": true,
+                    "relations": ["config"]
+                },
+                {
+                    "name": "config",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [99, 111, 110, 102, 105, 103]
+                            }
+                        ]
+                    }
+                }
+            ],
+            "args": [
+                {
+                    "name": "settings",
+                    "type": {
+                        "defined": {
+                            "name": "Settings"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "accounts": [
+        {
+            "name": "Config",
+            "discriminator": [155, 12, 170, 224, 30, 250, 204, 130]
+        }
+    ],
+    "events": [
+        {
+            "name": "AdminAccepted",
+            "discriminator": [174, 12, 76, 139, 158, 99, 110, 254]
+        },
+        {
+            "name": "AdminProposed",
+            "discriminator": [129, 249, 226, 227, 199, 82, 110, 243]
+        },
+        {
+            "name": "ConfigInitialized",
+            "discriminator": [181, 49, 200, 156, 19, 167, 178, 91]
+        },
+        {
+            "name": "PausedSet",
+            "discriminator": [171, 125, 127, 156, 233, 81, 68, 66]
+        },
+        {
+            "name": "SettingsUpdated",
+            "discriminator": [35, 115, 95, 212, 3, 206, 67, 222]
+        }
+    ],
+    "errors": [
+        {
+            "code": 6000,
+            "name": "NotUpgradeAuthority",
+            "msg": "Only the program's upgrade authority can initialize the config"
+        },
+        {
+            "code": 6001,
+            "name": "Unauthorized",
+            "msg": "Only the admin can do this"
+        },
+        {
+            "code": 6002,
+            "name": "NotPendingAdmin",
+            "msg": "The signer is not the pending admin"
+        },
+        {
+            "code": 6003,
+            "name": "InvalidRouter",
+            "msg": "The router address is not set"
+        },
+        {
+            "code": 6004,
+            "name": "InvalidAttestor",
+            "msg": "The attestor key is not set"
+        },
+        {
+            "code": 6005,
+            "name": "InvalidCap",
+            "msg": "Caps must be greater than zero"
+        },
+        {
+            "code": 6006,
+            "name": "InvalidAsset",
+            "msg": "An asset entry does not match its mint account or has no price feed"
+        },
+        {
+            "code": 6007,
+            "name": "InvalidPaymentToken",
+            "msg": "A payment-token entry does not match its mint account"
+        },
+        {
+            "code": 6008,
+            "name": "InvalidSponsor",
+            "msg": "The sponsor key is not set"
+        }
+    ],
+    "types": [
+        {
+            "name": "AdminAccepted",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "admin",
+                        "type": "pubkey"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "AdminProposed",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "pending_admin",
+                        "type": "pubkey"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Asset",
+            "docs": ["A tokenized stock the sweep can buy."],
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "mint",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "token_program",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "decimals",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "pyth_feed_id",
+                        "docs": ["Pyth Pro feed id of the asset's USD price, quoted per raw token unit."],
+                        "type": "u32"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Config",
+            "docs": ["Global settings at `[CONFIG_SEED]`: 463 bytes with the discriminator."],
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "admin",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "pending_admin",
+                        "docs": ["Set by `propose_admin`; `Pubkey::default()` when no handover is pending."],
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "paused",
+                        "docs": ["Kill switch: when set, enrollment and sweeps stop."],
+                        "type": "bool"
+                    },
+                    {
+                        "name": "router",
+                        "docs": ["The only program the sweep may swap through."],
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "attestor",
+                        "docs": ["Ed25519 key whose signatures attest incoming and outgoing payments."],
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "sponsor",
+                        "docs": ["Pays the fees and rent of users' onboarding; `enroll` requires it as payer."],
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "user_weekly_cap",
+                        "docs": ["Beta cap per user and week, in USD with 6 decimals."],
+                        "type": "u64"
+                    },
+                    {
+                        "name": "max_users",
+                        "docs": ["Beta cap on enrolled users; `user_count` is kept by enrollment and exit."],
+                        "type": "u32"
+                    },
+                    {
+                        "name": "user_count",
+                        "type": "u32"
+                    },
+                    {
+                        "name": "assets",
+                        "docs": ["SPYx first (the default), then QQQx. Set once by `initialize`."],
+                        "type": {
+                            "array": [
+                                {
+                                    "defined": {
+                                        "name": "Asset"
+                                    }
+                                },
+                                2
+                            ]
+                        }
+                    },
+                    {
+                        "name": "payment_tokens",
+                        "docs": ["USDC, then USDT. Set once by `initialize`."],
+                        "type": {
+                            "array": [
+                                {
+                                    "defined": {
+                                        "name": "PaymentToken"
+                                    }
+                                },
+                                2
+                            ]
+                        }
+                    },
+                    {
+                        "name": "bump",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "vault_bump",
+                        "docs": ["Bump of the vault authority at `[VAULT_SEED]`."],
+                        "type": "u8"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "ConfigInitialized",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "params",
+                        "type": {
+                            "defined": {
+                                "name": "ConfigParams"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "ConfigParams",
+            "docs": [
+                "Everything `initialize` sets. The tables never change afterwards, because users refer to entries by index."
+            ],
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "settings",
+                        "type": {
+                            "defined": {
+                                "name": "Settings"
+                            }
+                        }
+                    },
+                    {
+                        "name": "assets",
+                        "type": {
+                            "array": [
+                                {
+                                    "defined": {
+                                        "name": "Asset"
+                                    }
+                                },
+                                2
+                            ]
+                        }
+                    },
+                    {
+                        "name": "payment_tokens",
+                        "type": {
+                            "array": [
+                                {
+                                    "defined": {
+                                        "name": "PaymentToken"
+                                    }
+                                },
+                                2
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "PausedSet",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "paused",
+                        "type": "bool"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "PaymentToken",
+            "docs": ["A stablecoin users are pulled in."],
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "mint",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "token_program",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "decimals",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "usd_feed_id",
+                        "docs": ["Pyth Pro feed id of the token's USD price; 0 when it is priced at one dollar."],
+                        "type": "u32"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Settings",
+            "docs": ["What the admin can change after initialization."],
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "router",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "attestor",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "sponsor",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "user_weekly_cap",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "max_users",
+                        "type": "u32"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "SettingsUpdated",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "settings",
+                        "type": {
+                            "defined": {
+                                "name": "Settings"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "constants": [
+        {
+            "name": "CONFIG_SEED",
+            "docs": ["Seed of the [`Config`](crate::Config) account."],
+            "type": "bytes",
+            "value": "[99, 111, 110, 102, 105, 103]"
+        },
+        {
+            "name": "VAULT_SEED",
+            "docs": ["Seed of the vault authority: it owns every plan, is their only destination and signs swaps."],
+            "type": "bytes",
+            "value": "[118, 97, 117, 108, 116]"
+        }
+    ]
+}

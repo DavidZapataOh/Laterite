@@ -7,11 +7,16 @@
         "node": ">=22.13"
     },
     "devDependencies": {
+        "@codama/nodes-from-anchor": "1.5.6",
+        "@codama/renderers-js": "2.5.0",
         "@solana/prettier-config-solana": "^0.0.7",
-        "prettier": "^3.9.8"
+        "codama": "1.11.0",
+        "prettier": "^3.9.8",
+        "tsx": "4.23.15"
     },
     "scripts": {
         "format": "prettier --write .",
-        "format:check": "prettier --check ."
+        "format:check": "prettier --check .",
+        "generate-clients": "tsx scripts/generate-clients.ts"
     }
 }

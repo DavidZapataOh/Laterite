@@ -12,7 +12,9 @@ LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf
 
 ```
 apps/landing/        Marketing site (Next.js)
+clients/typescript/  Generated TypeScript client (Codama)
 docs/                Architecture decision records
+idl/                 Program IDL
 packages/devnet/     Devnet stand-in assets, pools and re-peg
 programs/laterite/   On-chain program (Anchor)
 tests/fork/          Mainnet-fork tests (Surfpool)
@@ -42,6 +44,22 @@ Run `just` to list every recipe.
 ## Fork Testing
 
 `just test-fork` boots a Surfpool mainnet fork (datasource from `SURFPOOL_DATASOURCE_RPC_URL` in `.env`), installs the program at its declared address and runs `tests/fork`. It needs network access and is not part of `just test`. Swap routes are restricted to classic pools on the fork because market-maker pools depend on quote accounts that go stale once cloned.
+
+## Program Administration
+
+The program keeps one `Config` account with the admin, a kill switch (`set_paused`), beta caps (per-user weekly cap and maximum users), the allowed swap router, the attestor key, the key that sponsors users' onboarding, and the asset and payment-token tables. Only the program's upgrade authority can `initialize` it, which also fixes the asset and payment-token tables after checking them against the mint accounts; afterwards `update_config` changes the router, attestor, sponsor and caps, and every change needs the stored admin.
+
+Admin handover takes two steps, so a mistyped key can never lock the program: the admin calls `propose_admin` with the new key, and the new key signs `accept_admin`. Proposing the default key cancels a pending handover.
+
+To govern the program with a [Squads](https://squads.so) multisig, propose the multisig's vault address and execute `accept_admin` from a Squads proposal. The program has no Squads-specific code.
+
+After changing the program, regenerate and commit its IDL and client:
+
+```bash
+just generate-clients
+```
+
+CI fails when they drift (`just check-generated`).
 
 ## Devnet
 

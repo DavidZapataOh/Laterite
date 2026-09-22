@@ -79,6 +79,37 @@ test-visual: build-landing
     pnpm --filter @laterite/landing test:visual
 
 # ============================================
+# IDL and clients
+# ============================================
+
+generated_paths := "idl clients/typescript/src/generated"
+
+# Copy the IDL `anchor build` emits into idl/
+generate-idl: build-program
+    @mkdir -p idl
+    @cp target/idl/laterite.json idl/laterite.json
+    @pnpm exec prettier --write idl/laterite.json >/dev/null
+    @echo "✓ IDL generated"
+
+# Generate the TypeScript client from the IDL
+generate-clients: generate-idl
+    @pnpm run generate-clients
+    @pnpm exec prettier --write clients/typescript/src/generated >/dev/null
+    @echo "✓ Clients generated"
+
+# Fail when the committed IDL or client differs from the program
+check-generated: generate-clients
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! git diff --quiet -- {{generated_paths}} || [[ -n "$(git ls-files --others --exclude-standard -- {{generated_paths}})" ]]; then
+        git status --short -- {{generated_paths}}
+        echo "Error: generated files are out of date. Run 'just generate-clients' and commit the result."
+        exit 1
+    fi
+    pnpm --filter @laterite/client typecheck
+    echo "✓ Generated files are up to date"
+
+# ============================================
 # Local validator
 # ============================================
 
