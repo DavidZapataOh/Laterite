@@ -44,4 +44,16 @@ pub mod laterite {
     pub fn accept_admin(ctx: Context<AcceptAdmin>) -> Result<()> {
         ctx.accounts.accept_admin()
     }
+
+    /// Publishes a payment token's weekly tier as a Subscriptions plan owned by the vault authority; the
+    /// admin pays its rent, which is not refundable.
+    pub fn create_plan(ctx: Context<CreatePlan>, payment_token: u8, tier: u8) -> Result<()> {
+        ctx.accounts.create_plan(payment_token, tier)
+    }
+
+    /// Creates the user's settings; the configured sponsor pays the rent. Remaining accounts: the user's
+    /// subscription to the chosen tier for each enabled payment token, in token order.
+    pub fn enroll(ctx: Context<Enroll>, params: EnrollParams) -> Result<()> {
+        ctx.accounts.enroll(params, &ctx.bumps, ctx.remaining_accounts)
+    }
 }

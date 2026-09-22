@@ -57,6 +57,24 @@ build-landing:
 # Test
 # ============================================
 
+subscriptions_sha256 := "af3cefa5947173e03298361b3f461e2a314382a7206c084f77ad9a40c8b18d3a"
+
+# Refresh the committed program fixtures from mainnet; fails when a program no longer matches its pin
+dump-programs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    file=$(mktemp)
+    trap 'rm -f "$file"' EXIT
+    solana program dump -u mainnet-beta De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44 "$file" >/dev/null
+    if ! echo "{{subscriptions_sha256}}  $file" | shasum -a 256 -c --status; then
+        echo "Error: mainnet Subscriptions no longer matches the pinned hash."
+        echo "Review the upstream change, then update subscriptions_sha256 and run this again."
+        exit 1
+    fi
+    mkdir -p "{{program_dir}}/tests/fixtures"
+    cp "$file" "{{program_dir}}/tests/fixtures/subscriptions.so"
+    echo "✓ Program fixtures match mainnet"
+
 # Run every suite CI runs
 test: unit-test devnet-unit-test ui-test
 

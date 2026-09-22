@@ -20,4 +20,24 @@ pub enum LateriteError {
     InvalidPaymentToken,
     #[msg("The sponsor key is not set")]
     InvalidSponsor,
+    #[msg("The program is paused")]
+    ProgramPaused,
+    #[msg("The beta is full")]
+    BetaFull,
+    #[msg("Not one of the configured payment tokens")]
+    UnknownPaymentToken,
+    #[msg("Not one of the weekly tiers")]
+    InvalidTier,
+    #[msg("The tier is above the beta's weekly cap")]
+    CapAboveBetaLimit,
+    #[msg("Not one of the configured assets")]
+    UnknownAsset,
+    #[msg("At least one configured payment token must be enabled")]
+    NoPaymentToken,
+    #[msg("The rules are out of range or invest nothing")]
+    InvalidRules,
+    #[msg("A subscription to the chosen tier is missing for an enabled payment token")]
+    SubscriptionMismatch,
+    #[msg("Only the configured sponsor can pay for enrollment")]
+    NotSponsor,
 }

@@ -32,30 +32,70 @@ export const LATERITE_ERROR__INVALID_ASSET = 0x1776; // 6006
 export const LATERITE_ERROR__INVALID_PAYMENT_TOKEN = 0x1777; // 6007
 /** InvalidSponsor: The sponsor key is not set */
 export const LATERITE_ERROR__INVALID_SPONSOR = 0x1778; // 6008
+/** ProgramPaused: The program is paused */
+export const LATERITE_ERROR__PROGRAM_PAUSED = 0x1779; // 6009
+/** BetaFull: The beta is full */
+export const LATERITE_ERROR__BETA_FULL = 0x177a; // 6010
+/** UnknownPaymentToken: Not one of the configured payment tokens */
+export const LATERITE_ERROR__UNKNOWN_PAYMENT_TOKEN = 0x177b; // 6011
+/** InvalidTier: Not one of the weekly tiers */
+export const LATERITE_ERROR__INVALID_TIER = 0x177c; // 6012
+/** CapAboveBetaLimit: The tier is above the beta's weekly cap */
+export const LATERITE_ERROR__CAP_ABOVE_BETA_LIMIT = 0x177d; // 6013
+/** UnknownAsset: Not one of the configured assets */
+export const LATERITE_ERROR__UNKNOWN_ASSET = 0x177e; // 6014
+/** NoPaymentToken: At least one configured payment token must be enabled */
+export const LATERITE_ERROR__NO_PAYMENT_TOKEN = 0x177f; // 6015
+/** InvalidRules: The rules are out of range or invest nothing */
+export const LATERITE_ERROR__INVALID_RULES = 0x1780; // 6016
+/** SubscriptionMismatch: A subscription to the chosen tier is missing for an enabled payment token */
+export const LATERITE_ERROR__SUBSCRIPTION_MISMATCH = 0x1781; // 6017
+/** NotSponsor: Only the configured sponsor can pay for enrollment */
+export const LATERITE_ERROR__NOT_SPONSOR = 0x1782; // 6018
 
 export type LateriteError =
+    | typeof LATERITE_ERROR__BETA_FULL
+    | typeof LATERITE_ERROR__CAP_ABOVE_BETA_LIMIT
     | typeof LATERITE_ERROR__INVALID_ASSET
     | typeof LATERITE_ERROR__INVALID_ATTESTOR
     | typeof LATERITE_ERROR__INVALID_CAP
     | typeof LATERITE_ERROR__INVALID_PAYMENT_TOKEN
     | typeof LATERITE_ERROR__INVALID_ROUTER
+    | typeof LATERITE_ERROR__INVALID_RULES
     | typeof LATERITE_ERROR__INVALID_SPONSOR
+    | typeof LATERITE_ERROR__INVALID_TIER
+    | typeof LATERITE_ERROR__NO_PAYMENT_TOKEN
     | typeof LATERITE_ERROR__NOT_PENDING_ADMIN
+    | typeof LATERITE_ERROR__NOT_SPONSOR
     | typeof LATERITE_ERROR__NOT_UPGRADE_AUTHORITY
-    | typeof LATERITE_ERROR__UNAUTHORIZED;
+    | typeof LATERITE_ERROR__PROGRAM_PAUSED
+    | typeof LATERITE_ERROR__SUBSCRIPTION_MISMATCH
+    | typeof LATERITE_ERROR__UNAUTHORIZED
+    | typeof LATERITE_ERROR__UNKNOWN_ASSET
+    | typeof LATERITE_ERROR__UNKNOWN_PAYMENT_TOKEN;
 
 let lateriteErrorMessages: Record<LateriteError, string> | undefined;
 if (process.env['NODE_ENV'] !== 'production') {
     lateriteErrorMessages = {
+        [LATERITE_ERROR__BETA_FULL]: `The beta is full`,
+        [LATERITE_ERROR__CAP_ABOVE_BETA_LIMIT]: `The tier is above the beta's weekly cap`,
         [LATERITE_ERROR__INVALID_ASSET]: `An asset entry does not match its mint account or has no price feed`,
         [LATERITE_ERROR__INVALID_ATTESTOR]: `The attestor key is not set`,
         [LATERITE_ERROR__INVALID_CAP]: `Caps must be greater than zero`,
         [LATERITE_ERROR__INVALID_PAYMENT_TOKEN]: `A payment-token entry does not match its mint account`,
         [LATERITE_ERROR__INVALID_ROUTER]: `The router address is not set`,
+        [LATERITE_ERROR__INVALID_RULES]: `The rules are out of range or invest nothing`,
         [LATERITE_ERROR__INVALID_SPONSOR]: `The sponsor key is not set`,
+        [LATERITE_ERROR__INVALID_TIER]: `Not one of the weekly tiers`,
+        [LATERITE_ERROR__NO_PAYMENT_TOKEN]: `At least one configured payment token must be enabled`,
         [LATERITE_ERROR__NOT_PENDING_ADMIN]: `The signer is not the pending admin`,
+        [LATERITE_ERROR__NOT_SPONSOR]: `Only the configured sponsor can pay for enrollment`,
         [LATERITE_ERROR__NOT_UPGRADE_AUTHORITY]: `Only the program's upgrade authority can initialize the config`,
+        [LATERITE_ERROR__PROGRAM_PAUSED]: `The program is paused`,
+        [LATERITE_ERROR__SUBSCRIPTION_MISMATCH]: `A subscription to the chosen tier is missing for an enabled payment token`,
         [LATERITE_ERROR__UNAUTHORIZED]: `Only the admin can do this`,
+        [LATERITE_ERROR__UNKNOWN_ASSET]: `Not one of the configured assets`,
+        [LATERITE_ERROR__UNKNOWN_PAYMENT_TOKEN]: `Not one of the configured payment tokens`,
     };
 }
 

@@ -17,6 +17,7 @@ import {
     SOLANA_ERROR__PROGRAM_CLIENTS__UNRECOGNIZED_INSTRUCTION_TYPE,
     SolanaError,
     type Address,
+    type ClientWithPayer,
     type ClientWithRpc,
     type ClientWithTransactionPlanning,
     type ClientWithTransactionSending,
@@ -33,21 +34,36 @@ import {
     type SelfFetchFunctions,
     type SelfPlanAndSendFunctions,
 } from '@solana/program-client-core';
-import { getConfigCodec, type Config, type ConfigArgs } from '../accounts';
+import {
+    getConfigCodec,
+    getUserConfigCodec,
+    type Config,
+    type ConfigArgs,
+    type UserConfig,
+    type UserConfigArgs,
+} from '../accounts';
 import {
     getAcceptAdminInstructionAsync,
+    getCreatePlanInstructionAsync,
+    getEnrollInstructionAsync,
     getInitializeInstructionAsync,
     getProposeAdminInstructionAsync,
     getSetPausedInstructionAsync,
     getUpdateConfigInstructionAsync,
     parseAcceptAdminInstruction,
+    parseCreatePlanInstruction,
+    parseEnrollInstruction,
     parseInitializeInstruction,
     parseProposeAdminInstruction,
     parseSetPausedInstruction,
     parseUpdateConfigInstruction,
     type AcceptAdminAsyncInput,
+    type CreatePlanAsyncInput,
+    type EnrollAsyncInput,
     type InitializeAsyncInput,
     type ParsedAcceptAdminInstruction,
+    type ParsedCreatePlanInstruction,
+    type ParsedEnrollInstruction,
     type ParsedInitializeInstruction,
     type ParsedProposeAdminInstruction,
     type ParsedSetPausedInstruction,
@@ -56,13 +72,14 @@ import {
     type SetPausedAsyncInput,
     type UpdateConfigAsyncInput,
 } from '../instructions';
-import { findConfigPda } from '../pdas';
+import { findConfigPda, findUserConfigPda, findVaultPda } from '../pdas';
 
 export const LATERITE_PROGRAM_ADDRESS =
     'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf' as Address<'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf'>;
 
 export enum LateriteAccount {
     Config,
+    UserConfig,
 }
 
 export function identifyLateriteAccount(account: { data: ReadonlyUint8Array } | ReadonlyUint8Array): LateriteAccount {
@@ -76,6 +93,15 @@ export function identifyLateriteAccount(account: { data: ReadonlyUint8Array } | 
     ) {
         return LateriteAccount.Config;
     }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([58, 201, 49, 59, 232, 236, 180, 75])),
+            0,
+        )
+    ) {
+        return LateriteAccount.UserConfig;
+    }
     throw new SolanaError(SOLANA_ERROR__PROGRAM_CLIENTS__FAILED_TO_IDENTIFY_ACCOUNT, {
         accountData: data,
         programName: 'laterite',
@@ -86,7 +112,9 @@ export enum LateriteEvent {
     AdminAccepted,
     AdminProposed,
     ConfigInitialized,
+    Enrolled,
     PausedSet,
+    PlanCreated,
     SettingsUpdated,
 }
 
@@ -122,11 +150,29 @@ export function identifyLateriteEvent(event: { data: ReadonlyUint8Array } | Read
     if (
         containsBytes(
             data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([129, 156, 102, 214, 94, 196, 220, 127])),
+            0,
+        )
+    ) {
+        return LateriteEvent.Enrolled;
+    }
+    if (
+        containsBytes(
+            data,
             fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([171, 125, 127, 156, 233, 81, 68, 66])),
             0,
         )
     ) {
         return LateriteEvent.PausedSet;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([215, 11, 135, 121, 208, 119, 149, 149])),
+            0,
+        )
+    ) {
+        return LateriteEvent.PlanCreated;
     }
     if (
         containsBytes(
@@ -142,6 +188,8 @@ export function identifyLateriteEvent(event: { data: ReadonlyUint8Array } | Read
 
 export enum LateriteInstruction {
     AcceptAdmin,
+    CreatePlan,
+    Enroll,
     Initialize,
     ProposeAdmin,
     SetPaused,
@@ -160,6 +208,24 @@ export function identifyLateriteInstruction(
         )
     ) {
         return LateriteInstruction.AcceptAdmin;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([77, 43, 141, 254, 212, 118, 41, 186])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.CreatePlan;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([58, 12, 36, 3, 142, 28, 1, 43])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.Enroll;
     }
     if (
         containsBytes(
@@ -205,6 +271,8 @@ export function identifyLateriteInstruction(
 
 export type ParsedLateriteInstruction<TProgram extends string = 'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf'> =
     | ({ instructionType: LateriteInstruction.AcceptAdmin } & ParsedAcceptAdminInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.CreatePlan } & ParsedCreatePlanInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.Enroll } & ParsedEnrollInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.Initialize } & ParsedInitializeInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.ProposeAdmin } & ParsedProposeAdminInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.SetPaused } & ParsedSetPausedInstruction<TProgram>)
@@ -218,6 +286,14 @@ export function parseLateriteInstruction<TProgram extends string>(
         case LateriteInstruction.AcceptAdmin: {
             assertIsInstructionWithAccounts(instruction);
             return { instructionType: LateriteInstruction.AcceptAdmin, ...parseAcceptAdminInstruction(instruction) };
+        }
+        case LateriteInstruction.CreatePlan: {
+            assertIsInstructionWithAccounts(instruction);
+            return { instructionType: LateriteInstruction.CreatePlan, ...parseCreatePlanInstruction(instruction) };
+        }
+        case LateriteInstruction.Enroll: {
+            assertIsInstructionWithAccounts(instruction);
+            return { instructionType: LateriteInstruction.Enroll, ...parseEnrollInstruction(instruction) };
         }
         case LateriteInstruction.Initialize: {
             assertIsInstructionWithAccounts(instruction);
@@ -254,12 +330,19 @@ export type LateritePlugin = {
 
 export type LateritePluginAccounts = {
     config: ReturnType<typeof getConfigCodec> & SelfFetchFunctions<ConfigArgs, Config>;
+    userConfig: ReturnType<typeof getUserConfigCodec> & SelfFetchFunctions<UserConfigArgs, UserConfig>;
 };
 
 export type LateritePluginInstructions = {
     acceptAdmin: (
         input: AcceptAdminAsyncInput,
     ) => ReturnType<typeof getAcceptAdminInstructionAsync> & SelfPlanAndSendFunctions;
+    createPlan: (
+        input: CreatePlanAsyncInput,
+    ) => ReturnType<typeof getCreatePlanInstructionAsync> & SelfPlanAndSendFunctions;
+    enroll: (
+        input: MakeOptional<EnrollAsyncInput, 'payer'>,
+    ) => ReturnType<typeof getEnrollInstructionAsync> & SelfPlanAndSendFunctions;
     initialize: (
         input: InitializeAsyncInput,
     ) => ReturnType<typeof getInitializeInstructionAsync> & SelfPlanAndSendFunctions;
@@ -274,9 +357,14 @@ export type LateritePluginInstructions = {
     ) => ReturnType<typeof getUpdateConfigInstructionAsync> & SelfPlanAndSendFunctions;
 };
 
-export type LateritePluginPdas = { config: typeof findConfigPda };
+export type LateritePluginPdas = {
+    config: typeof findConfigPda;
+    vault: typeof findVaultPda;
+    userConfig: typeof findUserConfigPda;
+};
 
 export type LateritePluginRequirements = ClientWithRpc<GetAccountInfoApi & GetMultipleAccountsApi> &
+    ClientWithPayer &
     ClientWithTransactionPlanning &
     ClientWithTransactionSending;
 
@@ -284,15 +372,24 @@ export function lateriteProgram() {
     return <T extends LateritePluginRequirements>(client: T): ExtendedClient<T, { laterite: LateritePlugin }> => {
         return extendClient(client, {
             laterite: <LateritePlugin>{
-                accounts: { config: addSelfFetchFunctions(client, getConfigCodec()) },
+                accounts: {
+                    config: addSelfFetchFunctions(client, getConfigCodec()),
+                    userConfig: addSelfFetchFunctions(client, getUserConfigCodec()),
+                },
                 instructions: {
                     acceptAdmin: input => addSelfPlanAndSendFunctions(client, getAcceptAdminInstructionAsync(input)),
+                    createPlan: input => addSelfPlanAndSendFunctions(client, getCreatePlanInstructionAsync(input)),
+                    enroll: input =>
+                        addSelfPlanAndSendFunctions(
+                            client,
+                            getEnrollInstructionAsync({ ...input, payer: input.payer ?? client.payer }),
+                        ),
                     initialize: input => addSelfPlanAndSendFunctions(client, getInitializeInstructionAsync(input)),
                     proposeAdmin: input => addSelfPlanAndSendFunctions(client, getProposeAdminInstructionAsync(input)),
                     setPaused: input => addSelfPlanAndSendFunctions(client, getSetPausedInstructionAsync(input)),
                     updateConfig: input => addSelfPlanAndSendFunctions(client, getUpdateConfigInstructionAsync(input)),
                 },
-                pdas: { config: findConfigPda },
+                pdas: { config: findConfigPda, vault: findVaultPda, userConfig: findUserConfigPda },
                 identifyAccount: identifyLateriteAccount,
                 identifyInstruction: identifyLateriteInstruction,
                 parseInstruction: parseLateriteInstruction,
@@ -300,3 +397,5 @@ export function lateriteProgram() {
         });
     };
 }
+
+type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

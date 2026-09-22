@@ -8,5 +8,6 @@
 
 export * from './asset';
 export * from './configParams';
+export * from './engine';
 export * from './paymentToken';
 export * from './settings';

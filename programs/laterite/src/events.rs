@@ -26,3 +26,18 @@ pub struct AdminProposed {
 pub struct AdminAccepted {
     pub admin: Pubkey,
 }
+
+#[event]
+pub struct PlanCreated {
+    pub payment_token: u8,
+    pub tier: u8,
+    pub plan: Pubkey,
+}
+
+#[event]
+pub struct Enrolled {
+    pub user: Pubkey,
+    pub tier: u8,
+    pub payment_tokens: u8,
+    pub asset: u8,
+}

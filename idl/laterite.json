@@ -34,6 +34,134 @@
             "args": []
         },
         {
+            "name": "create_plan",
+            "docs": [
+                "Publishes a payment token's weekly tier as a Subscriptions plan owned by the vault authority; the",
+                "admin pays its rent, which is not refundable."
+            ],
+            "discriminator": [77, 43, 141, 254, 212, 118, 41, 186],
+            "accounts": [
+                {
+                    "name": "admin",
+                    "writable": true,
+                    "signer": true,
+                    "relations": ["config"]
+                },
+                {
+                    "name": "config",
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [99, 111, 110, 102, 105, 103]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "vault",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [118, 97, 117, 108, 116]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "plan",
+                    "writable": true
+                },
+                {
+                    "name": "mint"
+                },
+                {
+                    "name": "token_program"
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                },
+                {
+                    "name": "subscriptions_program",
+                    "address": "De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44"
+                }
+            ],
+            "args": [
+                {
+                    "name": "payment_token",
+                    "type": "u8"
+                },
+                {
+                    "name": "tier",
+                    "type": "u8"
+                }
+            ]
+        },
+        {
+            "name": "enroll",
+            "docs": [
+                "Creates the user's settings; the configured sponsor pays the rent. Remaining accounts: the user's",
+                "subscription to the chosen tier for each enabled payment token, in token order."
+            ],
+            "discriminator": [58, 12, 36, 3, 142, 28, 1, 43],
+            "accounts": [
+                {
+                    "name": "user",
+                    "signer": true
+                },
+                {
+                    "name": "payer",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "config",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [99, 111, 110, 102, 105, 103]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "user_config",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [117, 115, 101, 114]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "user"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": [
+                {
+                    "name": "params",
+                    "type": {
+                        "defined": {
+                            "name": "EnrollParams"
+                        }
+                    }
+                }
+            ]
+        },
+        {
             "name": "initialize",
             "docs": [
                 "Creates the config; only the program's upgrade authority can call it, once. Remaining accounts: the",
@@ -182,6 +310,10 @@
         {
             "name": "Config",
             "discriminator": [155, 12, 170, 224, 30, 250, 204, 130]
+        },
+        {
+            "name": "UserConfig",
+            "discriminator": [58, 201, 49, 59, 232, 236, 180, 75]
         }
     ],
     "events": [
@@ -198,8 +330,16 @@
             "discriminator": [181, 49, 200, 156, 19, 167, 178, 91]
         },
         {
+            "name": "Enrolled",
+            "discriminator": [129, 156, 102, 214, 94, 196, 220, 127]
+        },
+        {
             "name": "PausedSet",
             "discriminator": [171, 125, 127, 156, 233, 81, 68, 66]
+        },
+        {
+            "name": "PlanCreated",
+            "discriminator": [215, 11, 135, 121, 208, 119, 149, 149]
         },
         {
             "name": "SettingsUpdated",
@@ -251,6 +391,56 @@
             "code": 6008,
             "name": "InvalidSponsor",
             "msg": "The sponsor key is not set"
+        },
+        {
+            "code": 6009,
+            "name": "ProgramPaused",
+            "msg": "The program is paused"
+        },
+        {
+            "code": 6010,
+            "name": "BetaFull",
+            "msg": "The beta is full"
+        },
+        {
+            "code": 6011,
+            "name": "UnknownPaymentToken",
+            "msg": "Not one of the configured payment tokens"
+        },
+        {
+            "code": 6012,
+            "name": "InvalidTier",
+            "msg": "Not one of the weekly tiers"
+        },
+        {
+            "code": 6013,
+            "name": "CapAboveBetaLimit",
+            "msg": "The tier is above the beta's weekly cap"
+        },
+        {
+            "code": 6014,
+            "name": "UnknownAsset",
+            "msg": "Not one of the configured assets"
+        },
+        {
+            "code": 6015,
+            "name": "NoPaymentToken",
+            "msg": "At least one configured payment token must be enabled"
+        },
+        {
+            "code": 6016,
+            "name": "InvalidRules",
+            "msg": "The rules are out of range or invest nothing"
+        },
+        {
+            "code": 6017,
+            "name": "SubscriptionMismatch",
+            "msg": "A subscription to the chosen tier is missing for an enabled payment token"
+        },
+        {
+            "code": 6018,
+            "name": "NotSponsor",
+            "msg": "Only the configured sponsor can pay for enrollment"
         }
     ],
     "types": [
@@ -455,6 +645,101 @@
             }
         },
         {
+            "name": "Engine",
+            "type": {
+                "kind": "enum",
+                "variants": [
+                    {
+                        "name": "Daily"
+                    },
+                    {
+                        "name": "Weekly"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "EnrollParams",
+            "docs": ["What a user chooses when enrolling."],
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "tier",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "payment_tokens",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "asset",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "engine",
+                        "type": {
+                            "defined": {
+                                "name": "Engine"
+                            }
+                        }
+                    },
+                    {
+                        "name": "engine_amount",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "income_rule",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "change_multiplier",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "cushions",
+                        "type": {
+                            "array": ["u64", 2]
+                        }
+                    },
+                    {
+                        "name": "goal_amount",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "goal_label",
+                        "type": {
+                            "array": ["u8", 32]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Enrolled",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "user",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "tier",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "payment_tokens",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "asset",
+                        "type": "u8"
+                    }
+                ]
+            }
+        },
+        {
             "name": "PausedSet",
             "type": {
                 "kind": "struct",
@@ -488,6 +773,26 @@
                         "name": "usd_feed_id",
                         "docs": ["Pyth Pro feed id of the token's USD price; 0 when it is priced at one dollar."],
                         "type": "u32"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "PlanCreated",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "payment_token",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "tier",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "plan",
+                        "type": "pubkey"
                     }
                 ]
             }
@@ -536,6 +841,92 @@
                     }
                 ]
             }
+        },
+        {
+            "name": "UserConfig",
+            "docs": ["A user's signed settings at `[USER_CONFIG_SEED, user]`: 151 bytes with the discriminator."],
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "user",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "payer",
+                        "docs": [
+                            "Who paid this account's rent: the sponsor at enrollment, recorded because the admin can rotate the sponsor."
+                        ],
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "tier",
+                        "docs": ["Index into `TIERS`: the weekly cap across both payment tokens."],
+                        "type": "u8"
+                    },
+                    {
+                        "name": "payment_tokens",
+                        "docs": ["Bit `i` set when `Config.payment_tokens[i]` is enabled."],
+                        "type": "u8"
+                    },
+                    {
+                        "name": "asset",
+                        "docs": ["Index into `Config.assets`."],
+                        "type": "u8"
+                    },
+                    {
+                        "name": "engine",
+                        "type": {
+                            "defined": {
+                                "name": "Engine"
+                            }
+                        }
+                    },
+                    {
+                        "name": "engine_amount",
+                        "docs": ["What the engine invests each day or week, in USD with 6 decimals; 0 turns it off."],
+                        "type": "u64"
+                    },
+                    {
+                        "name": "income_rule",
+                        "docs": ["Invest a share of each incoming payment."],
+                        "type": "bool"
+                    },
+                    {
+                        "name": "change_multiplier",
+                        "docs": ["Change per outgoing payment: 0 (off) to 3."],
+                        "type": "u8"
+                    },
+                    {
+                        "name": "cushions",
+                        "docs": ["Balance left untouched per payment token, in that token's raw units (6 decimals)."],
+                        "type": {
+                            "array": ["u64", 2]
+                        }
+                    },
+                    {
+                        "name": "enrolled_at",
+                        "docs": ["Unix time of enrollment; the trial week starts here."],
+                        "type": "i64"
+                    },
+                    {
+                        "name": "goal_amount",
+                        "docs": ["Savings goal in USD with 6 decimals."],
+                        "type": "u64"
+                    },
+                    {
+                        "name": "goal_label",
+                        "docs": ["UTF-8, zero-padded."],
+                        "type": {
+                            "array": ["u8", 32]
+                        }
+                    },
+                    {
+                        "name": "bump",
+                        "type": "u8"
+                    }
+                ]
+            }
         }
     ],
     "constants": [
@@ -544,6 +935,12 @@
             "docs": ["Seed of the [`Config`](crate::Config) account."],
             "type": "bytes",
             "value": "[99, 111, 110, 102, 105, 103]"
+        },
+        {
+            "name": "USER_CONFIG_SEED",
+            "docs": ["Seed of a user's [`UserConfig`](crate::UserConfig), followed by the user's address."],
+            "type": "bytes",
+            "value": "[117, 115, 101, 114]"
         },
         {
             "name": "VAULT_SEED",

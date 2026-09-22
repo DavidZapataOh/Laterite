@@ -10,4 +10,6 @@ import type { ReadonlyUint8Array } from '@solana/kit';
 
 export const CONFIG_SEED: ReadonlyUint8Array = new Uint8Array([99, 111, 110, 102, 105, 103]);
 
+export const USER_CONFIG_SEED: ReadonlyUint8Array = new Uint8Array([117, 115, 101, 114]);
+
 export const VAULT_SEED: ReadonlyUint8Array = new Uint8Array([118, 97, 117, 108, 116]);

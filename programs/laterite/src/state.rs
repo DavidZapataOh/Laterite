@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token_interface::Mint;
 
-use crate::{errors::LateriteError, ASSET_COUNT, PAYMENT_TOKEN_COUNT};
+use crate::{errors::LateriteError, ASSET_COUNT, PAYMENT_TOKEN_COUNT, TIERS};
 
 /// Global settings at `[CONFIG_SEED]`: 463 bytes with the discriminator.
 #[account]
@@ -125,5 +125,70 @@ impl Config {
         self.sponsor = settings.sponsor;
         self.user_weekly_cap = settings.user_weekly_cap;
         self.max_users = settings.max_users;
+    }
+}
+
+/// A user's signed settings at `[USER_CONFIG_SEED, user]`: 151 bytes with the discriminator.
+#[account]
+#[derive(InitSpace)]
+pub struct UserConfig {
+    pub user: Pubkey,
+    /// Who paid this account's rent: the sponsor at enrollment, recorded because the admin can rotate the sponsor.
+    pub payer: Pubkey,
+    /// Index into `TIERS`: the weekly cap across both payment tokens.
+    pub tier: u8,
+    /// Bit `i` set when `Config.payment_tokens[i]` is enabled.
+    pub payment_tokens: u8,
+    /// Index into `Config.assets`.
+    pub asset: u8,
+    pub engine: Engine,
+    /// What the engine invests each day or week, in USD with 6 decimals; 0 turns it off.
+    pub engine_amount: u64,
+    /// Invest a share of each incoming payment.
+    pub income_rule: bool,
+    /// Change per outgoing payment: 0 (off) to 3.
+    pub change_multiplier: u8,
+    /// Balance left untouched per payment token, in that token's raw units (6 decimals).
+    pub cushions: [u64; PAYMENT_TOKEN_COUNT],
+    /// Unix time of enrollment; the trial week starts here.
+    pub enrolled_at: i64,
+    /// Savings goal in USD with 6 decimals.
+    pub goal_amount: u64,
+    /// UTF-8, zero-padded.
+    pub goal_label: [u8; 32],
+    pub bump: u8,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, InitSpace, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Engine {
+    Daily,
+    Weekly,
+}
+
+/// What a user chooses when enrolling.
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, PartialEq, Eq)]
+pub struct EnrollParams {
+    pub tier: u8,
+    pub payment_tokens: u8,
+    pub asset: u8,
+    pub engine: Engine,
+    pub engine_amount: u64,
+    pub income_rule: bool,
+    pub change_multiplier: u8,
+    pub cushions: [u64; PAYMENT_TOKEN_COUNT],
+    pub goal_amount: u64,
+    pub goal_label: [u8; 32],
+}
+
+impl EnrollParams {
+    pub fn validate(&self, config: &Config) -> Result<()> {
+        let cap = *TIERS.get(self.tier as usize).ok_or(LateriteError::InvalidTier)?;
+        require_gte!(config.user_weekly_cap, cap, LateriteError::CapAboveBetaLimit);
+        require!((self.asset as usize) < ASSET_COUNT, LateriteError::UnknownAsset);
+        require!(self.payment_tokens != 0, LateriteError::NoPaymentToken);
+        require!(self.payment_tokens >> PAYMENT_TOKEN_COUNT == 0, LateriteError::UnknownPaymentToken);
+        let invests = self.engine_amount > 0 || self.income_rule || self.change_multiplier > 0;
+        require!(invests && self.change_multiplier <= 3 && self.engine_amount <= cap, LateriteError::InvalidRules);
+        Ok(())
     }
 }
