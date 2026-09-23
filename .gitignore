@@ -21,3 +21,6 @@ blob-report/
 # Surfpool
 .surfpool/
 tests/fork/report.json
+
+# Compute-unit report (cu_baseline.md is committed)
+cu_report.md

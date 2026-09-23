@@ -21,6 +21,8 @@ pub use state::*;
 
 declare_id!("LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf");
 
+declare_program!(pyth_lazer_solana_contract);
+
 #[program]
 pub mod laterite {
     use super::*;
@@ -31,7 +33,7 @@ pub mod laterite {
         ctx.accounts.initialize(params, &ctx.bumps, ctx.remaining_accounts)
     }
 
-    /// Replaces the settings: router, attestor, sponsor and beta caps. The tables are fixed at `initialize`.
+    /// Replaces the settings: attestor, sponsor and beta caps. The router and the tables are fixed at `initialize`.
     pub fn update_config(ctx: Context<AdminOnly>, settings: Settings) -> Result<()> {
         ctx.accounts.update_config(settings)
     }
@@ -62,8 +64,8 @@ pub mod laterite {
         ctx.accounts.accept_admin()
     }
 
-    /// Publishes a payment token's weekly tier as a Subscriptions plan owned by the vault authority; the
-    /// admin pays its rent, which is not refundable.
+    /// Publishes a payment token's weekly tier as a Subscriptions plan owned by the vault authority, paying only into
+    /// the swap authority's accounts; the admin pays its rent, which is not refundable.
     pub fn create_plan(ctx: Context<CreatePlan>, payment_token: u8, tier: u8) -> Result<()> {
         ctx.accounts.create_plan(payment_token, tier)
     }
@@ -84,5 +86,30 @@ pub mod laterite {
     /// Closes an expired attestation record, refunding its payer. Anyone can call it.
     pub fn close_attestation(ctx: Context<CloseAttestation>) -> Result<()> {
         ctx.accounts.close_attestation()
+    }
+
+    /// Invests what is due for one user and payment token, once per UTC day. Verifies the Pyth Pro updates by CPI:
+    /// `asset_message` for the asset and, for a payment token with a price feed, `payment_message`, signature entries
+    /// 0 and 1 of the ed25519 instruction at `ed25519_index`. Pulls through the user's subscription, swaps through
+    /// the configured router with the caller's `route` data and the remaining accounts, and checks that the user
+    /// received at least the minimum the prices allow. Anyone can call it.
+    pub fn sweep<'info>(
+        ctx: Context<'info, Sweep<'info>>,
+        asset_message: Vec<u8>,
+        payment_message: Vec<u8>,
+        ed25519_index: u16,
+        payment_token: u8,
+        route: Vec<u8>,
+    ) -> Result<()> {
+        let event = ctx.accounts.sweep(
+            asset_message,
+            payment_message,
+            ed25519_index,
+            payment_token,
+            route,
+            ctx.remaining_accounts,
+        )?;
+        emit_cpi!(event);
+        Ok(())
     }
 }

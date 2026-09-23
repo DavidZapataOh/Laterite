@@ -23,25 +23,12 @@ import {
 } from '@solana/kit';
 
 /** What the admin can change after initialization. */
-export type Settings = {
-    router: Address;
-    attestor: Address;
-    sponsor: Address;
-    userWeeklyCap: bigint;
-    maxUsers: number;
-};
+export type Settings = { attestor: Address; sponsor: Address; userWeeklyCap: bigint; maxUsers: number };
 
-export type SettingsArgs = {
-    router: Address;
-    attestor: Address;
-    sponsor: Address;
-    userWeeklyCap: number | bigint;
-    maxUsers: number;
-};
+export type SettingsArgs = { attestor: Address; sponsor: Address; userWeeklyCap: number | bigint; maxUsers: number };
 
 export function getSettingsEncoder(): FixedSizeEncoder<SettingsArgs> {
     return getStructEncoder([
-        ['router', getAddressEncoder()],
         ['attestor', getAddressEncoder()],
         ['sponsor', getAddressEncoder()],
         ['userWeeklyCap', getU64Encoder()],
@@ -51,7 +38,6 @@ export function getSettingsEncoder(): FixedSizeEncoder<SettingsArgs> {
 
 export function getSettingsDecoder(): FixedSizeDecoder<Settings> {
     return getStructDecoder([
-        ['router', getAddressDecoder()],
         ['attestor', getAddressDecoder()],
         ['sponsor', getAddressDecoder()],
         ['userWeeklyCap', getU64Decoder()],

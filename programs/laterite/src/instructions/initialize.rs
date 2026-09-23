@@ -28,7 +28,7 @@ impl Initialize<'_> {
             admin: self.authority.key(),
             pending_admin: Pubkey::default(),
             paused: false,
-            router: params.settings.router,
+            router: params.router,
             attestor: params.settings.attestor,
             sponsor: params.settings.sponsor,
             user_weekly_cap: params.settings.user_weekly_cap,

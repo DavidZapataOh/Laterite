@@ -12,7 +12,7 @@ pub struct Config {
     pub pending_admin: Pubkey,
     /// Kill switch: when set, enrollment and sweeps stop.
     pub paused: bool,
-    /// The only program the sweep may swap through.
+    /// The only program the sweep may swap through. Set once by `initialize`.
     pub router: Pubkey,
     /// Ed25519 key whose signatures attest incoming and outgoing payments.
     pub attestor: Pubkey,
@@ -81,14 +81,14 @@ impl Default for MarketCalendar {
 /// What the admin can change after initialization.
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, PartialEq, Eq)]
 pub struct Settings {
-    pub router: Pubkey,
     pub attestor: Pubkey,
     pub sponsor: Pubkey,
     pub user_weekly_cap: u64,
     pub max_users: u32,
 }
 
-/// Everything `initialize` sets. The tables never change afterwards, because users refer to entries by index.
+/// Everything `initialize` sets. The tables and the router never change afterwards: users refer to table entries by
+/// index, and the vault signs the router's instruction.
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, PartialEq, Eq)]
 pub struct ConfigParams {
     pub settings: Settings,
@@ -97,11 +97,12 @@ pub struct ConfigParams {
     /// Genesis hash of the cluster being deployed to, as `getGenesisHash` returns it: the program cannot read it, so
     /// the deployment supplies it and checks it.
     pub genesis_hash: [u8; 32],
+    /// The only program a sweep may swap through.
+    pub router: Pubkey,
 }
 
 impl Settings {
     pub fn validate(&self) -> Result<()> {
-        require_keys_neq!(self.router, Pubkey::default(), LateriteError::InvalidRouter);
         require_keys_neq!(self.attestor, Pubkey::default(), LateriteError::InvalidAttestor);
         require_keys_neq!(self.sponsor, Pubkey::default(), LateriteError::InvalidSponsor);
         require!(self.user_weekly_cap > 0 && self.max_users > 0, LateriteError::InvalidCap);
@@ -113,6 +114,7 @@ impl ConfigParams {
     /// `mints` are the tables' mint accounts in order: the assets, then the payment tokens.
     pub fn validate(&self, mints: &[AccountInfo]) -> Result<()> {
         self.settings.validate()?;
+        require_keys_neq!(self.router, Pubkey::default(), LateriteError::InvalidRouter);
         require!(self.genesis_hash != [0; 32], LateriteError::InvalidGenesisHash);
         require_gte!(
             mints.len(),
@@ -148,9 +150,9 @@ fn mint_matches(account: &AccountInfo, mint: &Pubkey, token_program: &Pubkey, de
 }
 
 impl Config {
-    /// Applies the settings; admin, pause state, tables, genesis hash, user count and bumps are left untouched.
+    /// Applies the settings; admin, pause state, router, tables, genesis hash, user count and bumps are left
+    /// untouched.
     pub fn apply(&mut self, settings: &Settings) {
-        self.router = settings.router;
         self.attestor = settings.attestor;
         self.sponsor = settings.sponsor;
         self.user_weekly_cap = settings.user_weekly_cap;
@@ -158,7 +160,7 @@ impl Config {
     }
 }
 
-/// A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 188 bytes with the discriminator.
+/// A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 196 bytes with the discriminator.
 #[account]
 #[derive(InitSpace, Debug)]
 pub struct UserConfig {
@@ -200,6 +202,8 @@ pub struct UserConfig {
     /// Block time of the earliest transfer that can be attested: enrollment, raised to the clock by each return to
     /// `Active` (resume, reactivation) and each enabling of a payment token or rule that was off. Never lowered.
     pub attestable_from: i64,
+    /// Per payment token, the UTC day (days since 1970-01-01) of its last sweep; 0 before the first.
+    pub last_sweep_day: [u32; PAYMENT_TOKEN_COUNT],
 }
 
 /// Where a user stands. The account outlives an exit, so a returning user keeps their counters.

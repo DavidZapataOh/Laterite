@@ -35,6 +35,7 @@ fn user(tier: u8, engine: Engine, engine_amount: u64) -> UserConfig {
         pending: 0,
         status: UserStatus::Active,
         attestable_from: MONDAY,
+        last_sweep_day: [0; 2],
     }
 }
 

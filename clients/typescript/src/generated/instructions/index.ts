@@ -15,4 +15,5 @@ export * from './initialize';
 export * from './proposeAdmin';
 export * from './setMarketCalendar';
 export * from './setPaused';
+export * from './sweep';
 export * from './updateConfig';

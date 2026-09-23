@@ -1,13 +1,18 @@
 use anchor_lang::{derive_program_address, prelude::*};
-use subscriptions::{Plan, SUBSCRIPTIONS_ID};
+use subscriptions::{EventAuthority, Plan, SUBSCRIPTIONS_ID};
 
 /// Seed of the [`Config`](crate::Config) account.
 #[constant]
 pub const CONFIG_SEED: &[u8] = b"config";
 
-/// Seed of the vault authority: it owns every plan, is their only destination and signs swaps.
+/// Seed of the vault authority: it owns every plan and pulls from it as its owner.
 #[constant]
 pub const VAULT_SEED: &[u8] = b"vault";
+
+/// Seed of the swap authority: every plan's only destination and the only signer of a sweep's route, so a route
+/// never carries the plan owner's signature.
+#[constant]
+pub const SWAP_SEED: &[u8] = b"swap";
 
 /// Entries in the asset table: SPYx (default) and QQQx.
 pub const ASSET_COUNT: usize = 2;
@@ -73,6 +78,12 @@ pub const fn plan_id(payment_token: usize, tier: usize) -> u64 {
 /// The vault authority's address, derived at compile time.
 pub const VAULT: Pubkey = Pubkey::new_from_array(derive_program_address(&[VAULT_SEED], &crate::ID.to_bytes()).0);
 
+const SWAP: ([u8; 32], u8) = derive_program_address(&[SWAP_SEED], &crate::ID.to_bytes());
+
+/// The swap authority's address and bump, derived at compile time.
+pub const SWAP_AUTHORITY: Pubkey = Pubkey::new_from_array(SWAP.0);
+pub const SWAP_AUTHORITY_BUMP: u8 = SWAP.1;
+
 /// Each payment token's plans by tier, derived at compile time.
 pub const PLANS: [[Pubkey; TIERS.len()]; PAYMENT_TOKEN_COUNT] = [[plan(0, 0), plan(0, 1)], [plan(1, 0), plan(1, 1)]];
 
@@ -80,3 +91,7 @@ const fn plan(payment_token: usize, tier: usize) -> Pubkey {
     let seeds: &[&[u8]] = &[Plan::PREFIX, &VAULT.to_bytes(), &plan_id(payment_token, tier).to_le_bytes()];
     Pubkey::new_from_array(derive_program_address(seeds, &SUBSCRIPTIONS_ID.to_bytes()).0)
 }
+
+/// The Subscriptions program's event authority, which `transfer_subscription` requires.
+pub const SUBSCRIPTIONS_EVENT_AUTHORITY: Pubkey =
+    Pubkey::new_from_array(derive_program_address(&[EventAuthority::PREFIX], &SUBSCRIPTIONS_ID.to_bytes()).0);

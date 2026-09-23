@@ -64,6 +64,7 @@ impl Enroll<'_> {
             pending: 0,
             status: UserStatus::Active,
             attestable_from: now,
+            last_sweep_day: [0; PAYMENT_TOKEN_COUNT],
         });
         self.config.user_count += 1;
 

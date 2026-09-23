@@ -72,7 +72,7 @@ export type Config = {
     pendingAdmin: Address;
     /** Kill switch: when set, enrollment and sweeps stop. */
     paused: boolean;
-    /** The only program the sweep may swap through. */
+    /** The only program the sweep may swap through. Set once by `initialize`. */
     router: Address;
     /** Ed25519 key whose signatures attest incoming and outgoing payments. */
     attestor: Address;
@@ -108,7 +108,7 @@ export type ConfigArgs = {
     pendingAdmin: Address;
     /** Kill switch: when set, enrollment and sweeps stop. */
     paused: boolean;
-    /** The only program the sweep may swap through. */
+    /** The only program the sweep may swap through. Set once by `initialize`. */
     router: Address;
     /** Ed25519 key whose signatures attest incoming and outgoing payments. */
     attestor: Address;

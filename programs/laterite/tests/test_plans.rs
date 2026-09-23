@@ -3,16 +3,17 @@ mod common;
 use {
     anchor_lang::solana_program::pubkey::Pubkey,
     common::*,
-    laterite::{plan_id, LateriteError, PLANS, PLAN_PERIOD_HOURS, TIERS, VAULT},
+    laterite::{plan_id, LateriteError, PLANS, PLAN_PERIOD_HOURS, SWAP_AUTHORITY, SWAP_AUTHORITY_BUMP, TIERS, VAULT},
     solana_signer::Signer,
     subscriptions::Plan,
 };
 
 #[test]
-fn the_four_plans_belong_to_and_pay_into_the_vault() {
+fn the_four_plans_belong_to_the_vault_and_pay_into_the_swap_authority() {
     let env = with_plans();
     let params = valid_params();
     assert_eq!(VAULT, vault_address());
+    assert_eq!((SWAP_AUTHORITY, SWAP_AUTHORITY_BUMP), Pubkey::find_program_address(&[b"swap"], &laterite::ID));
     for (payment_token, plans) in PLANS.iter().enumerate() {
         for (tier, &amount) in TIERS.iter().enumerate() {
             assert_eq!(plans[tier], plan_address(payment_token, tier));
@@ -23,7 +24,7 @@ fn the_four_plans_belong_to_and_pay_into_the_vault() {
             assert_eq!(plan.data.mint, params.payment_tokens[payment_token].mint);
             assert_eq!(plan.data.terms.amount, amount);
             assert_eq!(plan.data.terms.period_hours, PLAN_PERIOD_HOURS);
-            assert_eq!(plan.data.destinations[0], vault_address());
+            assert_eq!(plan.data.destinations[0], SWAP_AUTHORITY);
             assert_eq!(plan.data.destinations[1..], [Pubkey::default(); 3]);
             assert_eq!(plan.data.pullers, [Pubkey::default(); 4]);
             assert_eq!(plan.data.end_ts, 0);

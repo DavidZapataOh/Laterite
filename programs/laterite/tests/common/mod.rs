@@ -2,17 +2,20 @@
 
 use {
     anchor_lang::{
+        event::EVENT_IX_TAG_LE,
         solana_program::{
             bpf_loader_upgradeable,
             clock::Clock,
             instruction::{AccountMeta, Instruction},
             pubkey::Pubkey,
         },
-        system_program, AccountDeserialize, AccountSerialize, AnchorSerialize, InstructionData, ToAccountMetas,
+        system_program, AccountDeserialize, AccountSerialize, AnchorDeserialize, AnchorSerialize, Discriminator,
+        InstructionData, ToAccountMetas,
     },
     laterite::{
-        plan_id, Asset, Attestation, Config, ConfigParams, Engine, EnrollParams, MarketCalendar, PaymentToken,
-        Settings, UserConfig, ATTESTATION_DOMAIN, ATTESTATION_SEED, CONFIG_SEED, TIERS, USER_CONFIG_SEED, VAULT_SEED,
+        events::Swept, plan_id, Asset, Attestation, Config, ConfigParams, Engine, EnrollParams, MarketCalendar,
+        PaymentToken, Quote, Settings, UserConfig, ATTESTATION_DOMAIN, ATTESTATION_SEED, CONFIG_SEED, SWAP_AUTHORITY,
+        TIERS, USER_CONFIG_SEED, VAULT_SEED,
     },
     litesvm::{
         types::{FailedTransactionMetadata, TransactionMetadata},
@@ -21,7 +24,7 @@ use {
     solana_address_lookup_table_interface::instruction::{create_lookup_table, extend_lookup_table},
     solana_ed25519_program::new_ed25519_instruction_with_signature,
     solana_keypair::Keypair,
-    solana_message::{v0, AddressLookupTableAccount, Message, VersionedMessage},
+    solana_message::{v0, v1, AddressLookupTableAccount, Message, VersionedMessage},
     solana_signer::Signer,
     solana_transaction::{versioned::VersionedTransaction, InstructionError, TransactionError},
     subscriptions::{
@@ -54,6 +57,9 @@ pub struct PythDeployment {
     pub treasury: Pubkey,
 }
 
+/// Both clusters' Pyth Pro, with their names; devnet is where the product runs.
+pub const PYTH_DEPLOYMENTS: [(&str, PythDeployment); 2] = [("mainnet", PYTH_MAINNET), ("devnet", PYTH_DEVNET)];
+
 /// Mainnet's Pyth Pro, pinned by `pyth_pro_mainnet_sha256` and `pyth_storage_mainnet_sha256` in the justfile.
 pub const PYTH_MAINNET: PythDeployment = PythDeployment {
     program: include_bytes!("../fixtures/pyth_pro_mainnet.so"),
@@ -78,6 +84,69 @@ pub const PYTH_SPYX_QQQX: &[u8] = include_bytes!("../fixtures/pyth_spyx_qqqx.bin
 pub const PYTH_USDT: &[u8] = include_bytes!("../fixtures/pyth_usdt.bin");
 /// When both real updates were published, in seconds.
 pub const PYTH_UPDATES_AT: i64 = 1_790_043_964;
+/// The real updates' SPYX/USD, QQQX/USD and USDT/USD quotes.
+pub const PYTH_SPYX_QUOTE: Quote = Quote { price: 77_847_155_496, confidence: 30_532_893, exponent: -8 };
+pub const PYTH_QQQX_QUOTE: Quote = Quote { price: 74_597_430_644, confidence: 40_282_152, exponent: -8 };
+pub const PYTH_USDT_QUOTE: Quote = Quote { price: 99_972_708, confidence: 7_028, exponent: -8 };
+
+/// Our devnet deployment of Raydium CPMM and the devnet accounts the sweep tests copy, from
+/// `packages/devnet/addresses.json`; `just dump-devnet-accounts` refreshes their fixtures.
+pub const CPMM: Pubkey = anchor_lang::pubkey!("GVSWUkxEj83o4xmcNRDc4p6wSTE7mB3g8BXZRXq8Wcx3");
+pub const CPMM_CONFIG: Pubkey = anchor_lang::pubkey!("8zfcVMo8dgJZUECxJELLrPNjAfK7CeC8o9hYgYGPsyQQ");
+pub const SPYX: Pubkey = anchor_lang::pubkey!("Av85xasqSyE6KfyW85h1RJXBs631sExR5ncFoHhtEDnU");
+pub const QQQX: Pubkey = anchor_lang::pubkey!("8zYS2UR5aFM6PxDWsEjyRWHsco1PSxHubDC8pSetwxcN");
+pub const USDC: Pubkey = anchor_lang::pubkey!("GHxn9udETkoqKzXgeqk24gT2RzptcjTo2p9WtWxo618c");
+pub const USDT: Pubkey = anchor_lang::pubkey!("J2jptCQwMHYw6PK5qdGVmd85SYU4FxUGk1tViJ18WG4x");
+/// The mainnet Raydium CPMM program built from source with only its devnet ids and admin replaced, pinned by
+/// `cpmm_sha256` in the justfile.
+pub const CPMM_PROGRAM: &[u8] = include_bytes!("../fixtures/cpmm.so");
+/// A router that runs the instructions its data encodes (`tests/router`), for routes no real router builds.
+pub const TEST_ROUTER: Pubkey = Pubkey::new_from_array([42; 32]);
+pub const TEST_ROUTER_PROGRAM: &[u8] =
+    include_bytes!(concat!(env!("CARGO_TARGET_TMPDIR"), "/../deploy/test_router.so"));
+
+/// A CPMM pool of an asset against a payment token: token 0 is the asset, token 1 the payment token.
+pub struct Pool {
+    pub address: Pubkey,
+    pub observation: Pubkey,
+    pub asset_vault: Pubkey,
+    pub payment_vault: Pubkey,
+    pub asset_mint: Pubkey,
+    pub payment_mint: Pubkey,
+}
+
+/// The devnet pools the tests copy: SPYx against each payment token, and QQQx against USDC.
+pub const POOLS: [Pool; 3] = [
+    Pool {
+        address: anchor_lang::pubkey!("DgyosfpJ2cxnm1mAoB4mgE2XSwKCJJR6jjD9stsCaLTP"),
+        observation: anchor_lang::pubkey!("4XxfjDUvQxQ5zUk42B23hJFN9fx4baCDC2gAMLrwGxmz"),
+        asset_vault: anchor_lang::pubkey!("9kxJhx8xjATHKznRdtn3k9NJNqUkCMgrWw7Lh2iunYUZ"),
+        payment_vault: anchor_lang::pubkey!("E54M3Mnyk9sxuNz8SQ4ddhjj48kUwZYrnwioPFmgTTF3"),
+        asset_mint: SPYX,
+        payment_mint: USDC,
+    },
+    Pool {
+        address: anchor_lang::pubkey!("DVksHcPfMUttsUtoT8EwSHHVmNYyM6Lr9EHr8oQbRMkm"),
+        observation: anchor_lang::pubkey!("5DwKvikLgTsAC44gMbvPib29A1W8CzY1x14CM4n1jnFc"),
+        asset_vault: anchor_lang::pubkey!("CRarcATyPyjGkBnpNBW1agwsTcYQKPFGSM2kPQBQoQ5k"),
+        payment_vault: anchor_lang::pubkey!("9w91fL95LatF9L8seod2fJxp2Kw5PCje2ShNGpnAXUkf"),
+        asset_mint: SPYX,
+        payment_mint: USDT,
+    },
+    Pool {
+        address: anchor_lang::pubkey!("5YQMCKnFmVxiNhnJvPJFjecFtUvF4dx9oRz9r7gmNZXP"),
+        observation: anchor_lang::pubkey!("8xndDN7YyqZsVnbJ94Ap9Y3vRrKiCqrKAKNT5ic1e7sB"),
+        asset_vault: anchor_lang::pubkey!("7BM6mfhSVjFjjmqr7YKaqhhiaL4up7CPxxKNhLYShrbk"),
+        payment_vault: anchor_lang::pubkey!("5ttnh7ZizzBYiS46Ngjq4yL7TJXEdxQcMFaTNznXMcCd"),
+        asset_mint: QQQX,
+        payment_mint: USDC,
+    },
+];
+
+/// The pool of `asset_mint` against `payment_mint`.
+pub fn pool(asset_mint: Pubkey, payment_mint: Pubkey) -> &'static Pool {
+    POOLS.iter().find(|pool| pool.asset_mint == asset_mint && pool.payment_mint == payment_mint).unwrap()
+}
 
 const ED25519_PROGRAM: Pubkey = anchor_lang::pubkey!("Ed25519SigVerify111111111111111111111111111");
 const INSTRUCTIONS_SYSVAR: Pubkey = anchor_lang::pubkey!("Sysvar1nstructions1111111111111111111111111");
@@ -87,6 +156,7 @@ const ENVELOPE: u16 = 4 + 64 + 32 + 2;
 
 const TOKEN: Pubkey = anchor_spl::token::ID;
 const TOKEN_2022: Pubkey = anchor_spl::token_2022::ID;
+const SWAP_BASE_INPUT: [u8; 8] = [143, 190, 90, 218, 196, 30, 51, 222];
 
 pub struct Env {
     pub svm: LiteSVM,
@@ -186,37 +256,22 @@ pub fn deploy_with_authority(svm: &mut LiteSVM, program_id: Pubkey, authority: P
     program_data
 }
 
-/// Mainnet: SPYx and QQQx, USDC and USDT, Pyth Pro ids, Jupiter as router, the cluster's genesis hash.
+/// Devnet: the stand-ins of SPYx and QQQx, USDC and USDT, Pyth Pro ids, our CPMM as router, the cluster's genesis
+/// hash.
 pub fn valid_params() -> ConfigParams {
-    let asset = |mint: &str, pyth_feed_id| Asset {
-        mint: mint.parse().unwrap(),
-        token_program: TOKEN_2022,
-        decimals: 8,
-        pyth_feed_id,
-    };
-    let payment = |mint: &str, usd_feed_id| PaymentToken {
-        mint: mint.parse().unwrap(),
-        token_program: TOKEN,
-        decimals: 6,
-        usd_feed_id,
-    };
+    let asset = |mint, pyth_feed_id| Asset { mint, token_program: TOKEN_2022, decimals: 8, pyth_feed_id };
+    let payment = |mint, usd_feed_id| PaymentToken { mint, token_program: TOKEN, decimals: 6, usd_feed_id };
     ConfigParams {
         settings: Settings {
-            router: "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4".parse().unwrap(),
             attestor: attestor().pubkey(),
             sponsor: sponsor().pubkey(),
             user_weekly_cap: 25_000_000,
             max_users: 100,
         },
-        assets: [
-            asset("XsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W", 1843),
-            asset("Xs8S1uUs1zvS2p7iwtsG3b6fkhpvmwz4GYU3gWAmWHZ", 1837),
-        ],
-        payment_tokens: [
-            payment("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", 0),
-            payment("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", 8),
-        ],
-        genesis_hash: MAINNET_GENESIS_HASH,
+        assets: [asset(SPYX, 1843), asset(QQQX, 1837)],
+        payment_tokens: [payment(USDC, 0), payment(USDT, 8)],
+        genesis_hash: DEVNET_GENESIS_HASH,
+        router: CPMM,
     }
 }
 
@@ -236,9 +291,13 @@ pub fn initialize_ix(authority: Pubkey, params: ConfigParams) -> Instruction {
 
 /// `setup()` plus an initialized config with the NYSE 2026 to 2028 calendar loaded.
 pub fn initialized() -> Env {
-    let mut env = setup();
+    initialize(setup(), valid_params())
+}
+
+/// Initializes `env` with `params` and loads the NYSE 2026 to 2028 calendar.
+pub fn initialize(mut env: Env, params: ConfigParams) -> Env {
     let authority = env.authority.insecure_clone();
-    send(&mut env.svm, &authority, initialize_ix(authority.pubkey(), valid_params()), &[]).unwrap();
+    send(&mut env.svm, &authority, initialize_ix(authority.pubkey(), params), &[]).unwrap();
     let (holidays, early_closes, valid_through) = nyse_calendar();
     let load = set_market_calendar_ix(authority.pubkey(), holidays, early_closes, valid_through);
     send(&mut env.svm, &authority, load, &[]).unwrap();
@@ -335,7 +394,11 @@ pub fn create_plan_ix(admin: Pubkey, payment_token: u8, tier: u8) -> Instruction
 
 /// `initialized()` plus the four plans and the onboarding lookup table, which the sponsor creates.
 pub fn with_plans() -> Env {
-    let mut env = initialized();
+    add_plans(initialized())
+}
+
+/// Creates the four plans and the onboarding lookup table in an initialized `env`.
+pub fn add_plans(mut env: Env) -> Env {
     let admin = env.authority.insecure_clone();
     for payment_token in 0..2 {
         for tier in 0..2 {
@@ -520,19 +583,7 @@ pub fn enroll_ix(user: Pubkey, payer: Pubkey, params: EnrollParams, subscription
 /// The whole onboarding: the asset's ATA, then per enabled token the authority and subscription, then `enroll`.
 pub fn onboarding_ixs(svm: &LiteSVM, user: Pubkey, payer: Pubkey, params: &EnrollParams) -> Vec<Instruction> {
     let asset = valid_params().assets[params.asset as usize % 2];
-    let mut instructions = vec![Instruction {
-        program_id: ATA_PROGRAM,
-        accounts: vec![
-            AccountMeta::new(payer, true),
-            AccountMeta::new(ata(&user, &asset.mint, &asset.token_program), false),
-            AccountMeta::new_readonly(user, false),
-            AccountMeta::new_readonly(asset.mint, false),
-            AccountMeta::new_readonly(system_program::ID, false),
-            AccountMeta::new_readonly(asset.token_program, false),
-        ],
-        // CreateIdempotent
-        data: vec![1],
-    }];
+    let mut instructions = vec![create_ata_ix(payer, user, asset.mint, asset.token_program)];
     let mut subscriptions = vec![];
     for payment_token in (0..2).filter(|i| params.payment_tokens & (1 << i) != 0) {
         instructions.extend(subscribe_ixs(svm, user, payer, payment_token, params.tier as usize % 2));
@@ -740,9 +791,9 @@ pub fn attest_ix(payer: Pubkey, attestation: &Attestation) -> Instruction {
     }
 }
 
-/// `signer`'s signature over `attestation` for this deployment (`valid_params()`: mainnet), then `attest`.
+/// `signer`'s signature over `attestation` for this deployment (`valid_params()`: devnet), then `attest`.
 pub fn attest_ixs(payer: Pubkey, attestation: &Attestation, signer: &Keypair) -> [Instruction; 2] {
-    let message = attestation_message(&laterite::ID, &MAINNET_GENESIS_HASH, attestation);
+    let message = attestation_message(&laterite::ID, &DEVNET_GENESIS_HASH, attestation);
     [signature_ix(&message, signer), attest_ix(payer, attestation)]
 }
 
@@ -763,4 +814,355 @@ pub fn close_attestation_ix(record: Pubkey, payer: Pubkey) -> Instruction {
         accounts: laterite::accounts::CloseAttestation { record, payer }.to_account_metas(None),
         data: laterite::instruction::CloseAttestation {}.data(),
     }
+}
+
+/// The associated token program's `CreateIdempotent`.
+pub fn create_ata_ix(payer: Pubkey, owner: Pubkey, mint: Pubkey, token_program: Pubkey) -> Instruction {
+    Instruction {
+        program_id: ATA_PROGRAM,
+        accounts: vec![
+            AccountMeta::new(payer, true),
+            AccountMeta::new(ata(&owner, &mint, &token_program), false),
+            AccountMeta::new_readonly(owner, false),
+            AccountMeta::new_readonly(mint, false),
+            AccountMeta::new_readonly(system_program::ID, false),
+            AccountMeta::new_readonly(token_program, false),
+        ],
+        data: vec![1],
+    }
+}
+
+/// Writes the committed copy of a devnet account.
+pub fn load_devnet_account(svm: &mut LiteSVM, address: Pubkey, owner: Pubkey) {
+    let path = format!("{}/tests/fixtures/devnet/{address}.bin", env!("CARGO_MANIFEST_DIR"));
+    let data = std::fs::read(path).unwrap();
+    svm.airdrop(&address, svm.minimum_balance_for_rent_exemption(data.len())).unwrap();
+    let mut account = svm.get_account(&address).unwrap();
+    account.data = data;
+    account.owner = owner;
+    svm.set_account(address, account).unwrap();
+}
+
+/// A token account's raw `amount`, at the same offset under Token and Token-2022.
+pub fn token_amount(svm: &LiteSVM, token_account: &Pubkey) -> u64 {
+    u64::from_le_bytes(svm.get_account(token_account).unwrap().data[64..72].try_into().unwrap())
+}
+
+pub fn write_amount(svm: &mut LiteSVM, token_account: Pubkey, amount: u64) {
+    let mut account = svm.get_account(&token_account).unwrap();
+    account.data[64..72].copy_from_slice(&amount.to_le_bytes());
+    svm.set_account(token_account, account).unwrap();
+}
+
+/// Asset held by every test pool: 1,000 whole tokens.
+const POOL_DEPTH: u64 = 1_000 * 100_000_000;
+
+/// Prices `pool` at `price` per whole asset token, `bps` above it: reserves are the vault balances once the pool's
+/// accrued protocol, fund and creator fees (offsets 341–413 of its state) are cleared.
+pub fn peg(svm: &mut LiteSVM, pool: &Pool, price: Quote, bps: i64) {
+    let mut state = svm.get_account(&pool.address).unwrap();
+    for offset in [341, 349, 357, 365, 397, 405] {
+        state.data[offset..offset + 8].fill(0);
+    }
+    svm.set_account(pool.address, state).unwrap();
+    let worth = u128::from(POOL_DEPTH) * u128::from(price.price) / 10u128.pow(10);
+    let payment = worth * (10_000 + bps) as u128 / 10_000;
+    write_amount(svm, pool.asset_vault, POOL_DEPTH);
+    write_amount(svm, pool.payment_vault, payment as u64);
+}
+
+pub fn write_config(env: &mut Env, config: &Config) {
+    let mut account = env.svm.get_account(&config_address()).unwrap();
+    account.data.clear();
+    config.try_serialize(&mut account.data).unwrap();
+    env.svm.set_account(config_address(), account).unwrap();
+}
+
+/// Adds `signer` to the LiteSVM copy of Pyth Pro's storage as a trusted key, for updates no real one carries. Test
+/// only: devnet and mainnet trust Pyth's keys alone.
+pub fn trust(svm: &mut LiteSVM, signer: &Keypair) {
+    let mut storage = svm.get_account(&PYTH_STORAGE_ID).unwrap();
+    // Storage: the trusted-signer count at 80, then 40-byte slots of public key and expiry.
+    let slot = 81 + 40 * usize::from(storage.data[80]);
+    storage.data[80] += 1;
+    storage.data[slot..slot + 32].copy_from_slice(signer.pubkey().as_ref());
+    storage.data[slot + 32..slot + 40].copy_from_slice(&i64::MAX.to_le_bytes());
+    svm.set_account(PYTH_STORAGE_ID, storage).unwrap();
+}
+
+/// The key the sweep tests' Pyth Pro storage trusts for composed updates.
+pub fn pyth_test_signer() -> Keypair {
+    Keypair::new_from_array([5; 32])
+}
+
+/// A Solana-format Pyth Pro update composed for a test: `feeds` with price, exponent, confidence and a feed update
+/// time of `at`, signed by [`pyth_test_signer`].
+pub fn pyth_update(at: i64, feeds: &[(u32, Quote)]) -> Vec<u8> {
+    let micros = (at as u64 * 1_000_000).to_le_bytes();
+    let mut payload = 2_479_346_549u32.to_le_bytes().to_vec();
+    payload.extend(micros);
+    payload.extend([3, feeds.len() as u8]);
+    for (id, quote) in feeds {
+        payload.extend(id.to_le_bytes());
+        payload.extend([4, 0]);
+        payload.extend(quote.price.to_le_bytes());
+        payload.push(4);
+        payload.extend(quote.exponent.to_le_bytes());
+        payload.push(5);
+        payload.extend(quote.confidence.to_le_bytes());
+        payload.extend([12, 1]);
+        payload.extend(micros);
+    }
+    let mut message = 2_182_742_457u32.to_le_bytes().to_vec();
+    message.extend(pyth_test_signer().sign_message(&payload).as_ref());
+    message.extend(pyth_test_signer().pubkey().as_ref());
+    message.extend((payload.len() as u16).to_le_bytes());
+    message.extend(payload);
+    message
+}
+
+/// The ed25519 instruction of a sweep at index 1: signature entry 0 is the asset update, at offset 12 of the sweep's
+/// data, and entry 1, when there is one, the payment update after it.
+pub fn sweep_ed25519_ix(asset_message: &[u8], payment_message: &[u8]) -> Instruction {
+    let mut entries = vec![(asset_message, 1, 12)];
+    if !payment_message.is_empty() {
+        entries.push((payment_message, 1, 16 + asset_message.len() as u16));
+    }
+    ed25519_ix(&entries)
+}
+
+pub struct SweepEnv {
+    pub env: Env,
+    pub user: Keypair,
+    pub crank: Keypair,
+    pub pyth_treasury: Pubkey,
+}
+
+/// A user enrolled with `params` against copies of the devnet mints, CPMM and pools and devnet's Pyth Pro, with our
+/// CPMM as router; see [`sweep_env_with`].
+pub fn sweep_env(params: &EnrollParams) -> SweepEnv {
+    sweep_env_with(&PYTH_DEVNET, CPMM, params)
+}
+
+/// A user enrolled with `params` against copies of the devnet mints, CPMM and pools and `pyth`'s Pyth Pro, which
+/// also trusts [`pyth_test_signer`], in a deployment whose router is `router`. The clock is at the real updates' time
+/// and each pool at its asset's price in them; the swap authority has its payment-token accounts.
+pub fn sweep_env_with(pyth: &PythDeployment, router: Pubkey, params: &EnrollParams) -> SweepEnv {
+    let mut env = setup();
+    let svm = &mut env.svm;
+    for (address, owner) in [(CPMM_CONFIG, CPMM), (SPYX, TOKEN_2022), (QQQX, TOKEN_2022), (USDC, TOKEN), (USDT, TOKEN)]
+    {
+        load_devnet_account(svm, address, owner);
+    }
+    for pool in &POOLS {
+        for (address, owner) in [
+            (pool.address, CPMM),
+            (pool.observation, CPMM),
+            (pool.asset_vault, TOKEN_2022),
+            (pool.payment_vault, TOKEN),
+        ] {
+            load_devnet_account(svm, address, owner);
+        }
+    }
+    svm.add_program(CPMM, CPMM_PROGRAM).unwrap();
+    svm.add_program(TEST_ROUTER, TEST_ROUTER_PROGRAM).unwrap();
+    add_pyth(svm, pyth);
+    trust(svm, &pyth_test_signer());
+
+    let mut env = add_plans(initialize(env, ConfigParams { router, ..valid_params() }));
+    let admin = env.authority.insecure_clone();
+    for token in valid_params().payment_tokens {
+        let create = create_ata_ix(admin.pubkey(), SWAP_AUTHORITY, token.mint, token.token_program);
+        send(&mut env.svm, &admin, create, &[]).unwrap();
+    }
+    let user = enrolled(&mut env, Keypair::new_from_array([11; 32]), params);
+    set_now(&mut env.svm, PYTH_UPDATES_AT);
+    for pool in &POOLS {
+        let price = if pool.asset_mint == SPYX { PYTH_SPYX_QUOTE } else { PYTH_QQQX_QUOTE };
+        peg(&mut env.svm, pool, price, 0);
+    }
+    let crank = funded(&mut env.svm);
+    SweepEnv { env, user, crank, pyth_treasury: pyth.treasury }
+}
+
+impl SweepEnv {
+    pub fn user_payment_account(&self, payment_token: usize) -> Pubkey {
+        let token = valid_params().payment_tokens[payment_token];
+        ata(&self.user.pubkey(), &token.mint, &token.token_program)
+    }
+
+    pub fn swap_payment_account(&self, payment_token: usize) -> Pubkey {
+        let token = valid_params().payment_tokens[payment_token];
+        ata(&SWAP_AUTHORITY, &token.mint, &token.token_program)
+    }
+
+    pub fn asset_mint(&self) -> Pubkey {
+        valid_params().assets[usize::from(fetch_user_config(&self.env, &self.user.pubkey()).asset)].mint
+    }
+
+    pub fn user_asset_account(&self) -> Pubkey {
+        ata(&self.user.pubkey(), &self.asset_mint(), &TOKEN_2022)
+    }
+
+    /// What a sweep of `payment_token` pulls now, computed as a crank does.
+    pub fn due(&self, payment_token: usize) -> u64 {
+        let user_config = fetch_user_config(&self.env, &self.user.pubkey());
+        let config = fetch_config(&self.env.svm);
+        let balance = token_amount(&self.env.svm, &self.user_payment_account(payment_token));
+        let now = self.env.svm.get_sysvar::<Clock>().unix_timestamp;
+        user_config.pull(payment_token, balance, config.user_weekly_cap, &config.market_calendar, now).total()
+    }
+
+    /// `swap_base_input` on the pool of the user's asset against the payment token, from the swap authority into the
+    /// user's asset account, with no minimum of its own.
+    pub fn cpmm_swap_ix(&self, payment_token: usize, amount_in: u64) -> Instruction {
+        let pool = pool(self.asset_mint(), valid_params().payment_tokens[payment_token].mint);
+        let authority = Pubkey::find_program_address(&[b"vault_and_lp_mint_auth_seed"], &CPMM).0;
+        let accounts = vec![
+            AccountMeta::new_readonly(SWAP_AUTHORITY, false),
+            AccountMeta::new_readonly(authority, false),
+            AccountMeta::new_readonly(CPMM_CONFIG, false),
+            AccountMeta::new(pool.address, false),
+            AccountMeta::new(self.swap_payment_account(payment_token), false),
+            AccountMeta::new(self.user_asset_account(), false),
+            AccountMeta::new(pool.payment_vault, false),
+            AccountMeta::new(pool.asset_vault, false),
+            AccountMeta::new_readonly(TOKEN, false),
+            AccountMeta::new_readonly(TOKEN_2022, false),
+            AccountMeta::new_readonly(pool.payment_mint, false),
+            AccountMeta::new_readonly(pool.asset_mint, false),
+            AccountMeta::new(pool.observation, false),
+        ];
+        let mut data = SWAP_BASE_INPUT.to_vec();
+        data.extend(amount_in.to_le_bytes());
+        data.extend(0u64.to_le_bytes());
+        Instruction { program_id: CPMM, accounts, data }
+    }
+
+    /// The route of [`Self::cpmm_swap_ix`] through the CPMM as router: its data and accounts.
+    pub fn cpmm_route(&self, payment_token: usize, amount_in: u64) -> (Vec<u8>, Vec<AccountMeta>) {
+        let swap = self.cpmm_swap_ix(payment_token, amount_in);
+        (swap.data, swap.accounts)
+    }
+
+    pub fn sweep_ix(
+        &self,
+        payment_token: usize,
+        asset_message: &[u8],
+        payment_message: &[u8],
+        route: Vec<u8>,
+        route_accounts: Vec<AccountMeta>,
+    ) -> Instruction {
+        let user = self.user.pubkey();
+        let token = valid_params().payment_tokens[payment_token];
+        let tier = usize::from(fetch_user_config(&self.env, &user).tier);
+        let mut accounts = laterite::accounts::Sweep {
+            crank: self.crank.pubkey(),
+            config: config_address(),
+            user_config: user_config_address(&user),
+            vault: vault_address(),
+            subscription: subscription_address(payment_token, tier, &user),
+            plan: plan_address(payment_token, tier),
+            subscription_authority: SubscriptionAuthority::find_pda(&user, &token.mint).0,
+            user_payment_account: self.user_payment_account(payment_token),
+            swap_payment_account: self.swap_payment_account(payment_token),
+            user_asset_account: self.user_asset_account(),
+            payment_mint: token.mint,
+            payment_token_program: token.token_program,
+            subscriptions_program: SUBSCRIPTIONS_ID,
+            subscriptions_event_authority: EventAuthority::find_pda().0,
+            swap_authority: SWAP_AUTHORITY,
+            router: fetch_config(&self.env.svm).router,
+            pyth_program: PYTH_PRO_ID,
+            pyth_storage: PYTH_STORAGE_ID,
+            pyth_treasury: self.pyth_treasury,
+            instructions: INSTRUCTIONS_SYSVAR,
+            system_program: system_program::ID,
+            event_authority: Pubkey::find_program_address(&[b"__event_authority"], &laterite::ID).0,
+            program: laterite::ID,
+        }
+        .to_account_metas(None);
+        accounts.extend(route_accounts);
+        let data = laterite::instruction::Sweep {
+            asset_message: asset_message.to_vec(),
+            payment_message: payment_message.to_vec(),
+            ed25519_index: 0,
+            payment_token: payment_token as u8,
+            route,
+        }
+        .data();
+        Instruction { program_id: laterite::ID, accounts, data }
+    }
+
+    /// The ed25519 instruction over the updates, then a sweep of what is due through the CPMM.
+    pub fn sweep_ixs(&self, payment_token: usize, asset_message: &[u8], payment_message: &[u8]) -> Vec<Instruction> {
+        let (route, accounts) = self.cpmm_route(payment_token, self.due(payment_token));
+        vec![
+            sweep_ed25519_ix(asset_message, payment_message),
+            self.sweep_ix(payment_token, asset_message, payment_message, route, accounts),
+        ]
+    }
+
+    /// Sends `instructions` as one version 1 transaction from the crank; returns its size too.
+    pub fn send(
+        &mut self,
+        instructions: &[Instruction],
+    ) -> (usize, Result<TransactionMetadata, FailedTransactionMetadata>) {
+        let config = v1::TransactionConfig {
+            compute_unit_limit: Some(400_000),
+            loaded_accounts_data_size_limit: Some(8 * 1024 * 1024),
+            ..v1::TransactionConfig::default()
+        };
+        let blockhash = self.env.svm.latest_blockhash();
+        let message =
+            v1::Message::try_compile_with_config(&self.crank.pubkey(), instructions, blockhash, config).unwrap();
+        let transaction = VersionedTransaction::try_new(VersionedMessage::V1(message), &[&self.crank]).unwrap();
+        let size = transaction.message.serialize().len() + 1 + 64 * transaction.signatures.len();
+        let result = self.env.svm.send_transaction(transaction);
+        self.env.svm.expire_blockhash();
+        (size, result)
+    }
+}
+
+/// The `Swept` event a sweep emitted through its self-CPI.
+pub fn swept(metadata: &TransactionMetadata) -> Swept {
+    let prefix = [EVENT_IX_TAG_LE, Swept::DISCRIMINATOR].concat();
+    let data = metadata
+        .inner_instructions
+        .iter()
+        .flatten()
+        .find_map(|inner| inner.instruction.data.strip_prefix(prefix.as_slice()))
+        .unwrap();
+    Swept::deserialize(&mut &data[..]).unwrap()
+}
+
+/// Compute units of each invocation of `program`, in the order they finished.
+pub fn units_of(metadata: &TransactionMetadata, program: &Pubkey) -> Vec<u64> {
+    let prefix = format!("Program {program} consumed ");
+    metadata.logs.iter().filter_map(|line| line.strip_prefix(&prefix)?.split(' ').next()?.parse().ok()).collect()
+}
+
+/// The test router's data and accounts to run `instructions` in order: each account once, writable when any
+/// instruction writes it, never a signer, since the sweep signs as the vault.
+pub fn test_route(instructions: &[Instruction]) -> (Vec<u8>, Vec<AccountMeta>) {
+    let mut accounts: Vec<AccountMeta> = vec![];
+    let mut index = |pubkey: Pubkey, is_writable: bool| {
+        let position = accounts.iter().position(|meta| meta.pubkey == pubkey).unwrap_or_else(|| {
+            accounts.push(AccountMeta::new_readonly(pubkey, false));
+            accounts.len() - 1
+        });
+        accounts[position].is_writable |= is_writable;
+        position as u8
+    };
+    let mut data = vec![];
+    for instruction in instructions {
+        data.push(index(instruction.program_id, false));
+        data.push(instruction.accounts.len() as u8);
+        for meta in &instruction.accounts {
+            data.push(index(meta.pubkey, meta.is_writable));
+        }
+        data.extend((instruction.data.len() as u16).to_le_bytes());
+        data.extend(&instruction.data);
+    }
+    (data, accounts)
 }

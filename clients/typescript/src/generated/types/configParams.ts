@@ -10,12 +10,15 @@ import {
     combineCodec,
     fixDecoderSize,
     fixEncoderSize,
+    getAddressDecoder,
+    getAddressEncoder,
     getArrayDecoder,
     getArrayEncoder,
     getBytesDecoder,
     getBytesEncoder,
     getStructDecoder,
     getStructEncoder,
+    type Address,
     type FixedSizeCodec,
     type FixedSizeDecoder,
     type FixedSizeEncoder,
@@ -36,7 +39,10 @@ import {
     type SettingsArgs,
 } from '.';
 
-/** Everything `initialize` sets. The tables never change afterwards, because users refer to entries by index. */
+/**
+ * Everything `initialize` sets. The tables and the router never change afterwards: users refer to table entries by
+ * index, and the vault signs the router's instruction.
+ */
 export type ConfigParams = {
     settings: Settings;
     assets: Array<Asset>;
@@ -46,6 +52,8 @@ export type ConfigParams = {
      * the deployment supplies it and checks it.
      */
     genesisHash: ReadonlyUint8Array;
+    /** The only program a sweep may swap through. */
+    router: Address;
 };
 
 export type ConfigParamsArgs = {
@@ -57,6 +65,8 @@ export type ConfigParamsArgs = {
      * the deployment supplies it and checks it.
      */
     genesisHash: ReadonlyUint8Array;
+    /** The only program a sweep may swap through. */
+    router: Address;
 };
 
 export function getConfigParamsEncoder(): FixedSizeEncoder<ConfigParamsArgs> {
@@ -65,6 +75,7 @@ export function getConfigParamsEncoder(): FixedSizeEncoder<ConfigParamsArgs> {
         ['assets', getArrayEncoder(getAssetEncoder(), { size: 2 })],
         ['paymentTokens', getArrayEncoder(getPaymentTokenEncoder(), { size: 2 })],
         ['genesisHash', fixEncoderSize(getBytesEncoder(), 32)],
+        ['router', getAddressEncoder()],
     ]);
 }
 
@@ -74,6 +85,7 @@ export function getConfigParamsDecoder(): FixedSizeDecoder<ConfigParams> {
         ['assets', getArrayDecoder(getAssetDecoder(), { size: 2 })],
         ['paymentTokens', getArrayDecoder(getPaymentTokenDecoder(), { size: 2 })],
         ['genesisHash', fixDecoderSize(getBytesDecoder(), 32)],
+        ['router', getAddressDecoder()],
     ]);
 }
 

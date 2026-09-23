@@ -1,0 +1,29 @@
+name: Benchmark
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+
+jobs:
+  compute-units:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+        with:
+          install-pnpm: 'false'
+          install-pnpm-dependencies: 'false'
+      - name: Run benchmark
+        run: just test-and-benchmark
+      - name: Report compute units
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: solana-foundation/github-actions/cu-benchmark@e6ed2eb93c55eca911dbc711fb08683b42926a28

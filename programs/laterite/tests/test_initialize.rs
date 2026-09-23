@@ -23,7 +23,7 @@ fn upgrade_authority_initializes_the_config() {
     assert_eq!(config.admin, authority.pubkey());
     assert_eq!(config.pending_admin, Pubkey::default());
     assert!(!config.paused);
-    assert_eq!(config.router, params.settings.router);
+    assert_eq!(config.router, params.router);
     assert_eq!(config.attestor, params.settings.attestor);
     assert_eq!(config.sponsor, sponsor().pubkey());
     assert_eq!(config.user_weekly_cap, 25_000_000);
@@ -32,7 +32,7 @@ fn upgrade_authority_initializes_the_config() {
     assert_eq!(config.assets, params.assets);
     assert_eq!(config.payment_tokens, params.payment_tokens);
     assert_eq!(config.vault_bump, Pubkey::find_program_address(&[VAULT_SEED], &laterite::ID).1);
-    assert_eq!(config.genesis_hash, MAINNET_GENESIS_HASH);
+    assert_eq!(config.genesis_hash, DEVNET_GENESIS_HASH);
 }
 
 #[test]
@@ -105,7 +105,7 @@ type Mutation = fn(&mut ConfigParams);
 #[test]
 fn invalid_params_are_rejected() {
     let cases: [(Mutation, LateriteError); 11] = [
-        (|p| p.settings.router = Pubkey::default(), LateriteError::InvalidRouter),
+        (|p| p.router = Pubkey::default(), LateriteError::InvalidRouter),
         (|p| p.settings.attestor = Pubkey::default(), LateriteError::InvalidAttestor),
         (|p| p.settings.sponsor = Pubkey::default(), LateriteError::InvalidSponsor),
         (|p| p.settings.user_weekly_cap = 0, LateriteError::InvalidCap),

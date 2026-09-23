@@ -15,9 +15,6 @@ use {
 
 type Outcome = Result<TransactionMetadata, FailedTransactionMetadata>;
 
-/// Both clusters' Pyth Pro, with their names; devnet is where the product runs.
-const DEPLOYMENTS: [(&str, PythDeployment); 2] = [("mainnet", PYTH_MAINNET), ("devnet", PYTH_DEVNET)];
-
 /// Sends `instructions` in one legacy transaction; returns its size too.
 fn send_all(svm: &mut LiteSVM, payer: &Keypair, instructions: &[Instruction]) -> (usize, Outcome) {
     let message = Message::new_with_blockhash(instructions, Some(&payer.pubkey()), &svm.latest_blockhash());
@@ -55,7 +52,7 @@ fn pyth_units(meta: &TransactionMetadata) -> Vec<u64> {
 
 #[test]
 fn real_updates_verify_against_the_production_signer() {
-    for (cluster, deployment) in &DEPLOYMENTS {
+    for (cluster, deployment) in &PYTH_DEPLOYMENTS {
         let (mut svm, payer) = pyth(deployment);
         for update in [PYTH_SPYX_QQQX, PYTH_USDT] {
             let before = svm.get_balance(&deployment.treasury).unwrap();
@@ -69,7 +66,7 @@ fn real_updates_verify_against_the_production_signer() {
 
 #[test]
 fn two_updates_verify_as_two_signatures_of_one_ed25519_instruction() {
-    for (cluster, deployment) in &DEPLOYMENTS {
+    for (cluster, deployment) in &PYTH_DEPLOYMENTS {
         let (mut svm, payer) = pyth(deployment);
         let treasury = svm.get_balance(&deployment.treasury).unwrap();
         let balance = svm.get_balance(&payer.pubkey()).unwrap();
@@ -89,7 +86,7 @@ fn two_updates_verify_as_two_signatures_of_one_ed25519_instruction() {
 
 #[test]
 fn each_verification_is_bound_to_its_own_signature() {
-    for (_, deployment) in &DEPLOYMENTS {
+    for (_, deployment) in &PYTH_DEPLOYMENTS {
         let (mut svm, payer) = pyth(deployment);
         let instructions = [
             ed25519_ix(&[(PYTH_SPYX_QQQX, 1, 12), (PYTH_USDT, 2, 12)]),
@@ -104,7 +101,7 @@ fn each_verification_is_bound_to_its_own_signature() {
 
 #[test]
 fn a_tampered_update_fails_the_signature_check() {
-    for (_, deployment) in &DEPLOYMENTS {
+    for (_, deployment) in &PYTH_DEPLOYMENTS {
         let (mut svm, payer) = pyth(deployment);
         let mut update = PYTH_SPYX_QQQX.to_vec();
         *update.last_mut().unwrap() ^= 1;
@@ -115,7 +112,7 @@ fn a_tampered_update_fails_the_signature_check() {
 
 #[test]
 fn an_untrusted_signer_is_refused() {
-    for (_, deployment) in &DEPLOYMENTS {
+    for (_, deployment) in &PYTH_DEPLOYMENTS {
         let (mut svm, payer) = pyth(deployment);
         let update = signed_by(PYTH_USDT, &Keypair::new());
         let failure = verify(&mut svm, &payer, deployment.treasury, &[&update]).1.unwrap_err();
@@ -127,7 +124,7 @@ fn an_untrusted_signer_is_refused() {
 #[test]
 fn only_the_stored_treasury_takes_the_fee() {
     // The other cluster's treasury: the likely misconfiguration.
-    for ((_, deployment), (_, other)) in DEPLOYMENTS.iter().zip(DEPLOYMENTS.iter().rev()) {
+    for ((_, deployment), (_, other)) in PYTH_DEPLOYMENTS.iter().zip(PYTH_DEPLOYMENTS.iter().rev()) {
         let (mut svm, payer) = pyth(deployment);
         svm.airdrop(&other.treasury, 1_000_000_000).unwrap();
         let failure = verify(&mut svm, &payer, other.treasury, &[PYTH_SPYX_QQQX]).1.unwrap_err();

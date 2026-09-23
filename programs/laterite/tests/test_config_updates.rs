@@ -8,14 +8,13 @@ fn admin_updates_settings_and_keeps_the_tables() {
     let admin = env.authority.insecure_clone();
     let params = valid_params();
     let mut settings = params.settings.clone();
-    settings.router = Pubkey::new_unique();
     settings.sponsor = Pubkey::new_unique();
     settings.user_weekly_cap = 10_000_000;
     settings.max_users = 5;
     send(&mut env.svm, &admin, update_config_ix(admin.pubkey(), settings.clone()), &[]).unwrap();
 
     let config = fetch_config(&env.svm);
-    assert_eq!(config.router, settings.router);
+    assert_eq!(config.router, params.router);
     assert_eq!(config.sponsor, settings.sponsor);
     assert_eq!(config.user_weekly_cap, 10_000_000);
     assert_eq!(config.max_users, 5);

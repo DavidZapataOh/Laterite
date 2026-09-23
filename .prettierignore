@@ -10,3 +10,5 @@ target/
 apps/landing/next-env.d.ts
 apps/landing/.impeccable/
 apps/landing/*.md
+cu_baseline.md
+cu_report.md

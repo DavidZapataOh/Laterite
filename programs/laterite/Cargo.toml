@@ -22,7 +22,7 @@ custom-heap = []
 custom-panic = []
 
 [dependencies]
-anchor-lang = "=1.2.0"
+anchor-lang = { version = "=1.2.0", features = ["event-cpi"] }
 anchor-spl = { version = "=1.2.0", default-features = false, features = ["token", "token_2022"] }
 solana-instructions-sysvar = "3.0.1"
 solana-sdk-ids = "3.1.0"

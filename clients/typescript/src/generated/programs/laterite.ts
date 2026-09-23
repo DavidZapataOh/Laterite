@@ -55,6 +55,7 @@ import {
     getProposeAdminInstructionAsync,
     getSetMarketCalendarInstructionAsync,
     getSetPausedInstructionAsync,
+    getSweepInstructionAsync,
     getUpdateConfigInstructionAsync,
     parseAcceptAdminInstruction,
     parseAttestInstruction,
@@ -65,6 +66,7 @@ import {
     parseProposeAdminInstruction,
     parseSetMarketCalendarInstruction,
     parseSetPausedInstruction,
+    parseSweepInstruction,
     parseUpdateConfigInstruction,
     type AcceptAdminAsyncInput,
     type AttestAsyncInput,
@@ -81,10 +83,12 @@ import {
     type ParsedProposeAdminInstruction,
     type ParsedSetMarketCalendarInstruction,
     type ParsedSetPausedInstruction,
+    type ParsedSweepInstruction,
     type ParsedUpdateConfigInstruction,
     type ProposeAdminAsyncInput,
     type SetMarketCalendarAsyncInput,
     type SetPausedAsyncInput,
+    type SweepAsyncInput,
     type UpdateConfigAsyncInput,
 } from '../instructions';
 import { findConfigPda, findUserConfigPda, findVaultPda } from '../pdas';
@@ -143,6 +147,7 @@ export enum LateriteEvent {
     PausedSet,
     PlanCreated,
     SettingsUpdated,
+    Swept,
 }
 
 export function identifyLateriteEvent(event: { data: ReadonlyUint8Array } | ReadonlyUint8Array): LateriteEvent {
@@ -228,6 +233,15 @@ export function identifyLateriteEvent(event: { data: ReadonlyUint8Array } | Read
     ) {
         return LateriteEvent.SettingsUpdated;
     }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([254, 138, 9, 198, 192, 61, 165, 135])),
+            0,
+        )
+    ) {
+        return LateriteEvent.Swept;
+    }
     throw new Error('The provided event could not be identified as a laterite event.');
 }
 
@@ -241,6 +255,7 @@ export enum LateriteInstruction {
     ProposeAdmin,
     SetMarketCalendar,
     SetPaused,
+    Sweep,
     UpdateConfig,
 }
 
@@ -332,6 +347,15 @@ export function identifyLateriteInstruction(
     if (
         containsBytes(
             data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([40, 23, 234, 175, 14, 61, 154, 177])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.Sweep;
+    }
+    if (
+        containsBytes(
+            data,
             fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([29, 158, 252, 191, 10, 83, 219, 99])),
             0,
         )
@@ -354,6 +378,7 @@ export type ParsedLateriteInstruction<TProgram extends string = 'LatBPQotoZgdg8r
     | ({ instructionType: LateriteInstruction.ProposeAdmin } & ParsedProposeAdminInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.SetMarketCalendar } & ParsedSetMarketCalendarInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.SetPaused } & ParsedSetPausedInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.Sweep } & ParsedSweepInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.UpdateConfig } & ParsedUpdateConfigInstruction<TProgram>);
 
 export function parseLateriteInstruction<TProgram extends string>(
@@ -402,6 +427,10 @@ export function parseLateriteInstruction<TProgram extends string>(
         case LateriteInstruction.SetPaused: {
             assertIsInstructionWithAccounts(instruction);
             return { instructionType: LateriteInstruction.SetPaused, ...parseSetPausedInstruction(instruction) };
+        }
+        case LateriteInstruction.Sweep: {
+            assertIsInstructionWithAccounts(instruction);
+            return { instructionType: LateriteInstruction.Sweep, ...parseSweepInstruction(instruction) };
         }
         case LateriteInstruction.UpdateConfig: {
             assertIsInstructionWithAccounts(instruction);
@@ -459,6 +488,7 @@ export type LateritePluginInstructions = {
     setPaused: (
         input: SetPausedAsyncInput,
     ) => ReturnType<typeof getSetPausedInstructionAsync> & SelfPlanAndSendFunctions;
+    sweep: (input: SweepAsyncInput) => ReturnType<typeof getSweepInstructionAsync> & SelfPlanAndSendFunctions;
     updateConfig: (
         input: UpdateConfigAsyncInput,
     ) => ReturnType<typeof getUpdateConfigInstructionAsync> & SelfPlanAndSendFunctions;
@@ -507,6 +537,7 @@ export function lateriteProgram() {
                     setMarketCalendar: input =>
                         addSelfPlanAndSendFunctions(client, getSetMarketCalendarInstructionAsync(input)),
                     setPaused: input => addSelfPlanAndSendFunctions(client, getSetPausedInstructionAsync(input)),
+                    sweep: input => addSelfPlanAndSendFunctions(client, getSweepInstructionAsync(input)),
                     updateConfig: input => addSelfPlanAndSendFunctions(client, getUpdateConfigInstructionAsync(input)),
                 },
                 pdas: { config: findConfigPda, vault: findVaultPda, userConfig: findUserConfigPda },

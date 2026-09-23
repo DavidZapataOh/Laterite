@@ -162,8 +162,8 @@ fn only_the_attestors_signature_over_the_same_attestation_counts() {
 fn an_attestation_signed_for_another_deployment_is_refused() {
     let (mut env, user, payer) = setup(&rules());
     let income = attestation(EventKind::Income, user.pubkey(), 1_500 * DOLLAR, 1);
-    // The same attestor key, over the same attestation, for devnet or for another program on this cluster.
-    for (program, genesis_hash) in [(laterite::ID, DEVNET_GENESIS_HASH), (Pubkey::new_unique(), MAINNET_GENESIS_HASH)] {
+    // The same attestor key, over the same attestation, for mainnet or for another program on this cluster.
+    for (program, genesis_hash) in [(laterite::ID, MAINNET_GENESIS_HASH), (Pubkey::new_unique(), DEVNET_GENESIS_HASH)] {
         let message = attestation_message(&program, &genesis_hash, &income);
         let instructions = [signature_ix(&message, &attestor()), attest_ix(payer.pubkey(), &income)];
         let failure = send_many(&mut env, &payer, &instructions, &[]).1.unwrap_err();

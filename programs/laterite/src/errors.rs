@@ -8,7 +8,7 @@ pub enum LateriteError {
     Unauthorized,
     #[msg("The signer is not the pending admin")]
     NotPendingAdmin,
-    #[msg("The router address is not set")]
+    #[msg("The router is not set, or is not the configured one")]
     InvalidRouter,
     #[msg("The attestor key is not set")]
     InvalidAttestor,
@@ -68,4 +68,14 @@ pub enum LateriteError {
     NothingToInvest,
     #[msg("The attestation record has not expired yet")]
     AttestationNotExpired,
+    #[msg("This payment token was already swept today")]
+    AlreadySwept,
+    #[msg("Nothing is due for this payment token")]
+    NothingToSweep,
+    #[msg("A token account is not the expected one")]
+    InvalidTokenAccount,
+    #[msg("A swap-authority token account did not end the sweep as it started")]
+    SwapAccountChanged,
+    #[msg("The swap returned less than the minimum output")]
+    SlippageExceeded,
 }

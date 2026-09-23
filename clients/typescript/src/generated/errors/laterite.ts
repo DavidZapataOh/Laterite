@@ -20,7 +20,7 @@ export const LATERITE_ERROR__NOT_UPGRADE_AUTHORITY = 0x1770; // 6000
 export const LATERITE_ERROR__UNAUTHORIZED = 0x1771; // 6001
 /** NotPendingAdmin: The signer is not the pending admin */
 export const LATERITE_ERROR__NOT_PENDING_ADMIN = 0x1772; // 6002
-/** InvalidRouter: The router address is not set */
+/** InvalidRouter: The router is not set, or is not the configured one */
 export const LATERITE_ERROR__INVALID_ROUTER = 0x1773; // 6003
 /** InvalidAttestor: The attestor key is not set */
 export const LATERITE_ERROR__INVALID_ATTESTOR = 0x1774; // 6004
@@ -80,8 +80,19 @@ export const LATERITE_ERROR__ATTESTATION_EXPIRED = 0x178e; // 6030
 export const LATERITE_ERROR__NOTHING_TO_INVEST = 0x178f; // 6031
 /** AttestationNotExpired: The attestation record has not expired yet */
 export const LATERITE_ERROR__ATTESTATION_NOT_EXPIRED = 0x1790; // 6032
+/** AlreadySwept: This payment token was already swept today */
+export const LATERITE_ERROR__ALREADY_SWEPT = 0x1791; // 6033
+/** NothingToSweep: Nothing is due for this payment token */
+export const LATERITE_ERROR__NOTHING_TO_SWEEP = 0x1792; // 6034
+/** InvalidTokenAccount: A token account is not the expected one */
+export const LATERITE_ERROR__INVALID_TOKEN_ACCOUNT = 0x1793; // 6035
+/** SwapAccountChanged: A swap-authority token account did not end the sweep as it started */
+export const LATERITE_ERROR__SWAP_ACCOUNT_CHANGED = 0x1794; // 6036
+/** SlippageExceeded: The swap returned less than the minimum output */
+export const LATERITE_ERROR__SLIPPAGE_EXCEEDED = 0x1795; // 6037
 
 export type LateriteError =
+    | typeof LATERITE_ERROR__ALREADY_SWEPT
     | typeof LATERITE_ERROR__AMOUNT_TOO_SMALL
     | typeof LATERITE_ERROR__ATTESTATION_EXPIRED
     | typeof LATERITE_ERROR__ATTESTATION_NOT_EXPIRED
@@ -101,16 +112,20 @@ export type LateriteError =
     | typeof LATERITE_ERROR__INVALID_RULES
     | typeof LATERITE_ERROR__INVALID_SPONSOR
     | typeof LATERITE_ERROR__INVALID_TIER
+    | typeof LATERITE_ERROR__INVALID_TOKEN_ACCOUNT
     | typeof LATERITE_ERROR__NO_PAYMENT_TOKEN
     | typeof LATERITE_ERROR__NOTHING_TO_INVEST
+    | typeof LATERITE_ERROR__NOTHING_TO_SWEEP
     | typeof LATERITE_ERROR__NOT_PENDING_ADMIN
     | typeof LATERITE_ERROR__NOT_SPONSOR
     | typeof LATERITE_ERROR__NOT_UPGRADE_AUTHORITY
     | typeof LATERITE_ERROR__PRICE_UNAVAILABLE
     | typeof LATERITE_ERROR__PRICE_UNCERTAIN
     | typeof LATERITE_ERROR__PROGRAM_PAUSED
+    | typeof LATERITE_ERROR__SLIPPAGE_EXCEEDED
     | typeof LATERITE_ERROR__STALE_PRICE
     | typeof LATERITE_ERROR__SUBSCRIPTION_MISMATCH
+    | typeof LATERITE_ERROR__SWAP_ACCOUNT_CHANGED
     | typeof LATERITE_ERROR__UNAUTHORIZED
     | typeof LATERITE_ERROR__UNKNOWN_ASSET
     | typeof LATERITE_ERROR__UNKNOWN_PAYMENT_TOKEN
@@ -119,6 +134,7 @@ export type LateriteError =
 let lateriteErrorMessages: Record<LateriteError, string> | undefined;
 if (process.env['NODE_ENV'] !== 'production') {
     lateriteErrorMessages = {
+        [LATERITE_ERROR__ALREADY_SWEPT]: `This payment token was already swept today`,
         [LATERITE_ERROR__AMOUNT_TOO_SMALL]: `The amount buys less than one raw unit of the asset`,
         [LATERITE_ERROR__ATTESTATION_EXPIRED]: `The attested transfer is too old`,
         [LATERITE_ERROR__ATTESTATION_NOT_EXPIRED]: `The attestation record has not expired yet`,
@@ -134,20 +150,24 @@ if (process.env['NODE_ENV'] !== 'production') {
         [LATERITE_ERROR__INVALID_GENESIS_HASH]: `The cluster's genesis hash is not set`,
         [LATERITE_ERROR__INVALID_PAYMENT_TOKEN]: `A payment-token entry does not match its mint account`,
         [LATERITE_ERROR__INVALID_PRICE_UPDATE]: `The price update is malformed, or given for a token counted at one dollar`,
-        [LATERITE_ERROR__INVALID_ROUTER]: `The router address is not set`,
+        [LATERITE_ERROR__INVALID_ROUTER]: `The router is not set, or is not the configured one`,
         [LATERITE_ERROR__INVALID_RULES]: `The rules are out of range or invest nothing`,
         [LATERITE_ERROR__INVALID_SPONSOR]: `The sponsor key is not set`,
         [LATERITE_ERROR__INVALID_TIER]: `Not one of the weekly tiers`,
+        [LATERITE_ERROR__INVALID_TOKEN_ACCOUNT]: `A token account is not the expected one`,
         [LATERITE_ERROR__NO_PAYMENT_TOKEN]: `At least one configured payment token must be enabled`,
         [LATERITE_ERROR__NOTHING_TO_INVEST]: `The user's rules invest nothing for this transfer`,
+        [LATERITE_ERROR__NOTHING_TO_SWEEP]: `Nothing is due for this payment token`,
         [LATERITE_ERROR__NOT_PENDING_ADMIN]: `The signer is not the pending admin`,
         [LATERITE_ERROR__NOT_SPONSOR]: `Only the configured sponsor can pay for enrollment`,
         [LATERITE_ERROR__NOT_UPGRADE_AUTHORITY]: `Only the program's upgrade authority can initialize the config`,
         [LATERITE_ERROR__PRICE_UNAVAILABLE]: `The price update has no usable price for the feed`,
         [LATERITE_ERROR__PRICE_UNCERTAIN]: `The price's confidence interval is too wide`,
         [LATERITE_ERROR__PROGRAM_PAUSED]: `The program is paused`,
+        [LATERITE_ERROR__SLIPPAGE_EXCEEDED]: `The swap returned less than the minimum output`,
         [LATERITE_ERROR__STALE_PRICE]: `The price is too old`,
         [LATERITE_ERROR__SUBSCRIPTION_MISMATCH]: `A subscription to the chosen tier is missing for an enabled payment token`,
+        [LATERITE_ERROR__SWAP_ACCOUNT_CHANGED]: `A swap-authority token account did not end the sweep as it started`,
         [LATERITE_ERROR__UNAUTHORIZED]: `Only the admin can do this`,
         [LATERITE_ERROR__UNKNOWN_ASSET]: `Not one of the configured assets`,
         [LATERITE_ERROR__UNKNOWN_PAYMENT_TOKEN]: `Not one of the configured payment tokens`,

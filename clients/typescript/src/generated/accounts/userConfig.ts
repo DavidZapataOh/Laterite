@@ -105,6 +105,8 @@ export type UserConfig = {
      * `Active` (resume, reactivation) and each enabling of a payment token or rule that was off. Never lowered.
      */
     attestableFrom: bigint;
+    /** Per payment token, the UTC day (days since 1970-01-01) of its last sweep; 0 before the first. */
+    lastSweepDay: Array<number>;
 };
 
 export type UserConfigArgs = {
@@ -148,6 +150,8 @@ export type UserConfigArgs = {
      * `Active` (resume, reactivation) and each enabling of a payment token or rule that was off. Never lowered.
      */
     attestableFrom: number | bigint;
+    /** Per payment token, the UTC day (days since 1970-01-01) of its last sweep; 0 before the first. */
+    lastSweepDay: Array<number>;
 };
 
 /** Gets the encoder for {@link UserConfigArgs} account data. */
@@ -175,6 +179,7 @@ export function getUserConfigEncoder(): FixedSizeEncoder<UserConfigArgs> {
             ['pending', getU64Encoder()],
             ['status', getUserStatusEncoder()],
             ['attestableFrom', getI64Encoder()],
+            ['lastSweepDay', getArrayEncoder(getU32Encoder(), { size: 2 })],
         ]),
         value => ({ ...value, discriminator: USER_CONFIG_DISCRIMINATOR }),
     );
@@ -204,6 +209,7 @@ export function getUserConfigDecoder(): FixedSizeDecoder<UserConfig> {
         ['pending', getU64Decoder()],
         ['status', getUserStatusDecoder()],
         ['attestableFrom', getI64Decoder()],
+        ['lastSweepDay', getArrayDecoder(getU32Decoder(), { size: 2 })],
     ]);
 }
 
@@ -263,5 +269,5 @@ export async function fetchAllMaybeUserConfig(
 }
 
 export function getUserConfigSize(): number {
-    return 188;
+    return 196;
 }

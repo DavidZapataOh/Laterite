@@ -7,7 +7,8 @@ use subscriptions::{
 };
 
 use crate::{
-    errors::LateriteError, events::PlanCreated, plan_id, Config, CONFIG_SEED, PLAN_PERIOD_HOURS, TIERS, VAULT_SEED,
+    errors::LateriteError, events::PlanCreated, plan_id, Config, CONFIG_SEED, PLAN_PERIOD_HOURS, SWAP_AUTHORITY, TIERS,
+    VAULT_SEED,
 };
 
 #[derive(Accounts)]
@@ -38,7 +39,7 @@ impl CreatePlan<'_> {
         require_keys_eq!(self.token_program.key(), token.token_program, LateriteError::UnknownPaymentToken);
 
         let mut destinations = [Pubkey::default(); 4];
-        destinations[0] = self.vault.key();
+        destinations[0] = SWAP_AUTHORITY;
         let subscriptions_program = self.subscriptions_program.to_account_info();
         let vault = self.vault.to_account_info();
         let plan = self.plan.to_account_info();

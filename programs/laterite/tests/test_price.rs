@@ -1,7 +1,7 @@
 mod common;
 
 use {
-    common::{PYTH_SPYX_QQQX, PYTH_UPDATES_AT, PYTH_USDT},
+    common::{PYTH_QQQX_QUOTE, PYTH_SPYX_QQQX, PYTH_SPYX_QUOTE, PYTH_UPDATES_AT, PYTH_USDT, PYTH_USDT_QUOTE},
     laterite::{min_out, quote, LateriteError, Quote, MAX_PRICE_AGE_SECONDS, USD_DECIMALS},
     proptest::prelude::*,
 };
@@ -11,10 +11,6 @@ const QQQX: u32 = 1837;
 const USDT_FEED: u32 = 8;
 const STRC: u32 = 2419;
 const ASSET_DECIMALS: u8 = 8;
-
-const SPYX_QUOTE: Quote = Quote { price: 77_847_155_496, confidence: 30_532_893, exponent: -8 };
-const QQQX_QUOTE: Quote = Quote { price: 74_597_430_644, confidence: 40_282_152, exponent: -8 };
-const USDT_QUOTE: Quote = Quote { price: 99_972_708, confidence: 7_028, exponent: -8 };
 
 /// A feed id and its `(property id, encoded value)` pairs.
 type Feed<'a> = (u32, &'a [(u8, &'a [u8])]);
@@ -46,7 +42,7 @@ fn updated(seconds: i64) -> Vec<u8> {
 
 /// SPYX's real values as a synthetic feed, with `confidence` in place of the real one.
 fn spyx_with_confidence(confidence: i64) -> Vec<u8> {
-    let price = SPYX_QUOTE.price.to_le_bytes();
+    let price = PYTH_SPYX_QUOTE.price.to_le_bytes();
     let confidence = confidence.to_le_bytes();
     let exponent = (-8i16).to_le_bytes();
     let updated = updated(PYTH_UPDATES_AT);
@@ -55,9 +51,9 @@ fn spyx_with_confidence(confidence: i64) -> Vec<u8> {
 
 #[test]
 fn real_updates_give_their_feeds_quotes_at_the_same_time() {
-    assert_eq!(quote(PYTH_SPYX_QQQX, SPYX, PYTH_UPDATES_AT).unwrap(), SPYX_QUOTE);
-    assert_eq!(quote(PYTH_SPYX_QQQX, QQQX, PYTH_UPDATES_AT).unwrap(), QQQX_QUOTE);
-    assert_eq!(quote(PYTH_USDT, USDT_FEED, PYTH_UPDATES_AT).unwrap(), USDT_QUOTE);
+    assert_eq!(quote(PYTH_SPYX_QQQX, SPYX, PYTH_UPDATES_AT).unwrap(), PYTH_SPYX_QUOTE);
+    assert_eq!(quote(PYTH_SPYX_QQQX, QQQX, PYTH_UPDATES_AT).unwrap(), PYTH_QQQX_QUOTE);
+    assert_eq!(quote(PYTH_USDT, USDT_FEED, PYTH_UPDATES_AT).unwrap(), PYTH_USDT_QUOTE);
 }
 
 #[test]
@@ -93,7 +89,7 @@ fn a_carried_forward_feed_is_stale_in_a_fresh_update() {
 
 #[test]
 fn confidence_wider_than_the_bound_is_refused() {
-    let at_bound = (SPYX_QUOTE.price / 200) as i64;
+    let at_bound = (PYTH_SPYX_QUOTE.price / 200) as i64;
     assert!(quote(&spyx_with_confidence(at_bound), SPYX, PYTH_UPDATES_AT).is_ok());
     assert_eq!(
         quote(&spyx_with_confidence(at_bound + 1), SPYX, PYTH_UPDATES_AT).unwrap_err(),
@@ -103,8 +99,8 @@ fn confidence_wider_than_the_bound_is_refused() {
 
 #[test]
 fn properties_are_read_by_id_in_any_order() {
-    let price = SPYX_QUOTE.price.to_le_bytes();
-    let confidence = SPYX_QUOTE.confidence.to_le_bytes();
+    let price = PYTH_SPYX_QUOTE.price.to_le_bytes();
+    let confidence = PYTH_SPYX_QUOTE.confidence.to_le_bytes();
     let exponent = (-8i16).to_le_bytes();
     let updated = updated(PYTH_UPDATES_AT);
     let publishers = 3u16.to_le_bytes();
@@ -112,15 +108,15 @@ fn properties_are_read_by_id_in_any_order() {
         SPYX,
         &[(12, &updated), (3, &publishers), (4, &exponent), (5, &confidence), (1, &price), (0, &price)],
     )]);
-    assert_eq!(quote(&reordered, SPYX, PYTH_UPDATES_AT).unwrap(), SPYX_QUOTE);
+    assert_eq!(quote(&reordered, SPYX, PYTH_UPDATES_AT).unwrap(), PYTH_SPYX_QUOTE);
 }
 
 #[test]
 fn a_feed_without_price_confidence_exponent_or_update_time_is_unavailable() {
-    let price = SPYX_QUOTE.price.to_le_bytes();
+    let price = PYTH_SPYX_QUOTE.price.to_le_bytes();
     let negative = (-1i64).to_le_bytes();
     let zero = 0i64.to_le_bytes();
-    let confidence = SPYX_QUOTE.confidence.to_le_bytes();
+    let confidence = PYTH_SPYX_QUOTE.confidence.to_le_bytes();
     let exponent = (-8i16).to_le_bytes();
     let updated = updated(PYTH_UPDATES_AT);
     let absent = [0u8];
@@ -164,11 +160,11 @@ fn a_malformed_update_is_refused() {
 
 #[test]
 fn min_out_is_the_worth_at_the_conservative_prices_less_slippage() {
-    assert_eq!(min_out(1_000_000, Quote::DOLLAR, USD_DECIMALS, SPYX_QUOTE, ASSET_DECIMALS).unwrap(), 127_121);
-    assert_eq!(min_out(10_000_000, Quote::DOLLAR, USD_DECIMALS, SPYX_QUOTE, ASSET_DECIMALS).unwrap(), 1_271_223);
-    assert_eq!(min_out(25_000_000, Quote::DOLLAR, USD_DECIMALS, QQQX_QUOTE, ASSET_DECIMALS).unwrap(), 3_316_017);
-    assert_eq!(min_out(25_000_000, USDT_QUOTE, USD_DECIMALS, QQQX_QUOTE, ASSET_DECIMALS).unwrap(), 3_314_879);
-    assert_eq!(min_out(0, Quote::DOLLAR, USD_DECIMALS, SPYX_QUOTE, ASSET_DECIMALS).unwrap(), 0);
+    assert_eq!(min_out(1_000_000, Quote::DOLLAR, USD_DECIMALS, PYTH_SPYX_QUOTE, ASSET_DECIMALS).unwrap(), 127_121);
+    assert_eq!(min_out(10_000_000, Quote::DOLLAR, USD_DECIMALS, PYTH_SPYX_QUOTE, ASSET_DECIMALS).unwrap(), 1_271_223);
+    assert_eq!(min_out(25_000_000, Quote::DOLLAR, USD_DECIMALS, PYTH_QQQX_QUOTE, ASSET_DECIMALS).unwrap(), 3_316_017);
+    assert_eq!(min_out(25_000_000, PYTH_USDT_QUOTE, USD_DECIMALS, PYTH_QQQX_QUOTE, ASSET_DECIMALS).unwrap(), 3_314_879);
+    assert_eq!(min_out(0, Quote::DOLLAR, USD_DECIMALS, PYTH_SPYX_QUOTE, ASSET_DECIMALS).unwrap(), 0);
 }
 
 #[test]
@@ -182,11 +178,11 @@ fn usdt_counts_at_its_verified_price_from_its_own_update() {
 
 #[test]
 fn a_wider_confidence_lowers_min_out() {
-    let wide = Quote { confidence: SPYX_QUOTE.confidence * 2, ..SPYX_QUOTE };
-    let usdt_wide = Quote { confidence: USDT_QUOTE.confidence * 2, ..USDT_QUOTE };
-    let base = min_out(10_000_000, USDT_QUOTE, USD_DECIMALS, SPYX_QUOTE, ASSET_DECIMALS).unwrap();
-    assert!(min_out(10_000_000, USDT_QUOTE, USD_DECIMALS, wide, ASSET_DECIMALS).unwrap() < base);
-    assert!(min_out(10_000_000, usdt_wide, USD_DECIMALS, SPYX_QUOTE, ASSET_DECIMALS).unwrap() < base);
+    let wide = Quote { confidence: PYTH_SPYX_QUOTE.confidence * 2, ..PYTH_SPYX_QUOTE };
+    let usdt_wide = Quote { confidence: PYTH_USDT_QUOTE.confidence * 2, ..PYTH_USDT_QUOTE };
+    let base = min_out(10_000_000, PYTH_USDT_QUOTE, USD_DECIMALS, PYTH_SPYX_QUOTE, ASSET_DECIMALS).unwrap();
+    assert!(min_out(10_000_000, PYTH_USDT_QUOTE, USD_DECIMALS, wide, ASSET_DECIMALS).unwrap() < base);
+    assert!(min_out(10_000_000, usdt_wide, USD_DECIMALS, PYTH_SPYX_QUOTE, ASSET_DECIMALS).unwrap() < base);
 }
 
 #[test]
@@ -199,7 +195,7 @@ fn min_out_that_cannot_be_computed_is_refused() {
     );
     assert_eq!(min_out(u64::MAX, Quote::DOLLAR, 0, tiny, 18).unwrap_err(), LateriteError::InvalidPriceUpdate.into());
     assert_eq!(
-        min_out(1, Quote::DOLLAR, USD_DECIMALS, SPYX_QUOTE, ASSET_DECIMALS).unwrap_err(),
+        min_out(1, Quote::DOLLAR, USD_DECIMALS, PYTH_SPYX_QUOTE, ASSET_DECIMALS).unwrap_err(),
         LateriteError::AmountTooSmall.into()
     );
 }

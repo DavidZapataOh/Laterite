@@ -15,3 +15,4 @@ export * from './marketCalendarSet';
 export * from './pausedSet';
 export * from './planCreated';
 export * from './settingsUpdated';
+export * from './swept';

@@ -118,8 +118,8 @@
         {
             "name": "create_plan",
             "docs": [
-                "Publishes a payment token's weekly tier as a Subscriptions plan owned by the vault authority; the",
-                "admin pays its rent, which is not refundable."
+                "Publishes a payment token's weekly tier as a Subscriptions plan owned by the vault authority, paying only into",
+                "the swap authority's accounts; the admin pays its rent, which is not refundable."
             ],
             "discriminator": [77, 43, 141, 254, 212, 118, 41, 186],
             "accounts": [
@@ -397,9 +397,157 @@
             ]
         },
         {
+            "name": "sweep",
+            "docs": [
+                "Invests what is due for one user and payment token, once per UTC day. Verifies the Pyth Pro updates by CPI:",
+                "`asset_message` for the asset and, for a payment token with a price feed, `payment_message`, signature entries",
+                "0 and 1 of the ed25519 instruction at `ed25519_index`. Pulls through the user's subscription, swaps through",
+                "the configured router with the caller's `route` data and the remaining accounts, and checks that the user",
+                "received at least the minimum the prices allow. Anyone can call it."
+            ],
+            "discriminator": [40, 23, 234, 175, 14, 61, 154, 177],
+            "accounts": [
+                {
+                    "name": "crank",
+                    "docs": ["Pays the fees and Pyth Pro's verification fee."],
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "config",
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [99, 111, 110, 102, 105, 103]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "user_config",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [117, 115, 101, 114]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "user_config.user",
+                                "account": "UserConfig"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "vault",
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [118, 97, 117, 108, 116]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "subscription",
+                    "writable": true
+                },
+                {
+                    "name": "plan"
+                },
+                {
+                    "name": "subscription_authority"
+                },
+                {
+                    "name": "user_payment_account",
+                    "writable": true
+                },
+                {
+                    "name": "swap_payment_account",
+                    "writable": true
+                },
+                {
+                    "name": "user_asset_account",
+                    "writable": true
+                },
+                {
+                    "name": "payment_mint"
+                },
+                {
+                    "name": "payment_token_program"
+                },
+                {
+                    "name": "subscriptions_program",
+                    "address": "De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44"
+                },
+                {
+                    "name": "subscriptions_event_authority",
+                    "address": "3Hnj4BYoDgtpBuqXfiy7Y8cNa3jXaNd4oqgSXBzkMcH7"
+                },
+                {
+                    "name": "swap_authority",
+                    "address": "EkYduV3gUV9ZbNPcvfCWvmAviF5NkYypQSfu8XZvxQce"
+                },
+                {
+                    "name": "router"
+                },
+                {
+                    "name": "pyth_program",
+                    "address": "pytd2yyk641x7ak7mkaasSJVXh6YYZnC7wTmtgAyxPt"
+                },
+                {
+                    "name": "pyth_storage"
+                },
+                {
+                    "name": "pyth_treasury",
+                    "writable": true
+                },
+                {
+                    "name": "instructions",
+                    "address": "Sysvar1nstructions1111111111111111111111111"
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                },
+                {
+                    "name": "event_authority"
+                },
+                {
+                    "name": "program"
+                }
+            ],
+            "args": [
+                {
+                    "name": "asset_message",
+                    "type": "bytes"
+                },
+                {
+                    "name": "payment_message",
+                    "type": "bytes"
+                },
+                {
+                    "name": "ed25519_index",
+                    "type": "u16"
+                },
+                {
+                    "name": "payment_token",
+                    "type": "u8"
+                },
+                {
+                    "name": "route",
+                    "type": "bytes"
+                }
+            ]
+        },
+        {
             "name": "update_config",
             "docs": [
-                "Replaces the settings: router, attestor, sponsor and beta caps. The tables are fixed at `initialize`."
+                "Replaces the settings: attestor, sponsor and beta caps. The router and the tables are fixed at `initialize`."
             ],
             "discriminator": [29, 158, 252, 191, 10, 83, 219, 99],
             "accounts": [
@@ -483,6 +631,10 @@
         {
             "name": "SettingsUpdated",
             "discriminator": [35, 115, 95, 212, 3, 206, 67, 222]
+        },
+        {
+            "name": "Swept",
+            "discriminator": [254, 138, 9, 198, 192, 61, 165, 135]
         }
     ],
     "errors": [
@@ -504,7 +656,7 @@
         {
             "code": 6003,
             "name": "InvalidRouter",
-            "msg": "The router address is not set"
+            "msg": "The router is not set, or is not the configured one"
         },
         {
             "code": 6004,
@@ -650,6 +802,31 @@
             "code": 6032,
             "name": "AttestationNotExpired",
             "msg": "The attestation record has not expired yet"
+        },
+        {
+            "code": 6033,
+            "name": "AlreadySwept",
+            "msg": "This payment token was already swept today"
+        },
+        {
+            "code": 6034,
+            "name": "NothingToSweep",
+            "msg": "Nothing is due for this payment token"
+        },
+        {
+            "code": 6035,
+            "name": "InvalidTokenAccount",
+            "msg": "A token account is not the expected one"
+        },
+        {
+            "code": 6036,
+            "name": "SwapAccountChanged",
+            "msg": "A swap-authority token account did not end the sweep as it started"
+        },
+        {
+            "code": 6037,
+            "name": "SlippageExceeded",
+            "msg": "The swap returned less than the minimum output"
         }
     ],
     "types": [
@@ -819,7 +996,7 @@
                     },
                     {
                         "name": "router",
-                        "docs": ["The only program the sweep may swap through."],
+                        "docs": ["The only program the sweep may swap through. Set once by `initialize`."],
                         "type": "pubkey"
                     },
                     {
@@ -927,7 +1104,8 @@
         {
             "name": "ConfigParams",
             "docs": [
-                "Everything `initialize` sets. The tables never change afterwards, because users refer to entries by index."
+                "Everything `initialize` sets. The tables and the router never change afterwards: users refer to table entries by",
+                "index, and the vault signs the router's instruction."
             ],
             "type": {
                 "kind": "struct",
@@ -975,6 +1153,11 @@
                         "type": {
                             "array": ["u8", 32]
                         }
+                    },
+                    {
+                        "name": "router",
+                        "docs": ["The only program a sweep may swap through."],
+                        "type": "pubkey"
                     }
                 ]
             }
@@ -1216,10 +1399,6 @@
                 "kind": "struct",
                 "fields": [
                     {
-                        "name": "router",
-                        "type": "pubkey"
-                    },
-                    {
                         "name": "attestor",
                         "type": "pubkey"
                     },
@@ -1255,9 +1434,59 @@
             }
         },
         {
+            "name": "Swept",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "user",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "payment_token",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "asset",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "engine",
+                        "docs": ["Pulled for the engine and for pending amounts, in the payment token's raw units."],
+                        "type": "u64"
+                    },
+                    {
+                        "name": "pending",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "asset_price",
+                        "docs": [
+                            "The asset's verified price, `asset_price × 10^asset_exponent` dollars per 10^decimals raw units: the",
+                            "display multiplier is included, so a UI token costs this price over the multiplier."
+                        ],
+                        "type": "u64"
+                    },
+                    {
+                        "name": "asset_exponent",
+                        "type": "i16"
+                    },
+                    {
+                        "name": "received",
+                        "docs": ["Raw asset units the user received, and the minimum the prices allowed."],
+                        "type": "u64"
+                    },
+                    {
+                        "name": "min_out",
+                        "type": "u64"
+                    }
+                ]
+            }
+        },
+        {
             "name": "UserConfig",
             "docs": [
-                "A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 188 bytes with the discriminator."
+                "A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 196 bytes with the discriminator."
             ],
             "type": {
                 "kind": "struct",
@@ -1377,6 +1606,15 @@
                             "`Active` (resume, reactivation) and each enabling of a payment token or rule that was off. Never lowered."
                         ],
                         "type": "i64"
+                    },
+                    {
+                        "name": "last_sweep_day",
+                        "docs": [
+                            "Per payment token, the UTC day (days since 1970-01-01) of its last sweep; 0 before the first."
+                        ],
+                        "type": {
+                            "array": ["u32", 2]
+                        }
                     }
                 ]
             }
@@ -1432,6 +1670,15 @@
             "value": "[99, 111, 110, 102, 105, 103]"
         },
         {
+            "name": "SWAP_SEED",
+            "docs": [
+                "Seed of the swap authority: every plan's only destination and the only signer of a sweep's route, so a route",
+                "never carries the plan owner's signature."
+            ],
+            "type": "bytes",
+            "value": "[115, 119, 97, 112]"
+        },
+        {
             "name": "USER_CONFIG_SEED",
             "docs": ["Seed of a user's [`UserConfig`](crate::UserConfig), followed by the user's address."],
             "type": "bytes",
@@ -1439,7 +1686,7 @@
         },
         {
             "name": "VAULT_SEED",
-            "docs": ["Seed of the vault authority: it owns every plan, is their only destination and signs swaps."],
+            "docs": ["Seed of the vault authority: it owns every plan and pulls from it as its owner."],
             "type": "bytes",
             "value": "[118, 97, 117, 108, 116]"
         }

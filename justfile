@@ -43,8 +43,9 @@ program-id:
 # Build everything
 build: build-program build-landing
 
-# Compile the program to SBF
+# Compile the router the program tests route through, then the program, to SBF (the tests embed both binaries)
 build-program:
+    cargo build-sbf --manifest-path {{program_dir}}/tests/router/Cargo.toml
     anchor build --ignore-keys
     @echo "✓ Program built"
 
@@ -62,8 +63,9 @@ pyth_pro_mainnet_sha256 := "3cfe21cea519b47f63196fc29f05822ec74a0ca563dfba0d51d0
 pyth_storage_mainnet_sha256 := "9317148d8a36da529f5eec39d325cd6ae2c15eb2c3e00f5d020dcf41e8544d21"
 pyth_pro_devnet_sha256 := "a23441843d485a8bbae0f0b2e561e3453691c2843b506b63f02adc1bca6fb6bb"
 pyth_storage_devnet_sha256 := "bc95799804292206529561227b9c376c6de09fd3f9d463aed94c275f30b36cbe"
+cpmm_sha256 := "6c6d893d4f43f6d747f18b2130482a7259d1ad27cc98cee36dd2451cdec00dc3"
 
-# Refresh the committed program fixtures from mainnet and devnet; fails when one no longer matches its pin
+# Refresh the committed program fixtures (mainnet and devnet Pyth Pro, our devnet CPMM); fails when one no longer matches its pin
 dump-programs:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -75,9 +77,11 @@ dump-programs:
         solana program dump -u "$url" pytd2yyk641x7ak7mkaasSJVXh6YYZnC7wTmtgAyxPt "$dir/pyth_pro_$cluster.so" >/dev/null
         solana account -u "$url" 3rdJbqfnagQ4yx9HXJViD4zc4xpiSqmFsKpPuSCQVyQL --output-file "$dir/pyth_storage_$cluster.bin" >/dev/null
     done
+    solana program dump -u devnet "$(node -p "require('./packages/devnet/addresses.json').cpmm.program")" "$dir/cpmm.so" >/dev/null
     for pin in "{{subscriptions_sha256}} subscriptions.so" \
         "{{pyth_pro_mainnet_sha256}} pyth_pro_mainnet.so" "{{pyth_storage_mainnet_sha256}} pyth_storage_mainnet.bin" \
-        "{{pyth_pro_devnet_sha256}} pyth_pro_devnet.so" "{{pyth_storage_devnet_sha256}} pyth_storage_devnet.bin"; do
+        "{{pyth_pro_devnet_sha256}} pyth_pro_devnet.so" "{{pyth_storage_devnet_sha256}} pyth_storage_devnet.bin" \
+        "{{cpmm_sha256}} cpmm.so"; do
         set -- $pin
         if ! echo "$1  $dir/$2" | shasum -a 256 -c --status; then
             echo "Error: $2 no longer matches its pinned hash."
@@ -88,6 +92,24 @@ dump-programs:
     mkdir -p "{{program_dir}}/tests/fixtures"
     cp "$dir"/* "{{program_dir}}/tests/fixtures/"
     echo "✓ Program fixtures match their pins"
+
+# Snapshot the devnet mints, CPMM config and pools the sweep tests copy; review the diff before committing
+dump-devnet-accounts:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    dir="{{program_dir}}/tests/fixtures/devnet"
+    mkdir -p "$dir"
+    accounts=$(node -p "const a = require('./packages/devnet/addresses.json');
+        [a.cpmm.ammConfig, ...Object.values(a.tokens).map((t) => t.mint),
+         ...['SPYx-USDC', 'SPYx-USDT', 'QQQx-USDC'].flatMap((p) => ['address', 'observation', 'token0Vault', 'token1Vault'].map((k) => a.pools[p][k]))].join(' ')")
+    for account in $accounts; do
+        solana account -u devnet "$account" --output-file "$dir/$account.bin" >/dev/null
+    done
+    echo "✓ Devnet accounts written to $dir"
+
+# Write cu_report.md with the sweep's compute units, as the CU Benchmark workflow reads it
+test-and-benchmark: build-program
+    CU_REPORT=1 cargo test -p laterite --test test_sweep cu_report
 
 # Run every suite CI runs
 test: unit-test devnet-unit-test ui-test

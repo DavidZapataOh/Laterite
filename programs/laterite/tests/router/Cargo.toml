@@ -1,0 +1,27 @@
+[package]
+name = "test-router"
+description = "A router for the program tests: runs the instructions its data encodes."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+custom-heap = []
+custom-panic = []
+
+[dependencies]
+solana-account-info = "3.1.1"
+solana-cpi = "3.1.0"
+solana-instruction = "3.4.1"
+solana-program-entrypoint = "3.1.1"
+solana-program-error = "3.0.1"
+solana-pubkey = "4.2.1"
+
+[lints]
+workspace = true

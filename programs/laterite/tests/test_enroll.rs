@@ -11,8 +11,8 @@ use {
 };
 
 #[test]
-fn user_config_is_188_bytes() {
-    assert_eq!(8 + UserConfig::INIT_SPACE, 188);
+fn user_config_is_196_bytes() {
+    assert_eq!(8 + UserConfig::INIT_SPACE, 196);
 }
 
 #[test]
@@ -49,6 +49,7 @@ fn onboarding_is_one_sponsored_transaction() {
     assert_eq!(config.enrolled_at, NOW);
     assert_eq!((config.week, config.week_spent, config.engine_ran_at, config.pending), (0, 0, 0, 0));
     assert_eq!((config.status, config.attestable_from), (UserStatus::Active, NOW));
+    assert_eq!(config.last_sweep_day, [0; 2]);
     assert_eq!(&config.goal_label[..5], b"House");
     assert_eq!(fetch_config(&env.svm).user_count, 1);
     assert!(env.svm.get_account(&user.pubkey()).is_none_or(|account| account.lamports == 0));
