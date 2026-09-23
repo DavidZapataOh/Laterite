@@ -4,7 +4,7 @@ use subscriptions::SUBSCRIPTIONS_ID;
 use crate::{
     errors::LateriteError,
     events::{Exited, PaymentTokensChanged, PendingLowered, Reactivated, TierChanged, UserPaused, UserSettingsUpdated},
-    subscription, Config, EnrollParams, UserConfig, UserStatus, CONFIG_SEED, PAYMENT_TOKEN_COUNT, PLANS,
+    subscription, Config, EnrollParams, UserConfig, UserStatus, CONFIG, PAYMENT_TOKEN_COUNT, PLANS,
     SUBSCRIPTIONS_EVENT_AUTHORITY, TIERS, USER_CONFIG_SEED, VAULT,
 };
 
@@ -77,9 +77,9 @@ pub struct Cancellation<'info> {
 }
 
 #[derive(Accounts)]
-pub struct PlanChange<'info> {
+pub struct TierChange<'info> {
     pub cancellation: Cancellation<'info>,
-    #[account(seeds = [CONFIG_SEED], bump = config.bump)]
+    #[account(address = CONFIG)]
     pub config: Account<'info, Config>,
     #[account(
         mut,
@@ -90,7 +90,7 @@ pub struct PlanChange<'info> {
     pub user_config: Account<'info, UserConfig>,
 }
 
-impl<'info> PlanChange<'info> {
+impl<'info> TierChange<'info> {
     /// Remaining accounts, per enabled payment token in order: the current tier's plan and the user's subscription to
     /// it, then the user's subscription to the new tier's plan.
     pub fn change_tier(&mut self, tier: u8, accounts: &[AccountInfo<'info>]) -> Result<()> {
@@ -117,7 +117,21 @@ impl<'info> PlanChange<'info> {
         emit!(TierChanged { user, tier });
         Ok(())
     }
+}
 
+#[derive(Accounts)]
+pub struct PaymentTokensChange<'info> {
+    pub cancellation: Cancellation<'info>,
+    #[account(
+        mut,
+        seeds = [USER_CONFIG_SEED, cancellation.user.key().as_ref()],
+        bump = user_config.bump,
+        constraint = user_config.status != UserStatus::Exited @ LateriteError::UserNotActive
+    )]
+    pub user_config: Account<'info, UserConfig>,
+}
+
+impl<'info> PaymentTokensChange<'info> {
     /// Remaining accounts, per payment token whose bit changes, in token order: for a dropped token the tier's plan
     /// and the user's subscription to it, for an added token the user's subscription to the tier's plan.
     pub fn change_payment_tokens(&mut self, payment_tokens: u8, accounts: &[AccountInfo<'info>]) -> Result<()> {
@@ -156,7 +170,7 @@ impl<'info> PlanChange<'info> {
 #[derive(Accounts)]
 pub struct Exit<'info> {
     pub cancellation: Cancellation<'info>,
-    #[account(mut, seeds = [CONFIG_SEED], bump = config.bump)]
+    #[account(mut, address = CONFIG)]
     pub config: Account<'info, Config>,
     #[account(
         mut,
@@ -197,8 +211,7 @@ pub struct Reactivate<'info> {
     pub sponsor: Signer<'info>,
     #[account(
         mut,
-        seeds = [CONFIG_SEED],
-        bump = config.bump,
+        address = CONFIG,
         constraint = config.sponsor == sponsor.key() @ LateriteError::NotSponsor
     )]
     pub config: Account<'info, Config>,

@@ -1,7 +1,13 @@
 mod common;
 
 use {
-    anchor_lang::solana_program::{instruction::Instruction, pubkey::Pubkey},
+    anchor_lang::{
+        error::ErrorCode,
+        solana_program::{
+            instruction::{AccountMeta, Instruction},
+            pubkey::Pubkey,
+        },
+    },
     common::*,
     laterite::{
         Attestation, Engine, EnrollParams, EventKind, LateriteError, Settings, UserConfig, UserStatus, DAY_SECONDS,
@@ -288,7 +294,7 @@ fn payment_tokens_change_in_place() {
     // refused, and the user's own stays live.
     let other = enrolled(&mut sweep.env, Keypair::new_from_array([12; 32]), &default_enroll_params()).pubkey();
     for (index, wrong) in
-        [(7, subscription_address(USDT_TOKEN, 0, &other)), (7, Pubkey::new_unique()), (6, plan_address(USDT_TOKEN, 1))]
+        [(6, subscription_address(USDT_TOKEN, 0, &other)), (6, Pubkey::new_unique()), (5, plan_address(USDT_TOKEN, 1))]
     {
         let mut instruction = change_payment_tokens_ix(key, 0, 0b11, 0b01);
         instruction.accounts[index].pubkey = wrong;
@@ -478,6 +484,29 @@ fn a_returning_user_reactivates_the_same_account_under_enrollments_checks() {
     let after = transfer(EventKind::Income, key, 1_000 * DOLLAR, reactivated + 5, 2);
     submit_attestation(&mut sweep.env, &crank, &after, &attestor()).unwrap();
     assert_eq!(fetch_user_config(&sweep.env, &key).pending, 100 * DOLLAR);
+}
+
+#[test]
+fn reactivation_needs_the_sponsors_signature() {
+    let mut env = with_plans();
+    let user = enrolled(&mut env, Keypair::new(), &default_enroll_params());
+    let key = user.pubkey();
+    let instructions = exit_ixs(&env.svm, key);
+    send_many(&mut env, &sponsor(), &instructions, &[&user]).1.unwrap();
+
+    // The configured sponsor named but not signing, with someone else paying the fee.
+    let mut instructions = reactivation_ixs(&env.svm, key, &default_enroll_params());
+    let stranger = funded(&mut env.svm);
+    for instruction in &mut instructions {
+        for meta in instruction.accounts.iter_mut().filter(|meta| meta.pubkey == sponsor().pubkey()) {
+            meta.pubkey = stranger.pubkey();
+        }
+    }
+    let reactivate = instructions.last_mut().unwrap();
+    reactivate.accounts[1] = AccountMeta::new_readonly(sponsor().pubkey(), false);
+    let failure = send_many(&mut env, &stranger, &instructions, &[&user]).1.unwrap_err();
+    assert_eq!(custom_code(&failure), Some(ErrorCode::AccountNotSigner.into()));
+    assert_eq!(fetch_user_config(&env, &key).status, UserStatus::Exited);
 }
 
 #[test]

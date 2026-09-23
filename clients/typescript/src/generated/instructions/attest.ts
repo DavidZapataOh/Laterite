@@ -39,7 +39,6 @@ import {
     type ResolvedInstructionAccount,
     type ResolvedInstructionAccountMeta,
 } from '@solana/program-client-core';
-import { findConfigPda } from '../pdas';
 import { LATERITE_PROGRAM_ADDRESS } from '../programs';
 import { getAttestationDecoder, getAttestationEncoder, type Attestation, type AttestationArgs } from '../types';
 
@@ -52,7 +51,7 @@ export function getAttestDiscriminatorBytes(): ReadonlyUint8Array {
 export type AttestInstruction<
     TProgram extends string = typeof LATERITE_PROGRAM_ADDRESS,
     TAccountPayer extends string | AccountMeta<string> = string,
-    TAccountConfig extends string | AccountMeta<string> = string,
+    TAccountConfig extends string | AccountMeta<string> = '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5',
     TAccountUserConfig extends string | AccountMeta<string> = string,
     TAccountRecord extends string | AccountMeta<string> = string,
     TAccountInstructions extends string | AccountMeta<string> = 'Sysvar1nstructions1111111111111111111111111',
@@ -99,107 +98,6 @@ export function getAttestInstructionDataCodec(): FixedSizeCodec<AttestInstructio
     return combineCodec(getAttestInstructionDataEncoder(), getAttestInstructionDataDecoder());
 }
 
-export type AttestAsyncInput<
-    TAccountPayer extends InstructionSignerInput = InstructionSignerInput,
-    TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
-    TAccountUserConfig extends InstructionAccountInput = InstructionAccountInput,
-    TAccountRecord extends InstructionAccountInput = InstructionAccountInput,
-    TAccountInstructions extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSystemProgram extends InstructionAccountInput = InstructionAccountInput,
-> = {
-    payer: TAccountPayer;
-    config?: TAccountConfig;
-    userConfig: TAccountUserConfig;
-    record: TAccountRecord;
-    instructions?: TAccountInstructions;
-    systemProgram?: TAccountSystemProgram;
-    attestation: AttestInstructionDataArgs['attestation'];
-};
-
-export async function getAttestInstructionAsync<
-    TAccountPayer extends InstructionSignerInput,
-    TAccountConfig extends InstructionAccountInput,
-    TAccountUserConfig extends InstructionAccountInput,
-    TAccountRecord extends InstructionAccountInput,
-    TAccountInstructions extends InstructionAccountInput,
-    TAccountSystemProgram extends InstructionAccountInput,
-    TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
->(
-    input: AttestAsyncInput<
-        TAccountPayer,
-        TAccountConfig,
-        TAccountUserConfig,
-        TAccountRecord,
-        TAccountInstructions,
-        TAccountSystemProgram
-    >,
-    config?: { programAddress?: TProgramAddress },
-): Promise<
-    AttestInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountPayer, InstructionAccountInputAddress<TAccountPayer>>,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>,
-        ResolvedInstructionAccountMeta<TAccountRecord, InstructionAccountInputAddress<TAccountRecord>>,
-        ResolvedInstructionAccountMeta<TAccountInstructions, InstructionAccountInputAddress<TAccountInstructions>>,
-        ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>
-    >
-> {
-    // Program address.
-    const programAddress = config?.programAddress ?? LATERITE_PROGRAM_ADDRESS;
-
-    // Account meta helper.
-    const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
-
-    // Original accounts.
-    const originalAccounts = {
-        payer: { value: input.payer ?? null, isSigner: true, isWritable: true },
-        config: { value: input.config ?? null, isSigner: false, isWritable: false },
-        userConfig: { value: input.userConfig ?? null, isSigner: false, isWritable: true },
-        record: { value: input.record ?? null, isSigner: false, isWritable: true },
-        instructions: { value: input.instructions ?? null, isSigner: false, isWritable: false },
-        systemProgram: { value: input.systemProgram ?? null, isSigner: false, isWritable: false },
-    };
-    const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedInstructionAccount>;
-
-    // Original args.
-    const args = { ...input };
-
-    // Resolve default values.
-    if (!accounts.config.value) {
-        accounts.config.value = await findConfigPda({ programAddress });
-    }
-    if (!accounts.instructions.value) {
-        accounts.instructions.value =
-            'Sysvar1nstructions1111111111111111111111111' as Address<'Sysvar1nstructions1111111111111111111111111'>;
-    }
-    if (!accounts.systemProgram.value) {
-        accounts.systemProgram.value =
-            '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
-    }
-
-    return Object.freeze({
-        accounts: [
-            getAccountMeta('payer', accounts.payer),
-            getAccountMeta('config', accounts.config),
-            getAccountMeta('userConfig', accounts.userConfig),
-            getAccountMeta('record', accounts.record),
-            getAccountMeta('instructions', accounts.instructions),
-            getAccountMeta('systemProgram', accounts.systemProgram),
-        ],
-        data: getAttestInstructionDataEncoder().encode(args as AttestInstructionDataArgs),
-        programAddress,
-    } as AttestInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountPayer, InstructionAccountInputAddress<TAccountPayer>>,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>,
-        ResolvedInstructionAccountMeta<TAccountRecord, InstructionAccountInputAddress<TAccountRecord>>,
-        ResolvedInstructionAccountMeta<TAccountInstructions, InstructionAccountInputAddress<TAccountInstructions>>,
-        ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>
-    >);
-}
-
 export type AttestInput<
     TAccountPayer extends InstructionSignerInput = InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
@@ -209,7 +107,7 @@ export type AttestInput<
     TAccountSystemProgram extends InstructionAccountInput = InstructionAccountInput,
 > = {
     payer: TAccountPayer;
-    config: TAccountConfig;
+    config?: TAccountConfig;
     userConfig: TAccountUserConfig;
     record: TAccountRecord;
     instructions?: TAccountInstructions;
@@ -265,6 +163,10 @@ export function getAttestInstruction<
     const args = { ...input };
 
     // Resolve default values.
+    if (!accounts.config.value) {
+        accounts.config.value =
+            '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5' as Address<'58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5'>;
+    }
     if (!accounts.instructions.value) {
         accounts.instructions.value =
             'Sysvar1nstructions1111111111111111111111111' as Address<'Sysvar1nstructions1111111111111111111111111'>;

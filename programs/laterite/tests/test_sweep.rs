@@ -1,9 +1,12 @@
 mod common;
 
 use {
-    anchor_lang::solana_program::{
-        instruction::{AccountMeta, Instruction},
-        pubkey::Pubkey,
+    anchor_lang::{
+        error::ErrorCode,
+        solana_program::{
+            instruction::{AccountMeta, Instruction},
+            pubkey::Pubkey,
+        },
     },
     anchor_spl::{
         token::{self, spl_token::instruction as token_instruction},
@@ -17,16 +20,18 @@ use {
     },
     common::*,
     laterite::{
-        min_out, Engine, EnrollParams, LateriteError, MarketCalendar, Quote, Settings, UserStatus, DAY_SECONDS,
-        SWAP_AUTHORITY, TRIAL_CAP, USD_DECIMALS,
+        min_out, Attestation, Engine, EnrollParams, EventKind, LateriteError, MarketCalendar, Quote, Settings,
+        UserStatus, ATTESTATION_TTL_SECONDS, DAY_SECONDS, SWAP_AUTHORITY, TRIAL_CAP, USD_DECIMALS,
     },
     litesvm::LiteSVM,
     solana_keypair::Keypair,
     solana_signer::Signer,
     solana_transaction::{InstructionError, TransactionError},
     subscriptions::{
-        errors::SubscriptionsError, instructions::TransferSubscriptionBuilder, types::TransferData, EventAuthority,
-        SubscriptionAuthority,
+        errors::SubscriptionsError,
+        instructions::{DeletePlanBuilder, TransferSubscriptionBuilder, UpdatePlanBuilder},
+        types::{TransferData, UpdatePlanData},
+        EventAuthority, Plan, SubscriptionAuthority, SUBSCRIPTIONS_ID,
     },
 };
 
@@ -145,6 +150,11 @@ fn the_payment_update_is_the_tokens_own_and_must_verify() {
     let failure = sweep.send(&instructions).1.unwrap_err();
     assert_eq!(failure.err, TransactionError::InstructionError(1, InstructionError::InvalidInstructionData));
     assert!(failure.meta.logs.iter().any(|line| line.contains("InvalidMessageData")));
+    // The payment entry must point at the payment update, at 16 + the asset update's length.
+    let mut instructions = sweep.sweep_ixs(USDT_TOKEN, PYTH_SPYX_QQQX, PYTH_USDT);
+    instructions[0] = ed25519_ix(&[(PYTH_SPYX_QQQX, 1, 12), (PYTH_USDT, 1, payment_offset + 1)]);
+    let failure = sweep.send(&instructions).1.unwrap_err();
+    assert!(matches!(failure.err, TransactionError::InstructionError(0, _)), "{:?}", failure.err);
 
     let untrusted = signed_by(PYTH_USDT, &Keypair::new());
     let failure = sweep.send(&sweep.sweep_ixs(USDT_TOKEN, PYTH_SPYX_QQQX, &untrusted)).1.unwrap_err();
@@ -453,6 +463,27 @@ fn second_pull_ixs(sweep: &mut SweepEnv, caller: Pubkey, thief: Pubkey) -> [Inst
     [pull, out]
 }
 
+/// The USDC $10 plan's pullers extended to `thief`, signed by `owner`: what the plan owner's signature allows.
+fn update_plan_ix(sweep: &SweepEnv, owner: Pubkey, thief: Pubkey) -> Instruction {
+    let plan = plan_address(USDC_TOKEN, 0);
+    let data = Plan::from_bytes(&sweep.env.svm.get_account(&plan).unwrap().data).unwrap().data;
+    UpdatePlanBuilder::new()
+        .owner(owner)
+        .plan_pda(plan)
+        .event_authority(EventAuthority::find_pda().0)
+        .update_plan_data(UpdatePlanData {
+            status: 1,
+            end_ts: data.end_ts,
+            pullers: [thief, Pubkey::default(), Pubkey::default(), Pubkey::default()],
+            metadata_uri: data.metadata_uri,
+            expected_created_at: data.terms.created_at,
+            expected_end_ts: data.end_ts,
+            expected_pullers: data.pullers,
+            expected_metadata_uri: data.metadata_uri,
+        })
+        .instruction()
+}
+
 #[test]
 fn the_route_signs_only_as_the_swap_authority_and_leaves_its_accounts_as_they_were() {
     let thief = Keypair::new_from_array([13; 32]).pubkey();
@@ -507,8 +538,15 @@ fn the_route_signs_only_as_the_swap_authority_and_leaves_its_accounts_as_they_we
     // Another subscriber's pull, with the only signature the route carries or with the plan owner's, which it lacks.
     let pull_as_swap = |sweep: &mut SweepEnv| second_pull_ixs(sweep, SWAP_AUTHORITY, thief).to_vec();
     let pull_as_vault = |sweep: &mut SweepEnv| second_pull_ixs(sweep, vault_address(), thief).to_vec();
+    // A change to a plan, which only its owner, the vault, can sign.
+    let update_as_swap = |sweep: &mut SweepEnv| vec![update_plan_ix(sweep, SWAP_AUTHORITY, thief)];
+    let update_as_vault = |sweep: &mut SweepEnv| vec![update_plan_ix(sweep, vault_address(), thief)];
+    let delete =
+        |owner: Pubkey| vec![DeletePlanBuilder::new().owner(owner).plan_pda(plan_address(USDC_TOKEN, 0)).instruction()];
+    let delete_as_swap = |_: &mut SweepEnv| delete(SWAP_AUTHORITY);
+    let delete_as_vault = |_: &mut SweepEnv| delete(vault_address());
     type Extra<'a> = &'a dyn Fn(&mut SweepEnv) -> Vec<Instruction>;
-    let cases: [(usize, Extra, u32); 7] = [
+    let cases: [(usize, Extra, u32); 11] = [
         (USDC_TOKEN, &stray_spyx, LateriteError::SwapAccountChanged.into()),
         (USDT_TOKEN, &stray_usdc, LateriteError::SwapAccountChanged.into()),
         (USDC_TOKEN, &approve, LateriteError::SwapAccountChanged.into()),
@@ -516,6 +554,10 @@ fn the_route_signs_only_as_the_swap_authority_and_leaves_its_accounts_as_they_we
         (USDC_TOKEN, &adopt, LateriteError::SwapAccountChanged.into()),
         (USDC_TOKEN, &pull_as_swap, SubscriptionsError::Unauthorized as u32),
         (USDC_TOKEN, &pull_as_vault, SubscriptionsError::NotSigner as u32),
+        (USDC_TOKEN, &update_as_swap, SubscriptionsError::NotPlanOwner as u32),
+        (USDC_TOKEN, &update_as_vault, SubscriptionsError::NotSigner as u32),
+        (USDC_TOKEN, &delete_as_swap, SubscriptionsError::NotPlanOwner as u32),
+        (USDC_TOKEN, &delete_as_vault, SubscriptionsError::NotSigner as u32),
     ];
     for (payment_token, extra, error) in cases {
         let mut sweep = sweep_env_with(&PYTH_DEVNET, TEST_ROUTER, &params());
@@ -555,35 +597,180 @@ fn the_route_signs_only_as_the_swap_authority_and_leaves_its_accounts_as_they_we
     }
 }
 
-/// Writes `cu_report.md` at the repository root when `CU_REPORT` is set, for the CU Benchmark workflow.
+/// Every account of the sweep a substitute could stand in for, and who refuses it: an account constraint, Laterite,
+/// Subscriptions, Pyth Pro or the runtime.
+#[test]
+fn a_substitute_for_any_sweep_account_fails() {
+    let mut sweep = sweep_env(&params());
+    let user = sweep.user.pubkey();
+    let other = enrolled(&mut sweep.env, Keypair::new_from_array([12; 32]), &params()).pubkey();
+    let stranger = funded(&mut sweep.env.svm).pubkey();
+    let unknown = Pubkey::new_unique();
+    // A USDC account the user owns that is not the canonical one, and a stranger's USDC account.
+    let side_account = Pubkey::new_unique();
+    write_token_account(&mut sweep.env.svm, side_account, USDC, user, token::ID, 100 * DOLLAR);
+    let strangers_account = Pubkey::new_unique();
+    write_token_account(&mut sweep.env.svm, strangers_account, USDC, stranger, token::ID, 0);
+
+    let laterite = |error: LateriteError| u32::from(error);
+    let anchor = |error: ErrorCode| u32::from(error);
+    let subscriptions = |error: SubscriptionsError| error as u32;
+    // Pyth Pro is an Anchor program too: its account checks fail with Anchor's codes.
+    let cases = [
+        (1, user_config_address(&user), anchor(ErrorCode::AccountDiscriminatorMismatch)),
+        (2, config_address(), anchor(ErrorCode::AccountDiscriminatorMismatch)),
+        (2, user_config_address(&other), laterite(LateriteError::InvalidTokenAccount)),
+        (3, config_address(), anchor(ErrorCode::ConstraintAddress)),
+        (4, subscription_address(USDC_TOKEN, 0, &other), subscriptions(SubscriptionsError::Unauthorized)),
+        (4, subscription_address(USDT_TOKEN, 0, &user), subscriptions(SubscriptionsError::SubscriptionPlanMismatch)),
+        // An account that holds no subscription allows nothing, so the pull is empty before any call.
+        (4, unknown, laterite(LateriteError::NothingToSweep)),
+        (5, plan_address(USDC_TOKEN, 1), laterite(LateriteError::SubscriptionMismatch)),
+        (6, SubscriptionAuthority::find_pda(&other, &USDC).0, subscriptions(SubscriptionsError::InvalidDelegatePda)),
+        (7, side_account, subscriptions(SubscriptionsError::InvalidAssociatedTokenAccountDerivedAddress)),
+        (8, sweep.swap_payment_account(USDT_TOKEN), laterite(LateriteError::InvalidTokenAccount)),
+        (8, strangers_account, laterite(LateriteError::InvalidTokenAccount)),
+        (9, ata(&other, &SPYX, &token_2022::ID), laterite(LateriteError::InvalidTokenAccount)),
+        (10, USDT, laterite(LateriteError::UnknownPaymentToken)),
+        (11, token_2022::ID, laterite(LateriteError::UnknownPaymentToken)),
+        (12, CPMM, anchor(ErrorCode::ConstraintAddress)),
+        (13, unknown, anchor(ErrorCode::ConstraintAddress)),
+        (14, vault_address(), anchor(ErrorCode::ConstraintAddress)),
+        (15, TEST_ROUTER, laterite(LateriteError::InvalidRouter)),
+        (16, SUBSCRIPTIONS_ID, anchor(ErrorCode::InvalidProgramId)),
+        (17, stranger, anchor(ErrorCode::AccountOwnedByWrongProgram)),
+        (18, stranger, anchor(ErrorCode::ConstraintHasOne)),
+        (19, solana_sdk_ids::sysvar::clock::ID, anchor(ErrorCode::ConstraintAddress)),
+        (20, token::ID, anchor(ErrorCode::InvalidProgramId)),
+        (21, unknown, anchor(ErrorCode::ConstraintAddress)),
+    ];
+    for (index, substitute, code) in cases {
+        let mut instructions = sweep.sweep_ixs(USDC_TOKEN, PYTH_SPYX_QQQX, &[]);
+        instructions[1].accounts[index].pubkey = substitute;
+        let failure = sweep.send(&instructions).1.unwrap_err();
+        assert_eq!(custom_code(&failure), Some(code), "account {index}: {substitute}");
+    }
+    // The crank must sign, and the event's self-CPI needs this program.
+    let mut instructions = sweep.sweep_ixs(USDC_TOKEN, PYTH_SPYX_QQQX, &[]);
+    instructions[1].accounts[0] = AccountMeta::new(stranger, false);
+    let failure = sweep.send(&instructions).1.unwrap_err();
+    assert_eq!(custom_code(&failure), Some(anchor(ErrorCode::AccountNotSigner)));
+    let mut instructions = sweep.sweep_ixs(USDC_TOKEN, PYTH_SPYX_QQQX, &[]);
+    instructions[1].accounts[22].pubkey = unknown;
+    let failure = sweep.send(&instructions).1.unwrap_err();
+    assert_eq!(failure.err, TransactionError::InstructionError(1, InstructionError::MissingAccount));
+
+    assert_eq!(fetch_user_config(&sweep.env, &user).last_sweep_day, [0; 2]);
+    sweep_real(&mut sweep, USDC_TOKEN).1.unwrap();
+}
+
+/// One row of the CU report: a name, compute units and the transaction's size in bytes.
+type Row = (String, u64, usize);
+
+/// Writes `cu_report.md` at the repository root when `CU_REPORT` is set, for the CU Benchmark workflow: each
+/// instruction's own compute units, its CPIs included, then the whole transactions the app and the crank send. Every
+/// key an address or a bump search depends on is fixed, so the numbers repeat.
 #[test]
 fn cu_report() {
     if std::env::var_os("CU_REPORT").is_none() {
         return;
     }
-    let mut report = String::from("| Instruction | Avg CUs | Transaction bytes |\n| --- | --- | --- |\n");
+    let mut instructions: Vec<Row> = vec![];
+    let mut transactions: Vec<Row> = vec![];
+    let mut measure = |instruction: &str, transaction: Option<&str>, (size, result): SweptOutcome| {
+        let metadata = result.unwrap();
+        instructions.push((instruction.into(), program_units(&metadata), size));
+        if let Some(name) = transaction {
+            transactions.push((name.into(), metadata.compute_units_consumed, size));
+        }
+    };
+
+    // The admin's instructions, from deployment to a handover.
+    let mut env = setup();
+    let admin = env.authority.insecure_clone();
+    let successor = funded(&mut env.svm);
+    let (holidays, early_closes, valid_through) = nyse_calendar();
+    let calls = [
+        ("initialize", initialize_ix(admin.pubkey(), valid_params())),
+        (
+            "set_market_calendar (NYSE 2026-2028)",
+            set_market_calendar_ix(admin.pubkey(), holidays, early_closes, valid_through),
+        ),
+        ("update_config", update_config_ix(admin.pubkey(), valid_params().settings)),
+        ("set_paused", set_paused_ix(admin.pubkey(), false)),
+        ("create_plan", create_plan_ix(admin.pubkey(), 0, 0)),
+        ("propose_admin", propose_admin_ix(admin.pubkey(), successor.pubkey())),
+    ];
+    for (name, instruction) in calls {
+        measure(name, None, send_many(&mut env, &admin, &[instruction], &[]));
+    }
+    measure("accept_admin", None, send_many(&mut env, &successor, &[accept_admin_ix(successor.pubkey())], &[]));
+
+    // A user's onboarding, attestation and own controls.
+    let mut env = with_plans();
+    let user = fund_user(&mut env.svm, Keypair::new_from_array([9; 32]));
+    let key = user.pubkey();
+    let rules = EnrollParams { income_rule: true, change_multiplier: 1, ..params() };
+    let onboarding = onboarding_ixs(&env.svm, key, sponsor().pubkey(), &rules);
+    let transaction = Some("onboarding (ATA, two authorities and subscriptions, enroll)");
+    measure("enroll", transaction, send_many(&mut env, &sponsor(), &onboarding, &[&user]));
+    set_now(&mut env.svm, NOW + 120);
+    let income = Attestation {
+        kind: EventKind::Income,
+        user: key,
+        payment_token: 0,
+        amount: 100 * DOLLAR,
+        event_time: NOW + 60,
+        signature: [1; 64],
+        transfer_index: 0,
+    };
+    let attest = attest_ixs(sponsor().pubkey(), &income, &attestor());
+    measure("attest", None, send_many(&mut env, &sponsor(), &attest, &[]));
+    set_now(&mut env.svm, NOW + 60 + ATTESTATION_TTL_SECONDS + 1);
+    let close = close_attestation_ix(attestation_record_address(&income), sponsor().pubkey());
+    measure("close_attestation", None, send_many(&mut env, &sponsor(), &[close], &[]));
+    let controls = [
+        ("update_settings", update_settings_ix(key, EnrollParams { change_multiplier: 2, ..rules.clone() })),
+        ("set_user_paused (pause)", set_user_paused_ix(key, true)),
+        ("set_user_paused (resume)", set_user_paused_ix(key, false)),
+        ("lower_pending", lower_pending_ix(key, 0)),
+    ];
+    for (name, instruction) in controls {
+        measure(name, None, send_many(&mut env, &sponsor(), &[instruction], &[&user]));
+    }
+
+    // The precompile in a sweep's transaction costs no compute units, so one row gives both.
     for (name, payment_token) in [("sweep (USDC, CPMM)", USDC_TOKEN), ("sweep (USDT, CPMM)", USDT_TOKEN)] {
         let mut sweep = sweep_env(&params());
-        let (size, result) = sweep_real(&mut sweep, payment_token);
-        report.push_str(&format!("| {name} | {} | {size} |\n", result.unwrap().compute_units_consumed));
+        measure(name, None, sweep_real(&mut sweep, payment_token));
     }
     // The users' controls, each as the one sponsored transaction the app sends, for a user enrolled with the given
     // tokens who has exited first or not.
     type Build = fn(&LiteSVM, Pubkey) -> Vec<Instruction>;
-    let controls: [(&str, u8, bool, Build); 5] = [
-        ("change_tier (both tokens, with subscribe and close)", 0b11, false, |svm, user| change_tier_ixs(svm, user, 1)),
-        ("change_payment_tokens (drop USDT, with close and revoke)", 0b11, false, |svm, user| {
-            change_payment_tokens_ixs(svm, user, 0b01)
+    let plan_changes: [(&str, &str, u8, bool, Build); 5] = [
+        ("change_tier", "change_tier (both tokens, with subscribe and close)", 0b11, false, |svm, user| {
+            change_tier_ixs(svm, user, 1)
         }),
-        ("change_payment_tokens (add USDT, with authority and subscribe)", 0b01, false, |svm, user| {
-            change_payment_tokens_ixs(svm, user, 0b11)
-        }),
-        ("exit (both tokens, with close and revoke)", 0b11, false, exit_ixs),
-        ("reactivate (both tokens, with authorities and subscribe)", 0b11, true, |svm, user| {
+        (
+            "change_payment_tokens (drop USDT)",
+            "change_payment_tokens (drop USDT, with close and revoke)",
+            0b11,
+            false,
+            |svm, user| change_payment_tokens_ixs(svm, user, 0b01),
+        ),
+        (
+            "change_payment_tokens (add USDT)",
+            "change_payment_tokens (add USDT, with authority and subscribe)",
+            0b01,
+            false,
+            |svm, user| change_payment_tokens_ixs(svm, user, 0b11),
+        ),
+        ("exit", "exit (both tokens, with close and revoke)", 0b11, false, exit_ixs),
+        ("reactivate", "reactivate (both tokens, with authorities and subscribe)", 0b11, true, |svm, user| {
             reactivation_ixs(svm, user, &params())
         }),
     ];
-    for (name, payment_tokens, exited, build) in controls {
+    for (instruction, transaction, payment_tokens, exited, build) in plan_changes {
         let mut sweep = sweep_env(&EnrollParams { payment_tokens, ..params() });
         let user = sweep.user.insecure_clone();
         if exited {
@@ -591,8 +778,12 @@ fn cu_report() {
             send_many(&mut sweep.env, &sponsor(), &exit, &[&user]).1.unwrap();
         }
         let instructions = build(&sweep.env.svm, user.pubkey());
-        let (size, result) = send_many(&mut sweep.env, &sponsor(), &instructions, &[&user]);
-        report.push_str(&format!("| {name} | {} | {size} |\n", result.unwrap().compute_units_consumed));
+        measure(instruction, Some(transaction), send_many(&mut sweep.env, &sponsor(), &instructions, &[&user]));
+    }
+
+    let mut report = String::from("| Instruction | Avg CUs | Transaction bytes |\n| --- | --- | --- |\n");
+    for (name, units, bytes) in instructions.iter().chain(&transactions) {
+        report.push_str(&format!("| {name} | {units} | {bytes} |\n"));
     }
     std::fs::write(concat!(env!("CARGO_MANIFEST_DIR"), "/../../cu_report.md"), report).unwrap();
 }

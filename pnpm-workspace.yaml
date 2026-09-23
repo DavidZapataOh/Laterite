@@ -18,3 +18,7 @@ peerDependencyRules:
   allowedVersions:
     '@solana/kit': '8'
     '@solana/kit-plugin-rpc': '0.19'
+
+audit:
+  # Advisories reviewed and accepted by GHSA id, each with a comment on why it cannot reach the product.
+  ignore: []

@@ -3,13 +3,13 @@ mod common;
 use {
     anchor_lang::{solana_program::pubkey::Pubkey, Space},
     common::*,
-    laterite::{Config, ConfigParams, LateriteError, VAULT_SEED},
+    laterite::{Config, ConfigParams, LateriteError},
     solana_signer::Signer,
 };
 
 #[test]
-fn config_is_865_bytes() {
-    assert_eq!(8 + Config::INIT_SPACE, 865);
+fn config_is_863_bytes() {
+    assert_eq!(8 + Config::INIT_SPACE, 863);
 }
 
 #[test]
@@ -31,7 +31,6 @@ fn upgrade_authority_initializes_the_config() {
     assert_eq!(config.user_count, 0);
     assert_eq!(config.assets, params.assets);
     assert_eq!(config.payment_tokens, params.payment_tokens);
-    assert_eq!(config.vault_bump, Pubkey::find_program_address(&[VAULT_SEED], &laterite::ID).1);
     assert_eq!(config.genesis_hash, DEVNET_GENESIS_HASH);
 }
 
@@ -42,15 +41,14 @@ fn any_other_signer_is_rejected() {
     let failure = send(&mut env.svm, &intruder, initialize_ix(intruder.pubkey(), valid_params()), &[]).unwrap_err();
     assert_eq!(custom_code(&failure), Some(LateriteError::NotUpgradeAuthority.into()));
 
-    // A ProgramData account for a different program, even with the intruder as its upgrade
-    // authority, does not bind to `program`: the raw constraint must reject it before the
-    // upgrade-authority check ever runs.
+    // A ProgramData account for a different program, even with the intruder as its upgrade authority, is refused by
+    // address before the upgrade-authority check ever runs.
     let other_program_data = deploy_with_authority(&mut env.svm, Pubkey::new_unique(), intruder.pubkey());
     let mut instruction = initialize_ix(intruder.pubkey(), valid_params());
     let program_data_meta = instruction.accounts.iter_mut().find(|meta| meta.pubkey == program_data_address()).unwrap();
     program_data_meta.pubkey = other_program_data;
     let failure = send(&mut env.svm, &intruder, instruction, &[]).unwrap_err();
-    assert_eq!(custom_code(&failure), Some(anchor_lang::error::ErrorCode::ConstraintRaw.into()));
+    assert_eq!(custom_code(&failure), Some(anchor_lang::error::ErrorCode::ConstraintAddress.into()));
 }
 
 #[test]

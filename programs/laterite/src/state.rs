@@ -3,7 +3,7 @@ use anchor_spl::token_interface::Mint;
 
 use crate::{errors::LateriteError, ASSET_COUNT, CALENDAR_DAYS, PAYMENT_TOKEN_COUNT, TIERS, USD_DECIMALS};
 
-/// Global settings at `[CONFIG_SEED]`: 865 bytes with the discriminator.
+/// Global settings at `[CONFIG_SEED]` ([`CONFIG`](crate::CONFIG)): 863 bytes with the discriminator.
 #[account]
 #[derive(InitSpace)]
 pub struct Config {
@@ -27,9 +27,6 @@ pub struct Config {
     pub assets: [Asset; ASSET_COUNT],
     /// USDC, then USDT. Set once by `initialize`.
     pub payment_tokens: [PaymentToken; PAYMENT_TOKEN_COUNT],
-    pub bump: u8,
-    /// Bump of the vault authority at `[VAULT_SEED]`.
-    pub vault_bump: u8,
     /// NYSE closures, loaded by the admin as the exchange publishes them; empty until then, so the market counts
     /// as closed.
     pub market_calendar: MarketCalendar,
@@ -150,7 +147,7 @@ fn mint_matches(account: &AccountInfo, mint: &Pubkey, token_program: &Pubkey, de
 }
 
 impl Config {
-    /// Applies the settings; admin, pause state, router, tables, genesis hash, user count and bumps are left
+    /// Applies the settings; admin, pause state, router, tables, calendar, genesis hash and user count are left
     /// untouched.
     pub fn apply(&mut self, settings: &Settings) {
         self.attestor = settings.attestor;

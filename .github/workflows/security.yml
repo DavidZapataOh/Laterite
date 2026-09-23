@@ -1,0 +1,67 @@
+name: Security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  cargo-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+      - uses: ./.github/actions/setup
+        with:
+          enable-rust-cache: 'false'
+          install-solana: 'false'
+          install-anchor: 'false'
+          install-just: 'false'
+          install-pnpm: 'false'
+      - uses: taiki-e/install-action@5ebac0d9522d786674368e47e92963ba13f2c376 # v2.82.11
+        with:
+          tool: cargo-audit@0.22.2
+      - name: Audit Rust dependencies
+        run: cargo audit
+
+  pnpm-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+      - uses: ./.github/actions/setup
+        with:
+          install-rust: 'false'
+          install-solana: 'false'
+          install-anchor: 'false'
+          install-just: 'false'
+          install-pnpm-dependencies: 'false'
+      - name: Audit JavaScript dependencies
+        run: pnpm audit
+
+  solana-security-standard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+      - uses: Copenhagen0x/solana-security-standard@f6b6a1374984e0e491b644b65418da4e8e420686 # v1.12.1
+        with:
+          paths: programs/laterite/src
+          baseline: .sss-baseline.json
+          upload-sarif: 'false'

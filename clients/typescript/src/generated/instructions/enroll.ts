@@ -41,7 +41,7 @@ import {
     type ResolvedInstructionAccount,
     type ResolvedInstructionAccountMeta,
 } from '@solana/program-client-core';
-import { findConfigPda, findUserConfigPda } from '../pdas';
+import { findUserConfigPda } from '../pdas';
 import { LATERITE_PROGRAM_ADDRESS } from '../programs';
 import { getEnrollParamsDecoder, getEnrollParamsEncoder, type EnrollParams, type EnrollParamsArgs } from '../types';
 
@@ -55,7 +55,7 @@ export type EnrollInstruction<
     TProgram extends string = typeof LATERITE_PROGRAM_ADDRESS,
     TAccountUser extends string | AccountMeta<string> = string,
     TAccountPayer extends string | AccountMeta<string> = string,
-    TAccountConfig extends string | AccountMeta<string> = string,
+    TAccountConfig extends string | AccountMeta<string> = '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5',
     TAccountUserConfig extends string | AccountMeta<string> = string,
     TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
     TRemainingAccounts extends readonly AccountMeta<string>[] = [],
@@ -157,7 +157,8 @@ export async function getEnrollInstructionAsync<
 
     // Resolve default values.
     if (!accounts.config.value) {
-        accounts.config.value = await findConfigPda({ programAddress });
+        accounts.config.value =
+            '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5' as Address<'58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5'>;
     }
     if (!accounts.userConfig.value) {
         accounts.userConfig.value = await findUserConfigPda(
@@ -199,7 +200,7 @@ export type EnrollInput<
 > = {
     user: TAccountUser;
     payer: TAccountPayer;
-    config: TAccountConfig;
+    config?: TAccountConfig;
     userConfig: TAccountUserConfig;
     systemProgram?: TAccountSystemProgram;
     params: EnrollInstructionDataArgs['params'];
@@ -243,6 +244,10 @@ export function getEnrollInstruction<
     const args = { ...input };
 
     // Resolve default values.
+    if (!accounts.config.value) {
+        accounts.config.value =
+            '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5' as Address<'58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5'>;
+    }
     if (!accounts.systemProgram.value) {
         accounts.systemProgram.value =
             '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;

@@ -1,0 +1,42 @@
+[package]
+name = "laterite_fuzz"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+crucible-fuzzer = "=0.3.0-alpha.1"
+crucible-test-context = "=0.3.0-alpha.1"
+laterite = { path = "../../programs/laterite", features = ["no-entrypoint"] }
+litesvm = { version = "=0.15.2", features = ["precompiles"] }
+subscriptions = "=0.5.0"
+arbitrary = { version = "1", features = ["derive"] }
+chrono = "0.4.45"
+chrono-tz = "0.10.4"
+ctrlc = "3.4"
+libafl = { version = "0.15.1", features = ["std", "cli", "prelude"] }
+libafl_bolts = { version = "0.15.1", features = ["std"] }
+solana-account = "4.3"
+solana-clock = "3.0"
+solana-ed25519-program = "3.0.0"
+solana-instruction = "3.1"
+solana-keypair = "3.1.2"
+solana-message = "4.2.4"
+solana-pubkey = "3.0"
+solana-signer = "3.0.1"
+solana-transaction = "4.1.5"
+
+[package.metadata.cargo-machete]
+ignored = ["arbitrary", "crucible-test-context", "ctrlc", "libafl", "libafl_bolts", "litesvm"]
+
+[[bin]]
+name = "invariant_test"
+path = "src/main.rs"
+
+[features]
+invariant_sweep = []
+invariant_attest = []
+invariant_controls = []
+invariant_admin = []

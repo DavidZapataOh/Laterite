@@ -13,7 +13,8 @@ LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf
 ```
 apps/landing/        Marketing site (Next.js)
 clients/typescript/  Generated TypeScript client (Codama)
-docs/                Architecture decision records
+docs/                Architecture decision records and the threat model
+fuzz/laterite/       Invariant fuzz harness (Crucible, `anchor fuzz`)
 idl/                 Program IDL
 packages/devnet/     Devnet stand-in assets, pools and re-peg
 programs/laterite/   On-chain program (Anchor)
@@ -45,11 +46,19 @@ Run `just` to list every recipe.
 
 `just test-fork` boots a Surfpool mainnet fork (datasource from `SURFPOOL_DATASOURCE_RPC_URL` in `.env`), installs the program at its declared address and runs `tests/fork`. It needs network access and is not part of `just test`. Swap routes are restricted to classic pools on the fork because market-maker pools depend on quote accounts that go stale once cloned.
 
+## Fuzzing
+
+`fuzz/laterite` is a [Crucible](https://github.com/asymmetric-research/crucible) harness run through `anchor fuzz`: it loads the built program with the Subscriptions, Pyth Pro and CPMM binaries and the devnet accounts the program tests use, runs random sequences of every instruction with clock jumps, composed price updates and hostile routes, and checks one area's invariants after each step, judging NYSE sessions by its own New York clock and the calendar file. `just fuzz-build <target>` builds a target's harness (the first build compiles Crucible, LibAFL and LiteSVM and takes a few minutes), and `just fuzz <target> [seconds]` runs one of `invariant_sweep`, `invariant_attest`, `invariant_controls` and `invariant_admin`; `just fuzz-smoke` runs each for a minute, as CI does on every change (a nightly job runs two hours per target). The fuzzer exits 0 even when it finds crashes, so `just fuzz-check <target>` is what fails on them; `anchor fuzz show laterite` lists and replays them.
+
+## Security
+
+`just audit` checks the Rust and JavaScript dependencies against their advisory databases, with the reviewed exceptions in `.cargo/audit.toml` and in `pnpm-workspace.yaml` under `audit.ignore`, and `just scan` checks the program against the [Solana Security Standard](https://github.com/Copenhagen0x/solana-security-standard) with the reviewed findings in `.sss-baseline.json`; the Security workflow runs both on every change and daily. After reviewing a new finding, `just scan-baseline` rewrites the baseline. `docs/threat-model.md` states what each party can and cannot do.
+
 ## Program Administration
 
-The program keeps one `Config` account with the admin, a kill switch (`set_paused`), beta caps (per-user weekly cap and maximum users), the allowed swap router, the attestor key, the key that sponsors users' onboarding, and the asset and payment-token tables. Only the program's upgrade authority can `initialize` it, which also fixes the asset and payment-token tables after checking them against the mint accounts; afterwards `update_config` changes the router, attestor, sponsor and caps, and every change needs the stored admin.
+The program keeps one `Config` account with the admin, a kill switch (`set_paused`), beta caps (per-user weekly cap and maximum users), the allowed swap router, the attestor key, the key that sponsors users' onboarding, and the asset and payment-token tables. Only the program's upgrade authority can `initialize` it, which also fixes the asset and payment-token tables after checking them against the mint accounts; the swap router and the cluster's genesis hash are fixed there too. Afterwards `update_config` changes the attestor, sponsor and caps, and every change needs the stored admin.
 
-The admin publishes four Subscriptions plans with `create_plan`: $10 and $25 a week, in USDC and USDT. Each is owned by the program's vault authority, which is also its only destination. A user joins with one transaction paid by the configured sponsor (see `docs/003-onboarding-transaction.md`) that ends in `enroll`, which is refused while the program is paused, when the beta is full or when the chosen tier is above the beta cap.
+The admin publishes four Subscriptions plans with `create_plan`: $10 and $25 a week, in USDC and USDT. Each is owned by the program's vault authority and pays only into the swap authority's accounts. A user joins with one transaction paid by the configured sponsor (see `docs/003-onboarding-transaction.md`) that ends in `enroll`, which is refused while the program is paused, when the beta is full or when the chosen tier is above the beta cap.
 
 The program tests load the programs Laterite calls from committed fixtures in `programs/laterite/tests/fixtures/`, pinned by hash. `just dump-programs` refreshes them from mainnet and fails when a program no longer matches its pin; review the upstream change before updating the pin.
 

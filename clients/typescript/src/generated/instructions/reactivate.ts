@@ -39,7 +39,7 @@ import {
     type ResolvedInstructionAccount,
     type ResolvedInstructionAccountMeta,
 } from '@solana/program-client-core';
-import { findConfigPda, findUserConfigPda } from '../pdas';
+import { findUserConfigPda } from '../pdas';
 import { LATERITE_PROGRAM_ADDRESS } from '../programs';
 import { getEnrollParamsDecoder, getEnrollParamsEncoder, type EnrollParams, type EnrollParamsArgs } from '../types';
 
@@ -53,7 +53,7 @@ export type ReactivateInstruction<
     TProgram extends string = typeof LATERITE_PROGRAM_ADDRESS,
     TAccountUser extends string | AccountMeta<string> = string,
     TAccountSponsor extends string | AccountMeta<string> = string,
-    TAccountConfig extends string | AccountMeta<string> = string,
+    TAccountConfig extends string | AccountMeta<string> = '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5',
     TAccountUserConfig extends string | AccountMeta<string> = string,
     TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -151,7 +151,8 @@ export async function getReactivateInstructionAsync<
 
     // Resolve default values.
     if (!accounts.config.value) {
-        accounts.config.value = await findConfigPda({ programAddress });
+        accounts.config.value =
+            '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5' as Address<'58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5'>;
     }
     if (!accounts.userConfig.value) {
         accounts.userConfig.value = await findUserConfigPda(
@@ -186,7 +187,7 @@ export type ReactivateInput<
 > = {
     user: TAccountUser;
     sponsor: TAccountSponsor;
-    config: TAccountConfig;
+    config?: TAccountConfig;
     userConfig: TAccountUserConfig;
     params: ReactivateInstructionDataArgs['params'];
 };
@@ -224,6 +225,12 @@ export function getReactivateInstruction<
 
     // Original args.
     const args = { ...input };
+
+    // Resolve default values.
+    if (!accounts.config.value) {
+        accounts.config.value =
+            '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5' as Address<'58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5'>;
+    }
 
     return Object.freeze({
         accounts: [

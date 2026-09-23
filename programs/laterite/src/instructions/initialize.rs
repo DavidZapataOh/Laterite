@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
+use solana_sdk_ids::bpf_loader_upgradeable;
 
 use crate::{
-    errors::LateriteError, events::ConfigInitialized, program::Laterite, Config, ConfigParams, MarketCalendar,
-    CONFIG_SEED, VAULT_SEED,
+    errors::LateriteError, events::ConfigInitialized, Config, ConfigParams, MarketCalendar, CONFIG_SEED, PROGRAM_DATA,
 };
 
 #[derive(Accounts)]
@@ -11,19 +11,19 @@ pub struct Initialize<'info> {
     pub authority: Signer<'info>,
     #[account(init, payer = authority, space = 8 + Config::INIT_SPACE, seeds = [CONFIG_SEED], bump)]
     pub config: Account<'info, Config>,
-    #[account(constraint = program.programdata_address()? == Some(program_data.key()))]
-    pub program: Program<'info, Laterite>,
-    #[account(
-        constraint = program_data.upgrade_authority_address == Some(authority.key()) @ LateriteError::NotUpgradeAuthority
-    )]
-    pub program_data: Account<'info, ProgramData>,
+    /// CHECK: this program's data account, by address and owner; its upgrade authority is read in `initialize`.
+    #[account(address = PROGRAM_DATA, owner = bpf_loader_upgradeable::ID)]
+    pub program_data: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
 }
 
 impl Initialize<'_> {
-    pub fn initialize(&mut self, params: ConfigParams, bumps: &InitializeBumps, mints: &[AccountInfo]) -> Result<()> {
+    pub fn initialize(&mut self, params: ConfigParams, mints: &[AccountInfo]) -> Result<()> {
+        require!(
+            upgrade_authority(&self.program_data.try_borrow_data()?) == Some(self.authority.key()),
+            LateriteError::NotUpgradeAuthority
+        );
         params.validate(mints)?;
-        let (_, vault_bump) = Pubkey::find_program_address(&[VAULT_SEED], &crate::ID);
         self.config.set_inner(Config {
             admin: self.authority.key(),
             pending_admin: Pubkey::default(),
@@ -36,12 +36,18 @@ impl Initialize<'_> {
             user_count: 0,
             assets: params.assets,
             payment_tokens: params.payment_tokens,
-            bump: bumps.config,
-            vault_bump,
             market_calendar: MarketCalendar::default(),
             genesis_hash: params.genesis_hash,
         });
         emit!(ConfigInitialized { params });
         Ok(())
     }
+}
+
+/// The upgrade authority a `ProgramData` account holds: the loader's state tag 3, the deployment slot, then an optional
+/// key, in bincode.
+fn upgrade_authority(data: &[u8]) -> Option<Pubkey> {
+    let (tag, rest) = data.split_first_chunk::<4>()?;
+    let (option, key) = rest.get(8..41)?.split_first()?;
+    (*tag == 3u32.to_le_bytes() && *option == 1).then(|| Pubkey::try_from(key).ok()).flatten()
 }

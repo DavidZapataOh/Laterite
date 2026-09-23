@@ -1,6 +1,10 @@
 use anchor_lang::{
     prelude::*,
-    solana_program::{instruction::Instruction, program::invoke_signed},
+    solana_program::{
+        instruction::Instruction,
+        program::{invoke, invoke_signed},
+    },
+    InstructionData,
 };
 use anchor_spl::{
     token,
@@ -16,9 +20,9 @@ use crate::{
     errors::LateriteError,
     events::Swept,
     min_out,
-    pyth_lazer_solana_contract::{cpi as pyth, program::PythLazerSolanaContract},
-    quote, subscription, us_market_open, Config, Engine, UserConfig, CONFIG_SEED, DAY_SECONDS, PLANS,
-    SUBSCRIPTIONS_EVENT_AUTHORITY, SWAP_AUTHORITY, SWAP_AUTHORITY_BUMP, SWAP_SEED, USD_DECIMALS, USER_CONFIG_SEED,
+    pyth_lazer_solana_contract::{client as pyth, program::PythLazerSolanaContract},
+    quote, subscription, us_market_open, Config, Engine, UserConfig, CONFIG, DAY_SECONDS, PLANS,
+    SUBSCRIPTIONS_EVENT_AUTHORITY, SWAP_AUTHORITY, SWAP_AUTHORITY_BUMP, SWAP_SEED, USD_DECIMALS, VAULT, VAULT_BUMP,
     VAULT_SEED,
 };
 
@@ -28,12 +32,14 @@ pub struct Sweep<'info> {
     /// Pays the fees and Pyth Pro's verification fee.
     #[account(mut)]
     pub crank: Signer<'info>,
-    #[account(seeds = [CONFIG_SEED], bump = config.bump)]
+    #[account(address = CONFIG)]
     pub config: Box<Account<'info, Config>>,
-    #[account(mut, seeds = [USER_CONFIG_SEED, user_config.user.as_ref()], bump = user_config.bump)]
+    /// The swept user's settings. Only `enroll` creates one, at its user's address, so the account type alone identifies
+    /// it; the accounts below are checked against the user it names.
+    #[account(mut)]
     pub user_config: Box<Account<'info, UserConfig>>,
-    /// CHECK: the vault authority, which owns the plan and signs the pull.
-    #[account(seeds = [VAULT_SEED], bump = config.vault_bump)]
+    /// CHECK: the vault authority, checked by address; it owns the plan and signs the pull.
+    #[account(address = VAULT)]
     pub vault: UncheckedAccount<'info>,
     /// CHECK: Subscriptions checks it belongs to the plan and the user.
     #[account(mut)]
@@ -156,7 +162,7 @@ impl<'info> Sweep<'info> {
             .event_authority(&self.subscriptions_event_authority)
             .self_program(&self.subscriptions_program)
             .transfer_data(TransferData { amount: total, delegator: user, mint: token.mint })
-            .invoke_signed(&[&[VAULT_SEED, &[self.config.vault_bump]]])?;
+            .invoke_signed(&[&[VAULT_SEED, &[VAULT_BUMP]]])?;
 
         let accounts = route_accounts
             .iter()
@@ -202,21 +208,33 @@ impl<'info> Sweep<'info> {
     /// Pyth Pro's `verify_message` for an update in this instruction's data, signature entry `signature_index` of
     /// the ed25519 instruction at `ed25519_index`.
     fn verify_price(&self, message: Vec<u8>, ed25519_index: u16, signature_index: u8) -> Result<()> {
-        pyth::verify_message(
-            CpiContext::new(
-                self.pyth_program.key(),
-                pyth::accounts::VerifyMessage {
-                    payer: self.crank.to_account_info(),
-                    storage: self.pyth_storage.to_account_info(),
-                    treasury: self.pyth_treasury.to_account_info(),
-                    system_program: self.system_program.to_account_info(),
-                    instructions_sysvar: self.instructions.to_account_info(),
-                },
-            ),
-            message,
-            ed25519_index,
-            signature_index,
-        )?;
+        // Built by hand: the generated `cpi::verify_message` also copies the returned message into a buffer the sweep
+        // never reads.
+        let verify = Instruction {
+            program_id: self.pyth_program.key(),
+            accounts: pyth::accounts::VerifyMessage {
+                payer: self.crank.key(),
+                storage: self.pyth_storage.key(),
+                treasury: self.pyth_treasury.key(),
+                system_program: self.system_program.key(),
+                instructions_sysvar: self.instructions.key(),
+            }
+            .to_account_metas(None),
+            data: pyth::args::VerifyMessage {
+                message_data: message,
+                ed25519_instruction_index: ed25519_index,
+                signature_index,
+            }
+            .data(),
+        };
+        let accounts = [
+            self.crank.to_account_info(),
+            self.pyth_storage.to_account_info(),
+            self.pyth_treasury.to_account_info(),
+            self.system_program.to_account_info(),
+            self.instructions.to_account_info(),
+        ];
+        invoke(&verify, &accounts)?;
         Ok(())
     }
 }

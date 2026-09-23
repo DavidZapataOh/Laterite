@@ -69,9 +69,17 @@ impl<'info> Cancellation<'info> {
         now: i64,
     ) -> Result<()> {
         require_keys_eq!(plan_account.key(), plan, LateriteError::SubscriptionMismatch);
-        let address = SubscriptionDelegation::find_pda(&plan, &self.user.key()).0;
-        require_keys_eq!(subscription.key(), address, LateriteError::SubscriptionMismatch);
-        let Some(state) = read(subscription) else {
+        let user = self.user.key();
+        let state = read(subscription);
+        // Subscriptions creates every subscription at its canonical address, so a live one's stored bump proves the
+        // address; an account it does not hold is proven by the search before it is skipped.
+        let at_address = match &state {
+            Some(state) => SubscriptionDelegation::create_pda(plan, user, state.header.bump)
+                .is_ok_and(|address| address == *subscription.key),
+            None => SubscriptionDelegation::find_pda(&plan, &user).0 == *subscription.key,
+        };
+        require!(at_address, LateriteError::SubscriptionMismatch);
+        let Some(state) = state else {
             return Ok(());
         };
         if state.expires_at_ts != 0 && state.expires_at_ts <= now {

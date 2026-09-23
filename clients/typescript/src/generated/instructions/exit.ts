@@ -39,7 +39,6 @@ import {
     type ResolvedInstructionAccount,
     type ResolvedInstructionAccountMeta,
 } from '@solana/program-client-core';
-import { findConfigPda } from '../pdas';
 import { LATERITE_PROGRAM_ADDRESS } from '../programs';
 
 export const EXIT_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array([234, 32, 12, 71, 126, 5, 219, 160]);
@@ -55,7 +54,7 @@ export type ExitInstruction<
     TAccountSubscriptionsProgram extends string | AccountMeta<string> = 'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44',
     TAccountSubscriptionsEventAuthority extends string | AccountMeta<string> =
         '3Hnj4BYoDgtpBuqXfiy7Y8cNa3jXaNd4oqgSXBzkMcH7',
-    TAccountConfig extends string | AccountMeta<string> = string,
+    TAccountConfig extends string | AccountMeta<string> = '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5',
     TAccountUserConfig extends string | AccountMeta<string> = string,
     TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -97,123 +96,6 @@ export function getExitInstructionDataCodec(): FixedSizeCodec<ExitInstructionDat
     return combineCodec(getExitInstructionDataEncoder(), getExitInstructionDataDecoder());
 }
 
-export type ExitAsyncInput<
-    TAccountUser extends InstructionSignerInput = InstructionSignerInput,
-    TAccountVault extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSubscriptionsProgram extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSubscriptionsEventAuthority extends InstructionAccountInput = InstructionAccountInput,
-    TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
-    TAccountUserConfig extends InstructionAccountInput = InstructionAccountInput,
-> = {
-    user: TAccountUser;
-    vault?: TAccountVault;
-    subscriptionsProgram?: TAccountSubscriptionsProgram;
-    subscriptionsEventAuthority?: TAccountSubscriptionsEventAuthority;
-    config?: TAccountConfig;
-    userConfig: TAccountUserConfig;
-};
-
-export async function getExitInstructionAsync<
-    TAccountUser extends InstructionSignerInput,
-    TAccountVault extends InstructionAccountInput,
-    TAccountSubscriptionsProgram extends InstructionAccountInput,
-    TAccountSubscriptionsEventAuthority extends InstructionAccountInput,
-    TAccountConfig extends InstructionAccountInput,
-    TAccountUserConfig extends InstructionAccountInput,
-    TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
->(
-    input: ExitAsyncInput<
-        TAccountUser,
-        TAccountVault,
-        TAccountSubscriptionsProgram,
-        TAccountSubscriptionsEventAuthority,
-        TAccountConfig,
-        TAccountUserConfig
-    >,
-    config?: { programAddress?: TProgramAddress },
-): Promise<
-    ExitInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountUser, InstructionAccountInputAddress<TAccountUser>>,
-        ResolvedInstructionAccountMeta<TAccountVault, InstructionAccountInputAddress<TAccountVault>>,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsProgram,
-            InstructionAccountInputAddress<TAccountSubscriptionsProgram>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsEventAuthority,
-            InstructionAccountInputAddress<TAccountSubscriptionsEventAuthority>
-        >,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>
-    >
-> {
-    // Program address.
-    const programAddress = config?.programAddress ?? LATERITE_PROGRAM_ADDRESS;
-
-    // Account meta helper.
-    const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
-
-    // Original accounts.
-    const originalAccounts = {
-        user: { value: input.user ?? null, isSigner: true, isWritable: false },
-        vault: { value: input.vault ?? null, isSigner: false, isWritable: false },
-        subscriptionsProgram: { value: input.subscriptionsProgram ?? null, isSigner: false, isWritable: false },
-        subscriptionsEventAuthority: {
-            value: input.subscriptionsEventAuthority ?? null,
-            isSigner: false,
-            isWritable: false,
-        },
-        config: { value: input.config ?? null, isSigner: false, isWritable: true },
-        userConfig: { value: input.userConfig ?? null, isSigner: false, isWritable: true },
-    };
-    const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedInstructionAccount>;
-
-    // Resolve default values.
-    if (!accounts.vault.value) {
-        accounts.vault.value =
-            '3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7' as Address<'3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7'>;
-    }
-    if (!accounts.subscriptionsProgram.value) {
-        accounts.subscriptionsProgram.value =
-            'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44' as Address<'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44'>;
-    }
-    if (!accounts.subscriptionsEventAuthority.value) {
-        accounts.subscriptionsEventAuthority.value =
-            '3Hnj4BYoDgtpBuqXfiy7Y8cNa3jXaNd4oqgSXBzkMcH7' as Address<'3Hnj4BYoDgtpBuqXfiy7Y8cNa3jXaNd4oqgSXBzkMcH7'>;
-    }
-    if (!accounts.config.value) {
-        accounts.config.value = await findConfigPda({ programAddress });
-    }
-
-    return Object.freeze({
-        accounts: [
-            getAccountMeta('user', accounts.user),
-            getAccountMeta('vault', accounts.vault),
-            getAccountMeta('subscriptionsProgram', accounts.subscriptionsProgram),
-            getAccountMeta('subscriptionsEventAuthority', accounts.subscriptionsEventAuthority),
-            getAccountMeta('config', accounts.config),
-            getAccountMeta('userConfig', accounts.userConfig),
-        ],
-        data: getExitInstructionDataEncoder().encode({}),
-        programAddress,
-    } as ExitInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountUser, InstructionAccountInputAddress<TAccountUser>>,
-        ResolvedInstructionAccountMeta<TAccountVault, InstructionAccountInputAddress<TAccountVault>>,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsProgram,
-            InstructionAccountInputAddress<TAccountSubscriptionsProgram>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsEventAuthority,
-            InstructionAccountInputAddress<TAccountSubscriptionsEventAuthority>
-        >,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>
-    >);
-}
-
 export type ExitInput<
     TAccountUser extends InstructionSignerInput = InstructionSignerInput,
     TAccountVault extends InstructionAccountInput = InstructionAccountInput,
@@ -226,7 +108,7 @@ export type ExitInput<
     vault?: TAccountVault;
     subscriptionsProgram?: TAccountSubscriptionsProgram;
     subscriptionsEventAuthority?: TAccountSubscriptionsEventAuthority;
-    config: TAccountConfig;
+    config?: TAccountConfig;
     userConfig: TAccountUserConfig;
 };
 
@@ -296,6 +178,10 @@ export function getExitInstruction<
     if (!accounts.subscriptionsEventAuthority.value) {
         accounts.subscriptionsEventAuthority.value =
             '3Hnj4BYoDgtpBuqXfiy7Y8cNa3jXaNd4oqgSXBzkMcH7' as Address<'3Hnj4BYoDgtpBuqXfiy7Y8cNa3jXaNd4oqgSXBzkMcH7'>;
+    }
+    if (!accounts.config.value) {
+        accounts.config.value =
+            '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5' as Address<'58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5'>;
     }
 
     return Object.freeze({

@@ -31,7 +31,7 @@ pub mod laterite {
     /// Creates the config; only the program's upgrade authority can call it, once. Remaining accounts: the
     /// tables' mint accounts in order, the assets then the payment tokens.
     pub fn initialize(ctx: Context<Initialize>, params: ConfigParams) -> Result<()> {
-        ctx.accounts.initialize(params, &ctx.bumps, ctx.remaining_accounts)
+        ctx.accounts.initialize(params, ctx.remaining_accounts)
     }
 
     /// Replaces the settings: attestor, sponsor and beta caps. The router and the tables are fixed at `initialize`.
@@ -134,14 +134,17 @@ pub mod laterite {
     /// Moves the user to another weekly tier: ends each current subscription at once, the vault signing as the plans'
     /// owner, and requires a live subscription to the new tier's plan for each enabled payment token. The week's
     /// spending carries over, so a change never grants a second cap in one week.
-    pub fn change_tier<'info>(ctx: Context<'info, PlanChange<'info>>, tier: u8) -> Result<()> {
+    pub fn change_tier<'info>(ctx: Context<'info, TierChange<'info>>, tier: u8) -> Result<()> {
         ctx.accounts.change_tier(tier, ctx.remaining_accounts)
     }
 
     /// Changes the enabled payment tokens: ends a dropped token's subscription at once, the vault signing as the
     /// plans' owner, and requires a live subscription to the tier's plan for an added one. An added token credits
     /// only transfers from then on; the day's sweeps stay spent.
-    pub fn change_payment_tokens<'info>(ctx: Context<'info, PlanChange<'info>>, payment_tokens: u8) -> Result<()> {
+    pub fn change_payment_tokens<'info>(
+        ctx: Context<'info, PaymentTokensChange<'info>>,
+        payment_tokens: u8,
+    ) -> Result<()> {
         ctx.accounts.change_payment_tokens(payment_tokens, ctx.remaining_accounts)
     }
 

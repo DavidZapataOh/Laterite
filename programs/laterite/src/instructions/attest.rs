@@ -4,7 +4,7 @@ use solana_sdk_ids::{ed25519_program, sysvar};
 
 use crate::{
     errors::LateriteError, events::Attested, Attestation, AttestationRecord, Config, EventKind, UserConfig, UserStatus,
-    ATTESTATION_DOMAIN, ATTESTATION_SEED, ATTESTATION_TTL_SECONDS, CONFIG_SEED, PAYMENT_TOKEN_COUNT, USER_CONFIG_SEED,
+    ATTESTATION_DOMAIN, ATTESTATION_SEED, ATTESTATION_TTL_SECONDS, CONFIG, PAYMENT_TOKEN_COUNT, USER_CONFIG_SEED,
 };
 
 /// Where the ed25519 precompile's standard single-signature layout puts the public key, the signature and the
@@ -18,7 +18,7 @@ const MESSAGE_OFFSET: u16 = SIGNATURE_OFFSET + 64;
 pub struct Attest<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
-    #[account(seeds = [CONFIG_SEED], bump = config.bump)]
+    #[account(address = CONFIG)]
     pub config: Account<'info, Config>,
     #[account(mut, seeds = [USER_CONFIG_SEED, attestation.user.as_ref()], bump = user_config.bump)]
     pub user_config: Account<'info, UserConfig>,

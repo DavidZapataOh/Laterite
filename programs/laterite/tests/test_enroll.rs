@@ -197,6 +197,36 @@ fn each_enabled_token_needs_its_subscription_to_the_tier() {
 }
 
 #[test]
+fn enroll_refuses_another_users_subscription_or_a_copy_another_program_owns() {
+    let mut env = with_plans();
+    let sponsor = sponsor();
+    let usdc_only = laterite::EnrollParams { payment_tokens: 0b01, ..default_enroll_params() };
+    let other = enrolled(&mut env, Keypair::new(), &usdc_only).pubkey();
+    let user = user_with_balances(&mut env.svm);
+    let key = user.pubkey();
+    let mut instructions = onboarding_ixs(&env.svm, key, sponsor.pubkey(), &usdc_only);
+    instructions.pop();
+    send_many(&mut env, &sponsor, &instructions, &[&user]).1.unwrap();
+
+    let theirs = enroll_ix(key, sponsor.pubkey(), usdc_only.clone(), &[subscription_address(0, 0, &other)]);
+    let failure = send(&mut env.svm, &sponsor, theirs, &[&user]).unwrap_err();
+    assert_eq!(custom_code(&failure), Some(LateriteError::SubscriptionMismatch.into()));
+
+    // The user's own subscription, byte for byte, but owned by another program.
+    let address = subscription_address(0, 0, &key);
+    let real = env.svm.get_account(&address).unwrap();
+    let mut copy = real.clone();
+    copy.owner = laterite::ID;
+    env.svm.set_account(address, copy).unwrap();
+    let enroll = enroll_ix(key, sponsor.pubkey(), usdc_only, &[address]);
+    let failure = send(&mut env.svm, &sponsor, enroll.clone(), &[&user]).unwrap_err();
+    assert_eq!(custom_code(&failure), Some(LateriteError::SubscriptionMismatch.into()));
+
+    env.svm.set_account(address, real).unwrap();
+    send(&mut env.svm, &sponsor, enroll, &[&user]).unwrap();
+}
+
+#[test]
 fn the_user_must_sign() {
     let mut env = with_plans();
     let sponsor = sponsor();

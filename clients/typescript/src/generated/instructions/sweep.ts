@@ -47,7 +47,6 @@ import {
     type ResolvedInstructionAccount,
     type ResolvedInstructionAccountMeta,
 } from '@solana/program-client-core';
-import { findConfigPda, findVaultPda } from '../pdas';
 import { LATERITE_PROGRAM_ADDRESS } from '../programs';
 
 export const SWEEP_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array([40, 23, 234, 175, 14, 61, 154, 177]);
@@ -59,9 +58,9 @@ export function getSweepDiscriminatorBytes(): ReadonlyUint8Array {
 export type SweepInstruction<
     TProgram extends string = typeof LATERITE_PROGRAM_ADDRESS,
     TAccountCrank extends string | AccountMeta<string> = string,
-    TAccountConfig extends string | AccountMeta<string> = string,
+    TAccountConfig extends string | AccountMeta<string> = '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5',
     TAccountUserConfig extends string | AccountMeta<string> = string,
-    TAccountVault extends string | AccountMeta<string> = string,
+    TAccountVault extends string | AccountMeta<string> = '3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7',
     TAccountSubscription extends string | AccountMeta<string> = string,
     TAccountPlan extends string | AccountMeta<string> = string,
     TAccountSubscriptionAuthority extends string | AccountMeta<string> = string,
@@ -176,313 +175,6 @@ export function getSweepInstructionDataCodec(): Codec<SweepInstructionDataArgs, 
     return combineCodec(getSweepInstructionDataEncoder(), getSweepInstructionDataDecoder());
 }
 
-export type SweepAsyncInput<
-    TAccountCrank extends InstructionSignerInput = InstructionSignerInput,
-    TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
-    TAccountUserConfig extends InstructionAccountInput = InstructionAccountInput,
-    TAccountVault extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSubscription extends InstructionAccountInput = InstructionAccountInput,
-    TAccountPlan extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSubscriptionAuthority extends InstructionAccountInput = InstructionAccountInput,
-    TAccountUserPaymentAccount extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSwapPaymentAccount extends InstructionAccountInput = InstructionAccountInput,
-    TAccountUserAssetAccount extends InstructionAccountInput = InstructionAccountInput,
-    TAccountPaymentMint extends InstructionAccountInput = InstructionAccountInput,
-    TAccountPaymentTokenProgram extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSubscriptionsProgram extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSubscriptionsEventAuthority extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSwapAuthority extends InstructionAccountInput = InstructionAccountInput,
-    TAccountRouter extends InstructionAccountInput = InstructionAccountInput,
-    TAccountPythProgram extends InstructionAccountInput = InstructionAccountInput,
-    TAccountPythStorage extends InstructionAccountInput = InstructionAccountInput,
-    TAccountPythTreasury extends InstructionAccountInput = InstructionAccountInput,
-    TAccountInstructions extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSystemProgram extends InstructionAccountInput = InstructionAccountInput,
-    TAccountEventAuthority extends InstructionAccountInput = InstructionAccountInput,
-    TAccountProgram extends InstructionAccountInput = InstructionAccountInput,
-> = {
-    /** Pays the fees and Pyth Pro's verification fee. */
-    crank: TAccountCrank;
-    config?: TAccountConfig;
-    userConfig: TAccountUserConfig;
-    vault?: TAccountVault;
-    subscription: TAccountSubscription;
-    plan: TAccountPlan;
-    subscriptionAuthority: TAccountSubscriptionAuthority;
-    userPaymentAccount: TAccountUserPaymentAccount;
-    swapPaymentAccount: TAccountSwapPaymentAccount;
-    userAssetAccount: TAccountUserAssetAccount;
-    paymentMint: TAccountPaymentMint;
-    paymentTokenProgram: TAccountPaymentTokenProgram;
-    subscriptionsProgram?: TAccountSubscriptionsProgram;
-    subscriptionsEventAuthority?: TAccountSubscriptionsEventAuthority;
-    swapAuthority?: TAccountSwapAuthority;
-    router: TAccountRouter;
-    pythProgram?: TAccountPythProgram;
-    pythStorage: TAccountPythStorage;
-    pythTreasury: TAccountPythTreasury;
-    instructions?: TAccountInstructions;
-    systemProgram?: TAccountSystemProgram;
-    eventAuthority: TAccountEventAuthority;
-    program: TAccountProgram;
-    assetMessage: SweepInstructionDataArgs['assetMessage'];
-    paymentMessage: SweepInstructionDataArgs['paymentMessage'];
-    ed25519Index: SweepInstructionDataArgs['ed25519Index'];
-    paymentToken: SweepInstructionDataArgs['paymentToken'];
-    route: SweepInstructionDataArgs['route'];
-};
-
-export async function getSweepInstructionAsync<
-    TAccountCrank extends InstructionSignerInput,
-    TAccountConfig extends InstructionAccountInput,
-    TAccountUserConfig extends InstructionAccountInput,
-    TAccountVault extends InstructionAccountInput,
-    TAccountSubscription extends InstructionAccountInput,
-    TAccountPlan extends InstructionAccountInput,
-    TAccountSubscriptionAuthority extends InstructionAccountInput,
-    TAccountUserPaymentAccount extends InstructionAccountInput,
-    TAccountSwapPaymentAccount extends InstructionAccountInput,
-    TAccountUserAssetAccount extends InstructionAccountInput,
-    TAccountPaymentMint extends InstructionAccountInput,
-    TAccountPaymentTokenProgram extends InstructionAccountInput,
-    TAccountSubscriptionsProgram extends InstructionAccountInput,
-    TAccountSubscriptionsEventAuthority extends InstructionAccountInput,
-    TAccountSwapAuthority extends InstructionAccountInput,
-    TAccountRouter extends InstructionAccountInput,
-    TAccountPythProgram extends InstructionAccountInput,
-    TAccountPythStorage extends InstructionAccountInput,
-    TAccountPythTreasury extends InstructionAccountInput,
-    TAccountInstructions extends InstructionAccountInput,
-    TAccountSystemProgram extends InstructionAccountInput,
-    TAccountEventAuthority extends InstructionAccountInput,
-    TAccountProgram extends InstructionAccountInput,
-    TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
->(
-    input: SweepAsyncInput<
-        TAccountCrank,
-        TAccountConfig,
-        TAccountUserConfig,
-        TAccountVault,
-        TAccountSubscription,
-        TAccountPlan,
-        TAccountSubscriptionAuthority,
-        TAccountUserPaymentAccount,
-        TAccountSwapPaymentAccount,
-        TAccountUserAssetAccount,
-        TAccountPaymentMint,
-        TAccountPaymentTokenProgram,
-        TAccountSubscriptionsProgram,
-        TAccountSubscriptionsEventAuthority,
-        TAccountSwapAuthority,
-        TAccountRouter,
-        TAccountPythProgram,
-        TAccountPythStorage,
-        TAccountPythTreasury,
-        TAccountInstructions,
-        TAccountSystemProgram,
-        TAccountEventAuthority,
-        TAccountProgram
-    >,
-    config?: { programAddress?: TProgramAddress },
-): Promise<
-    SweepInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountCrank, InstructionAccountInputAddress<TAccountCrank>>,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>,
-        ResolvedInstructionAccountMeta<TAccountVault, InstructionAccountInputAddress<TAccountVault>>,
-        ResolvedInstructionAccountMeta<TAccountSubscription, InstructionAccountInputAddress<TAccountSubscription>>,
-        ResolvedInstructionAccountMeta<TAccountPlan, InstructionAccountInputAddress<TAccountPlan>>,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionAuthority,
-            InstructionAccountInputAddress<TAccountSubscriptionAuthority>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountUserPaymentAccount,
-            InstructionAccountInputAddress<TAccountUserPaymentAccount>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountSwapPaymentAccount,
-            InstructionAccountInputAddress<TAccountSwapPaymentAccount>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountUserAssetAccount,
-            InstructionAccountInputAddress<TAccountUserAssetAccount>
-        >,
-        ResolvedInstructionAccountMeta<TAccountPaymentMint, InstructionAccountInputAddress<TAccountPaymentMint>>,
-        ResolvedInstructionAccountMeta<
-            TAccountPaymentTokenProgram,
-            InstructionAccountInputAddress<TAccountPaymentTokenProgram>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsProgram,
-            InstructionAccountInputAddress<TAccountSubscriptionsProgram>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsEventAuthority,
-            InstructionAccountInputAddress<TAccountSubscriptionsEventAuthority>
-        >,
-        ResolvedInstructionAccountMeta<TAccountSwapAuthority, InstructionAccountInputAddress<TAccountSwapAuthority>>,
-        ResolvedInstructionAccountMeta<TAccountRouter, InstructionAccountInputAddress<TAccountRouter>>,
-        ResolvedInstructionAccountMeta<TAccountPythProgram, InstructionAccountInputAddress<TAccountPythProgram>>,
-        ResolvedInstructionAccountMeta<TAccountPythStorage, InstructionAccountInputAddress<TAccountPythStorage>>,
-        ResolvedInstructionAccountMeta<TAccountPythTreasury, InstructionAccountInputAddress<TAccountPythTreasury>>,
-        ResolvedInstructionAccountMeta<TAccountInstructions, InstructionAccountInputAddress<TAccountInstructions>>,
-        ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>,
-        ResolvedInstructionAccountMeta<TAccountEventAuthority, InstructionAccountInputAddress<TAccountEventAuthority>>,
-        ResolvedInstructionAccountMeta<TAccountProgram, InstructionAccountInputAddress<TAccountProgram>>
-    >
-> {
-    // Program address.
-    const programAddress = config?.programAddress ?? LATERITE_PROGRAM_ADDRESS;
-
-    // Account meta helper.
-    const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
-
-    // Original accounts.
-    const originalAccounts = {
-        crank: { value: input.crank ?? null, isSigner: true, isWritable: true },
-        config: { value: input.config ?? null, isSigner: false, isWritable: false },
-        userConfig: { value: input.userConfig ?? null, isSigner: false, isWritable: true },
-        vault: { value: input.vault ?? null, isSigner: false, isWritable: false },
-        subscription: { value: input.subscription ?? null, isSigner: false, isWritable: true },
-        plan: { value: input.plan ?? null, isSigner: false, isWritable: false },
-        subscriptionAuthority: { value: input.subscriptionAuthority ?? null, isSigner: false, isWritable: false },
-        userPaymentAccount: { value: input.userPaymentAccount ?? null, isSigner: false, isWritable: true },
-        swapPaymentAccount: { value: input.swapPaymentAccount ?? null, isSigner: false, isWritable: true },
-        userAssetAccount: { value: input.userAssetAccount ?? null, isSigner: false, isWritable: true },
-        paymentMint: { value: input.paymentMint ?? null, isSigner: false, isWritable: false },
-        paymentTokenProgram: { value: input.paymentTokenProgram ?? null, isSigner: false, isWritable: false },
-        subscriptionsProgram: { value: input.subscriptionsProgram ?? null, isSigner: false, isWritable: false },
-        subscriptionsEventAuthority: {
-            value: input.subscriptionsEventAuthority ?? null,
-            isSigner: false,
-            isWritable: false,
-        },
-        swapAuthority: { value: input.swapAuthority ?? null, isSigner: false, isWritable: false },
-        router: { value: input.router ?? null, isSigner: false, isWritable: false },
-        pythProgram: { value: input.pythProgram ?? null, isSigner: false, isWritable: false },
-        pythStorage: { value: input.pythStorage ?? null, isSigner: false, isWritable: false },
-        pythTreasury: { value: input.pythTreasury ?? null, isSigner: false, isWritable: true },
-        instructions: { value: input.instructions ?? null, isSigner: false, isWritable: false },
-        systemProgram: { value: input.systemProgram ?? null, isSigner: false, isWritable: false },
-        eventAuthority: { value: input.eventAuthority ?? null, isSigner: false, isWritable: false },
-        program: { value: input.program ?? null, isSigner: false, isWritable: false },
-    };
-    const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedInstructionAccount>;
-
-    // Original args.
-    const args = { ...input };
-
-    // Resolve default values.
-    if (!accounts.config.value) {
-        accounts.config.value = await findConfigPda({ programAddress });
-    }
-    if (!accounts.vault.value) {
-        accounts.vault.value = await findVaultPda({ programAddress });
-    }
-    if (!accounts.subscriptionsProgram.value) {
-        accounts.subscriptionsProgram.value =
-            'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44' as Address<'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44'>;
-    }
-    if (!accounts.subscriptionsEventAuthority.value) {
-        accounts.subscriptionsEventAuthority.value =
-            '3Hnj4BYoDgtpBuqXfiy7Y8cNa3jXaNd4oqgSXBzkMcH7' as Address<'3Hnj4BYoDgtpBuqXfiy7Y8cNa3jXaNd4oqgSXBzkMcH7'>;
-    }
-    if (!accounts.swapAuthority.value) {
-        accounts.swapAuthority.value =
-            'EkYduV3gUV9ZbNPcvfCWvmAviF5NkYypQSfu8XZvxQce' as Address<'EkYduV3gUV9ZbNPcvfCWvmAviF5NkYypQSfu8XZvxQce'>;
-    }
-    if (!accounts.pythProgram.value) {
-        accounts.pythProgram.value =
-            'pytd2yyk641x7ak7mkaasSJVXh6YYZnC7wTmtgAyxPt' as Address<'pytd2yyk641x7ak7mkaasSJVXh6YYZnC7wTmtgAyxPt'>;
-    }
-    if (!accounts.instructions.value) {
-        accounts.instructions.value =
-            'Sysvar1nstructions1111111111111111111111111' as Address<'Sysvar1nstructions1111111111111111111111111'>;
-    }
-    if (!accounts.systemProgram.value) {
-        accounts.systemProgram.value =
-            '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
-    }
-
-    return Object.freeze({
-        accounts: [
-            getAccountMeta('crank', accounts.crank),
-            getAccountMeta('config', accounts.config),
-            getAccountMeta('userConfig', accounts.userConfig),
-            getAccountMeta('vault', accounts.vault),
-            getAccountMeta('subscription', accounts.subscription),
-            getAccountMeta('plan', accounts.plan),
-            getAccountMeta('subscriptionAuthority', accounts.subscriptionAuthority),
-            getAccountMeta('userPaymentAccount', accounts.userPaymentAccount),
-            getAccountMeta('swapPaymentAccount', accounts.swapPaymentAccount),
-            getAccountMeta('userAssetAccount', accounts.userAssetAccount),
-            getAccountMeta('paymentMint', accounts.paymentMint),
-            getAccountMeta('paymentTokenProgram', accounts.paymentTokenProgram),
-            getAccountMeta('subscriptionsProgram', accounts.subscriptionsProgram),
-            getAccountMeta('subscriptionsEventAuthority', accounts.subscriptionsEventAuthority),
-            getAccountMeta('swapAuthority', accounts.swapAuthority),
-            getAccountMeta('router', accounts.router),
-            getAccountMeta('pythProgram', accounts.pythProgram),
-            getAccountMeta('pythStorage', accounts.pythStorage),
-            getAccountMeta('pythTreasury', accounts.pythTreasury),
-            getAccountMeta('instructions', accounts.instructions),
-            getAccountMeta('systemProgram', accounts.systemProgram),
-            getAccountMeta('eventAuthority', accounts.eventAuthority),
-            getAccountMeta('program', accounts.program),
-        ],
-        data: getSweepInstructionDataEncoder().encode(args as SweepInstructionDataArgs),
-        programAddress,
-    } as SweepInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountCrank, InstructionAccountInputAddress<TAccountCrank>>,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>,
-        ResolvedInstructionAccountMeta<TAccountVault, InstructionAccountInputAddress<TAccountVault>>,
-        ResolvedInstructionAccountMeta<TAccountSubscription, InstructionAccountInputAddress<TAccountSubscription>>,
-        ResolvedInstructionAccountMeta<TAccountPlan, InstructionAccountInputAddress<TAccountPlan>>,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionAuthority,
-            InstructionAccountInputAddress<TAccountSubscriptionAuthority>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountUserPaymentAccount,
-            InstructionAccountInputAddress<TAccountUserPaymentAccount>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountSwapPaymentAccount,
-            InstructionAccountInputAddress<TAccountSwapPaymentAccount>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountUserAssetAccount,
-            InstructionAccountInputAddress<TAccountUserAssetAccount>
-        >,
-        ResolvedInstructionAccountMeta<TAccountPaymentMint, InstructionAccountInputAddress<TAccountPaymentMint>>,
-        ResolvedInstructionAccountMeta<
-            TAccountPaymentTokenProgram,
-            InstructionAccountInputAddress<TAccountPaymentTokenProgram>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsProgram,
-            InstructionAccountInputAddress<TAccountSubscriptionsProgram>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsEventAuthority,
-            InstructionAccountInputAddress<TAccountSubscriptionsEventAuthority>
-        >,
-        ResolvedInstructionAccountMeta<TAccountSwapAuthority, InstructionAccountInputAddress<TAccountSwapAuthority>>,
-        ResolvedInstructionAccountMeta<TAccountRouter, InstructionAccountInputAddress<TAccountRouter>>,
-        ResolvedInstructionAccountMeta<TAccountPythProgram, InstructionAccountInputAddress<TAccountPythProgram>>,
-        ResolvedInstructionAccountMeta<TAccountPythStorage, InstructionAccountInputAddress<TAccountPythStorage>>,
-        ResolvedInstructionAccountMeta<TAccountPythTreasury, InstructionAccountInputAddress<TAccountPythTreasury>>,
-        ResolvedInstructionAccountMeta<TAccountInstructions, InstructionAccountInputAddress<TAccountInstructions>>,
-        ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>,
-        ResolvedInstructionAccountMeta<TAccountEventAuthority, InstructionAccountInputAddress<TAccountEventAuthority>>,
-        ResolvedInstructionAccountMeta<TAccountProgram, InstructionAccountInputAddress<TAccountProgram>>
-    >);
-}
-
 export type SweepInput<
     TAccountCrank extends InstructionSignerInput = InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
@@ -510,9 +202,13 @@ export type SweepInput<
 > = {
     /** Pays the fees and Pyth Pro's verification fee. */
     crank: TAccountCrank;
-    config: TAccountConfig;
+    config?: TAccountConfig;
+    /**
+     * The swept user's settings. Only `enroll` creates one, at its user's address, so the account type alone identifies
+     * it; the accounts below are checked against the user it names.
+     */
     userConfig: TAccountUserConfig;
-    vault: TAccountVault;
+    vault?: TAccountVault;
     subscription: TAccountSubscription;
     plan: TAccountPlan;
     subscriptionAuthority: TAccountSubscriptionAuthority;
@@ -677,6 +373,14 @@ export function getSweepInstruction<
     const args = { ...input };
 
     // Resolve default values.
+    if (!accounts.config.value) {
+        accounts.config.value =
+            '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5' as Address<'58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5'>;
+    }
+    if (!accounts.vault.value) {
+        accounts.vault.value =
+            '3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7' as Address<'3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7'>;
+    }
     if (!accounts.subscriptionsProgram.value) {
         accounts.subscriptionsProgram.value =
             'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44' as Address<'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44'>;
@@ -788,6 +492,10 @@ export type ParsedSweepInstruction<
         /** Pays the fees and Pyth Pro's verification fee. */
         crank: TAccountMetas[0];
         config: TAccountMetas[1];
+        /**
+         * The swept user's settings. Only `enroll` creates one, at its user's address, so the account type alone identifies
+         * it; the accounts below are checked against the user it names.
+         */
         userConfig: TAccountMetas[2];
         vault: TAccountMetas[3];
         subscription: TAccountMetas[4];

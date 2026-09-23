@@ -12,7 +12,7 @@ crate-type = ["cdylib", "lib"]
 name = "laterite"
 
 [features]
-default = []
+default = ["no-log-ix-name"]
 cpi = ["no-entrypoint"]
 no-entrypoint = []
 no-log-ix-name = []

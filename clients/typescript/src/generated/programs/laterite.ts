@@ -46,23 +46,23 @@ import {
     type UserConfigArgs,
 } from '../accounts';
 import {
-    getAcceptAdminInstructionAsync,
-    getAttestInstructionAsync,
-    getChangePaymentTokensInstructionAsync,
-    getChangeTierInstructionAsync,
+    getAcceptAdminInstruction,
+    getAttestInstruction,
+    getChangePaymentTokensInstruction,
+    getChangeTierInstruction,
     getCloseAttestationInstruction,
-    getCreatePlanInstructionAsync,
+    getCreatePlanInstruction,
     getEnrollInstructionAsync,
-    getExitInstructionAsync,
+    getExitInstruction,
     getInitializeInstructionAsync,
     getLowerPendingInstructionAsync,
-    getProposeAdminInstructionAsync,
+    getProposeAdminInstruction,
     getReactivateInstructionAsync,
-    getSetMarketCalendarInstructionAsync,
-    getSetPausedInstructionAsync,
+    getSetMarketCalendarInstruction,
+    getSetPausedInstruction,
     getSetUserPausedInstructionAsync,
-    getSweepInstructionAsync,
-    getUpdateConfigInstructionAsync,
+    getSweepInstruction,
+    getUpdateConfigInstruction,
     getUpdateSettingsInstructionAsync,
     parseAcceptAdminInstruction,
     parseAttestInstruction,
@@ -82,14 +82,14 @@ import {
     parseSweepInstruction,
     parseUpdateConfigInstruction,
     parseUpdateSettingsInstruction,
-    type AcceptAdminAsyncInput,
-    type AttestAsyncInput,
-    type ChangePaymentTokensAsyncInput,
-    type ChangeTierAsyncInput,
+    type AcceptAdminInput,
+    type AttestInput,
+    type ChangePaymentTokensInput,
+    type ChangeTierInput,
     type CloseAttestationInput,
-    type CreatePlanAsyncInput,
+    type CreatePlanInput,
     type EnrollAsyncInput,
-    type ExitAsyncInput,
+    type ExitInput,
     type InitializeAsyncInput,
     type LowerPendingAsyncInput,
     type ParsedAcceptAdminInstruction,
@@ -110,16 +110,16 @@ import {
     type ParsedSweepInstruction,
     type ParsedUpdateConfigInstruction,
     type ParsedUpdateSettingsInstruction,
-    type ProposeAdminAsyncInput,
+    type ProposeAdminInput,
     type ReactivateAsyncInput,
-    type SetMarketCalendarAsyncInput,
-    type SetPausedAsyncInput,
+    type SetMarketCalendarInput,
+    type SetPausedInput,
     type SetUserPausedAsyncInput,
-    type SweepAsyncInput,
-    type UpdateConfigAsyncInput,
+    type SweepInput,
+    type UpdateConfigInput,
     type UpdateSettingsAsyncInput,
 } from '../instructions';
-import { findConfigPda, findUserConfigPda, findVaultPda } from '../pdas';
+import { findConfigPda, findUserConfigPda } from '../pdas';
 
 export const LATERITE_PROGRAM_ADDRESS =
     'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf' as Address<'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf'>;
@@ -673,28 +673,22 @@ export type LateritePluginAccounts = {
 };
 
 export type LateritePluginInstructions = {
-    acceptAdmin: (
-        input: AcceptAdminAsyncInput,
-    ) => ReturnType<typeof getAcceptAdminInstructionAsync> & SelfPlanAndSendFunctions;
+    acceptAdmin: (input: AcceptAdminInput) => ReturnType<typeof getAcceptAdminInstruction> & SelfPlanAndSendFunctions;
     attest: (
-        input: MakeOptional<AttestAsyncInput, 'payer'>,
-    ) => ReturnType<typeof getAttestInstructionAsync> & SelfPlanAndSendFunctions;
+        input: MakeOptional<AttestInput, 'payer'>,
+    ) => ReturnType<typeof getAttestInstruction> & SelfPlanAndSendFunctions;
     changePaymentTokens: (
-        input: ChangePaymentTokensAsyncInput,
-    ) => ReturnType<typeof getChangePaymentTokensInstructionAsync> & SelfPlanAndSendFunctions;
-    changeTier: (
-        input: ChangeTierAsyncInput,
-    ) => ReturnType<typeof getChangeTierInstructionAsync> & SelfPlanAndSendFunctions;
+        input: ChangePaymentTokensInput,
+    ) => ReturnType<typeof getChangePaymentTokensInstruction> & SelfPlanAndSendFunctions;
+    changeTier: (input: ChangeTierInput) => ReturnType<typeof getChangeTierInstruction> & SelfPlanAndSendFunctions;
     closeAttestation: (
         input: MakeOptional<CloseAttestationInput, 'payer'>,
     ) => ReturnType<typeof getCloseAttestationInstruction> & SelfPlanAndSendFunctions;
-    createPlan: (
-        input: CreatePlanAsyncInput,
-    ) => ReturnType<typeof getCreatePlanInstructionAsync> & SelfPlanAndSendFunctions;
+    createPlan: (input: CreatePlanInput) => ReturnType<typeof getCreatePlanInstruction> & SelfPlanAndSendFunctions;
     enroll: (
         input: MakeOptional<EnrollAsyncInput, 'payer'>,
     ) => ReturnType<typeof getEnrollInstructionAsync> & SelfPlanAndSendFunctions;
-    exit: (input: ExitAsyncInput) => ReturnType<typeof getExitInstructionAsync> & SelfPlanAndSendFunctions;
+    exit: (input: ExitInput) => ReturnType<typeof getExitInstruction> & SelfPlanAndSendFunctions;
     initialize: (
         input: InitializeAsyncInput,
     ) => ReturnType<typeof getInitializeInstructionAsync> & SelfPlanAndSendFunctions;
@@ -702,34 +696,28 @@ export type LateritePluginInstructions = {
         input: LowerPendingAsyncInput,
     ) => ReturnType<typeof getLowerPendingInstructionAsync> & SelfPlanAndSendFunctions;
     proposeAdmin: (
-        input: ProposeAdminAsyncInput,
-    ) => ReturnType<typeof getProposeAdminInstructionAsync> & SelfPlanAndSendFunctions;
+        input: ProposeAdminInput,
+    ) => ReturnType<typeof getProposeAdminInstruction> & SelfPlanAndSendFunctions;
     reactivate: (
         input: ReactivateAsyncInput,
     ) => ReturnType<typeof getReactivateInstructionAsync> & SelfPlanAndSendFunctions;
     setMarketCalendar: (
-        input: SetMarketCalendarAsyncInput,
-    ) => ReturnType<typeof getSetMarketCalendarInstructionAsync> & SelfPlanAndSendFunctions;
-    setPaused: (
-        input: SetPausedAsyncInput,
-    ) => ReturnType<typeof getSetPausedInstructionAsync> & SelfPlanAndSendFunctions;
+        input: SetMarketCalendarInput,
+    ) => ReturnType<typeof getSetMarketCalendarInstruction> & SelfPlanAndSendFunctions;
+    setPaused: (input: SetPausedInput) => ReturnType<typeof getSetPausedInstruction> & SelfPlanAndSendFunctions;
     setUserPaused: (
         input: SetUserPausedAsyncInput,
     ) => ReturnType<typeof getSetUserPausedInstructionAsync> & SelfPlanAndSendFunctions;
-    sweep: (input: SweepAsyncInput) => ReturnType<typeof getSweepInstructionAsync> & SelfPlanAndSendFunctions;
+    sweep: (input: SweepInput) => ReturnType<typeof getSweepInstruction> & SelfPlanAndSendFunctions;
     updateConfig: (
-        input: UpdateConfigAsyncInput,
-    ) => ReturnType<typeof getUpdateConfigInstructionAsync> & SelfPlanAndSendFunctions;
+        input: UpdateConfigInput,
+    ) => ReturnType<typeof getUpdateConfigInstruction> & SelfPlanAndSendFunctions;
     updateSettings: (
         input: UpdateSettingsAsyncInput,
     ) => ReturnType<typeof getUpdateSettingsInstructionAsync> & SelfPlanAndSendFunctions;
 };
 
-export type LateritePluginPdas = {
-    config: typeof findConfigPda;
-    vault: typeof findVaultPda;
-    userConfig: typeof findUserConfigPda;
-};
+export type LateritePluginPdas = { userConfig: typeof findUserConfigPda; config: typeof findConfigPda };
 
 export type LateritePluginRequirements = ClientWithRpc<GetAccountInfoApi & GetMultipleAccountsApi> &
     ClientWithPayer &
@@ -746,42 +734,42 @@ export function lateriteProgram() {
                     userConfig: addSelfFetchFunctions(client, getUserConfigCodec()),
                 },
                 instructions: {
-                    acceptAdmin: input => addSelfPlanAndSendFunctions(client, getAcceptAdminInstructionAsync(input)),
+                    acceptAdmin: input => addSelfPlanAndSendFunctions(client, getAcceptAdminInstruction(input)),
                     attest: input =>
                         addSelfPlanAndSendFunctions(
                             client,
-                            getAttestInstructionAsync({ ...input, payer: input.payer ?? client.payer }),
+                            getAttestInstruction({ ...input, payer: input.payer ?? client.payer }),
                         ),
                     changePaymentTokens: input =>
-                        addSelfPlanAndSendFunctions(client, getChangePaymentTokensInstructionAsync(input)),
-                    changeTier: input => addSelfPlanAndSendFunctions(client, getChangeTierInstructionAsync(input)),
+                        addSelfPlanAndSendFunctions(client, getChangePaymentTokensInstruction(input)),
+                    changeTier: input => addSelfPlanAndSendFunctions(client, getChangeTierInstruction(input)),
                     closeAttestation: input =>
                         addSelfPlanAndSendFunctions(
                             client,
                             getCloseAttestationInstruction({ ...input, payer: input.payer ?? client.payer.address }),
                         ),
-                    createPlan: input => addSelfPlanAndSendFunctions(client, getCreatePlanInstructionAsync(input)),
+                    createPlan: input => addSelfPlanAndSendFunctions(client, getCreatePlanInstruction(input)),
                     enroll: input =>
                         addSelfPlanAndSendFunctions(
                             client,
                             getEnrollInstructionAsync({ ...input, payer: input.payer ?? client.payer }),
                         ),
-                    exit: input => addSelfPlanAndSendFunctions(client, getExitInstructionAsync(input)),
+                    exit: input => addSelfPlanAndSendFunctions(client, getExitInstruction(input)),
                     initialize: input => addSelfPlanAndSendFunctions(client, getInitializeInstructionAsync(input)),
                     lowerPending: input => addSelfPlanAndSendFunctions(client, getLowerPendingInstructionAsync(input)),
-                    proposeAdmin: input => addSelfPlanAndSendFunctions(client, getProposeAdminInstructionAsync(input)),
+                    proposeAdmin: input => addSelfPlanAndSendFunctions(client, getProposeAdminInstruction(input)),
                     reactivate: input => addSelfPlanAndSendFunctions(client, getReactivateInstructionAsync(input)),
                     setMarketCalendar: input =>
-                        addSelfPlanAndSendFunctions(client, getSetMarketCalendarInstructionAsync(input)),
-                    setPaused: input => addSelfPlanAndSendFunctions(client, getSetPausedInstructionAsync(input)),
+                        addSelfPlanAndSendFunctions(client, getSetMarketCalendarInstruction(input)),
+                    setPaused: input => addSelfPlanAndSendFunctions(client, getSetPausedInstruction(input)),
                     setUserPaused: input =>
                         addSelfPlanAndSendFunctions(client, getSetUserPausedInstructionAsync(input)),
-                    sweep: input => addSelfPlanAndSendFunctions(client, getSweepInstructionAsync(input)),
-                    updateConfig: input => addSelfPlanAndSendFunctions(client, getUpdateConfigInstructionAsync(input)),
+                    sweep: input => addSelfPlanAndSendFunctions(client, getSweepInstruction(input)),
+                    updateConfig: input => addSelfPlanAndSendFunctions(client, getUpdateConfigInstruction(input)),
                     updateSettings: input =>
                         addSelfPlanAndSendFunctions(client, getUpdateSettingsInstructionAsync(input)),
                 },
-                pdas: { config: findConfigPda, vault: findVaultPda, userConfig: findUserConfigPda },
+                pdas: { userConfig: findUserConfigPda, config: findConfigPda },
                 identifyAccount: identifyLateriteAccount,
                 identifyInstruction: identifyLateriteInstruction,
                 parseInstruction: parseLateriteInstruction,

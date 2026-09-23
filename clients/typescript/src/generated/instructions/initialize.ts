@@ -53,8 +53,7 @@ export type InitializeInstruction<
     TProgram extends string = typeof LATERITE_PROGRAM_ADDRESS,
     TAccountAuthority extends string | AccountMeta<string> = string,
     TAccountConfig extends string | AccountMeta<string> = string,
-    TAccountProgram extends string | AccountMeta<string> = 'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf',
-    TAccountProgramData extends string | AccountMeta<string> = string,
+    TAccountProgramData extends string | AccountMeta<string> = 'DPqKps8eSDrK8S86oxCFDJUvXYy3JQbihz3FbueyZPey',
     TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
     TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -65,7 +64,6 @@ export type InitializeInstruction<
                 ? WritableSignerAccount<TAccountAuthority> & AccountSignerMeta<TAccountAuthority>
                 : TAccountAuthority,
             TAccountConfig extends string ? WritableAccount<TAccountConfig> : TAccountConfig,
-            TAccountProgram extends string ? ReadonlyAccount<TAccountProgram> : TAccountProgram,
             TAccountProgramData extends string ? ReadonlyAccount<TAccountProgramData> : TAccountProgramData,
             TAccountSystemProgram extends string ? ReadonlyAccount<TAccountSystemProgram> : TAccountSystemProgram,
             ...TRemainingAccounts,
@@ -103,14 +101,12 @@ export function getInitializeInstructionDataCodec(): FixedSizeCodec<
 export type InitializeAsyncInput<
     TAccountAuthority extends InstructionSignerInput = InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
-    TAccountProgram extends InstructionAccountInput = InstructionAccountInput,
     TAccountProgramData extends InstructionAccountInput = InstructionAccountInput,
     TAccountSystemProgram extends InstructionAccountInput = InstructionAccountInput,
 > = {
     authority: TAccountAuthority;
     config?: TAccountConfig;
-    program?: TAccountProgram;
-    programData: TAccountProgramData;
+    programData?: TAccountProgramData;
     systemProgram?: TAccountSystemProgram;
     params: InitializeInstructionDataArgs['params'];
 };
@@ -118,25 +114,17 @@ export type InitializeAsyncInput<
 export async function getInitializeInstructionAsync<
     TAccountAuthority extends InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput,
-    TAccountProgram extends InstructionAccountInput,
     TAccountProgramData extends InstructionAccountInput,
     TAccountSystemProgram extends InstructionAccountInput,
     TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
 >(
-    input: InitializeAsyncInput<
-        TAccountAuthority,
-        TAccountConfig,
-        TAccountProgram,
-        TAccountProgramData,
-        TAccountSystemProgram
-    >,
+    input: InitializeAsyncInput<TAccountAuthority, TAccountConfig, TAccountProgramData, TAccountSystemProgram>,
     config?: { programAddress?: TProgramAddress },
 ): Promise<
     InitializeInstruction<
         TProgramAddress,
         ResolvedInstructionAccountMeta<TAccountAuthority, InstructionAccountInputAddress<TAccountAuthority>>,
         ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountProgram, InstructionAccountInputAddress<TAccountProgram>>,
         ResolvedInstructionAccountMeta<TAccountProgramData, InstructionAccountInputAddress<TAccountProgramData>>,
         ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>
     >
@@ -151,7 +139,6 @@ export async function getInitializeInstructionAsync<
     const originalAccounts = {
         authority: { value: input.authority ?? null, isSigner: true, isWritable: true },
         config: { value: input.config ?? null, isSigner: false, isWritable: true },
-        program: { value: input.program ?? null, isSigner: false, isWritable: false },
         programData: { value: input.programData ?? null, isSigner: false, isWritable: false },
         systemProgram: { value: input.systemProgram ?? null, isSigner: false, isWritable: false },
     };
@@ -164,9 +151,9 @@ export async function getInitializeInstructionAsync<
     if (!accounts.config.value) {
         accounts.config.value = await findConfigPda({ programAddress });
     }
-    if (!accounts.program.value) {
-        accounts.program.value =
-            'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf' as Address<'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf'>;
+    if (!accounts.programData.value) {
+        accounts.programData.value =
+            'DPqKps8eSDrK8S86oxCFDJUvXYy3JQbihz3FbueyZPey' as Address<'DPqKps8eSDrK8S86oxCFDJUvXYy3JQbihz3FbueyZPey'>;
     }
     if (!accounts.systemProgram.value) {
         accounts.systemProgram.value =
@@ -177,7 +164,6 @@ export async function getInitializeInstructionAsync<
         accounts: [
             getAccountMeta('authority', accounts.authority),
             getAccountMeta('config', accounts.config),
-            getAccountMeta('program', accounts.program),
             getAccountMeta('programData', accounts.programData),
             getAccountMeta('systemProgram', accounts.systemProgram),
         ],
@@ -187,7 +173,6 @@ export async function getInitializeInstructionAsync<
         TProgramAddress,
         ResolvedInstructionAccountMeta<TAccountAuthority, InstructionAccountInputAddress<TAccountAuthority>>,
         ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountProgram, InstructionAccountInputAddress<TAccountProgram>>,
         ResolvedInstructionAccountMeta<TAccountProgramData, InstructionAccountInputAddress<TAccountProgramData>>,
         ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>
     >);
@@ -196,14 +181,12 @@ export async function getInitializeInstructionAsync<
 export type InitializeInput<
     TAccountAuthority extends InstructionSignerInput = InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
-    TAccountProgram extends InstructionAccountInput = InstructionAccountInput,
     TAccountProgramData extends InstructionAccountInput = InstructionAccountInput,
     TAccountSystemProgram extends InstructionAccountInput = InstructionAccountInput,
 > = {
     authority: TAccountAuthority;
     config: TAccountConfig;
-    program?: TAccountProgram;
-    programData: TAccountProgramData;
+    programData?: TAccountProgramData;
     systemProgram?: TAccountSystemProgram;
     params: InitializeInstructionDataArgs['params'];
 };
@@ -211,24 +194,16 @@ export type InitializeInput<
 export function getInitializeInstruction<
     TAccountAuthority extends InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput,
-    TAccountProgram extends InstructionAccountInput,
     TAccountProgramData extends InstructionAccountInput,
     TAccountSystemProgram extends InstructionAccountInput,
     TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
 >(
-    input: InitializeInput<
-        TAccountAuthority,
-        TAccountConfig,
-        TAccountProgram,
-        TAccountProgramData,
-        TAccountSystemProgram
-    >,
+    input: InitializeInput<TAccountAuthority, TAccountConfig, TAccountProgramData, TAccountSystemProgram>,
     config?: { programAddress?: TProgramAddress },
 ): InitializeInstruction<
     TProgramAddress,
     ResolvedInstructionAccountMeta<TAccountAuthority, InstructionAccountInputAddress<TAccountAuthority>>,
     ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-    ResolvedInstructionAccountMeta<TAccountProgram, InstructionAccountInputAddress<TAccountProgram>>,
     ResolvedInstructionAccountMeta<TAccountProgramData, InstructionAccountInputAddress<TAccountProgramData>>,
     ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>
 > {
@@ -242,7 +217,6 @@ export function getInitializeInstruction<
     const originalAccounts = {
         authority: { value: input.authority ?? null, isSigner: true, isWritable: true },
         config: { value: input.config ?? null, isSigner: false, isWritable: true },
-        program: { value: input.program ?? null, isSigner: false, isWritable: false },
         programData: { value: input.programData ?? null, isSigner: false, isWritable: false },
         systemProgram: { value: input.systemProgram ?? null, isSigner: false, isWritable: false },
     };
@@ -252,9 +226,9 @@ export function getInitializeInstruction<
     const args = { ...input };
 
     // Resolve default values.
-    if (!accounts.program.value) {
-        accounts.program.value =
-            'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf' as Address<'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf'>;
+    if (!accounts.programData.value) {
+        accounts.programData.value =
+            'DPqKps8eSDrK8S86oxCFDJUvXYy3JQbihz3FbueyZPey' as Address<'DPqKps8eSDrK8S86oxCFDJUvXYy3JQbihz3FbueyZPey'>;
     }
     if (!accounts.systemProgram.value) {
         accounts.systemProgram.value =
@@ -265,7 +239,6 @@ export function getInitializeInstruction<
         accounts: [
             getAccountMeta('authority', accounts.authority),
             getAccountMeta('config', accounts.config),
-            getAccountMeta('program', accounts.program),
             getAccountMeta('programData', accounts.programData),
             getAccountMeta('systemProgram', accounts.systemProgram),
         ],
@@ -275,7 +248,6 @@ export function getInitializeInstruction<
         TProgramAddress,
         ResolvedInstructionAccountMeta<TAccountAuthority, InstructionAccountInputAddress<TAccountAuthority>>,
         ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountProgram, InstructionAccountInputAddress<TAccountProgram>>,
         ResolvedInstructionAccountMeta<TAccountProgramData, InstructionAccountInputAddress<TAccountProgramData>>,
         ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>
     >);
@@ -289,9 +261,8 @@ export type ParsedInitializeInstruction<
     accounts: {
         authority: TAccountMetas[0];
         config: TAccountMetas[1];
-        program: TAccountMetas[2];
-        programData: TAccountMetas[3];
-        systemProgram: TAccountMetas[4];
+        programData: TAccountMetas[2];
+        systemProgram: TAccountMetas[3];
     };
     data: InitializeInstructionData;
 };
@@ -301,10 +272,10 @@ export function parseInitializeInstruction<TProgram extends string, TAccountMeta
         InstructionWithAccounts<TAccountMetas> &
         InstructionWithData<ReadonlyUint8Array>,
 ): ParsedInitializeInstruction<TProgram, TAccountMetas> {
-    if (instruction.accounts.length < 5) {
+    if (instruction.accounts.length < 4) {
         throw new SolanaError(SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS, {
             actualAccountMetas: instruction.accounts.length,
-            expectedAccountMetas: 5,
+            expectedAccountMetas: 4,
         });
     }
     let accountIndex = 0;
@@ -318,7 +289,6 @@ export function parseInitializeInstruction<TProgram extends string, TAccountMeta
         accounts: {
             authority: getNextAccount(),
             config: getNextAccount(),
-            program: getNextAccount(),
             programData: getNextAccount(),
             systemProgram: getNextAccount(),
         },

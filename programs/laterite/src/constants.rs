@@ -1,4 +1,5 @@
 use anchor_lang::{derive_program_address, prelude::*};
+use solana_sdk_ids::bpf_loader_upgradeable;
 use subscriptions::{EventAuthority, Plan, SUBSCRIPTIONS_ID};
 
 /// Seed of the [`Config`](crate::Config) account.
@@ -75,6 +76,9 @@ pub const fn plan_id(payment_token: usize, tier: usize) -> u64 {
     (payment_token * PLAN_IDS_PER_TOKEN + tier) as u64 + 1
 }
 
+/// The config's address, derived at compile time.
+pub const CONFIG: Pubkey = Pubkey::new_from_array(derive_program_address(&[CONFIG_SEED], &crate::ID.to_bytes()).0);
+
 const VAULT_PDA: ([u8; 32], u8) = derive_program_address(&[VAULT_SEED], &crate::ID.to_bytes());
 
 /// The vault authority's address and bump, derived at compile time.
@@ -98,3 +102,7 @@ const fn plan(payment_token: usize, tier: usize) -> Pubkey {
 /// The Subscriptions program's event authority, which `transfer_subscription` requires.
 pub const SUBSCRIPTIONS_EVENT_AUTHORITY: Pubkey =
     Pubkey::new_from_array(derive_program_address(&[EventAuthority::PREFIX], &SUBSCRIPTIONS_ID.to_bytes()).0);
+
+/// This program's data account under the upgradeable loader, which holds its upgrade authority.
+pub const PROGRAM_DATA: Pubkey =
+    Pubkey::new_from_array(derive_program_address(&[&crate::ID.to_bytes()], &bpf_loader_upgradeable::ID.to_bytes()).0);

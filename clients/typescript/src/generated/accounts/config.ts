@@ -29,8 +29,6 @@ import {
     getU32Encoder,
     getU64Decoder,
     getU64Encoder,
-    getU8Decoder,
-    getU8Encoder,
     transformEncoder,
     type Account,
     type Address,
@@ -87,9 +85,6 @@ export type Config = {
     assets: Array<Asset>;
     /** USDC, then USDT. Set once by `initialize`. */
     paymentTokens: Array<PaymentToken>;
-    bump: number;
-    /** Bump of the vault authority at `[VAULT_SEED]`. */
-    vaultBump: number;
     /**
      * NYSE closures, loaded by the admin as the exchange publishes them; empty until then, so the market counts
      * as closed.
@@ -123,9 +118,6 @@ export type ConfigArgs = {
     assets: Array<AssetArgs>;
     /** USDC, then USDT. Set once by `initialize`. */
     paymentTokens: Array<PaymentTokenArgs>;
-    bump: number;
-    /** Bump of the vault authority at `[VAULT_SEED]`. */
-    vaultBump: number;
     /**
      * NYSE closures, loaded by the admin as the exchange publishes them; empty until then, so the market counts
      * as closed.
@@ -154,8 +146,6 @@ export function getConfigEncoder(): FixedSizeEncoder<ConfigArgs> {
             ['userCount', getU32Encoder()],
             ['assets', getArrayEncoder(getAssetEncoder(), { size: 2 })],
             ['paymentTokens', getArrayEncoder(getPaymentTokenEncoder(), { size: 2 })],
-            ['bump', getU8Encoder()],
-            ['vaultBump', getU8Encoder()],
             ['marketCalendar', getMarketCalendarEncoder()],
             ['genesisHash', fixEncoderSize(getBytesEncoder(), 32)],
         ]),
@@ -178,8 +168,6 @@ export function getConfigDecoder(): FixedSizeDecoder<Config> {
         ['userCount', getU32Decoder()],
         ['assets', getArrayDecoder(getAssetDecoder(), { size: 2 })],
         ['paymentTokens', getArrayDecoder(getPaymentTokenDecoder(), { size: 2 })],
-        ['bump', getU8Decoder()],
-        ['vaultBump', getU8Decoder()],
         ['marketCalendar', getMarketCalendarDecoder()],
         ['genesisHash', fixDecoderSize(getBytesDecoder(), 32)],
     ]);
@@ -241,5 +229,5 @@ export async function fetchAllMaybeConfig(
 }
 
 export function getConfigSize(): number {
-    return 865;
+    return 863;
 }

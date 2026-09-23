@@ -41,7 +41,6 @@ import {
     type ResolvedInstructionAccount,
     type ResolvedInstructionAccountMeta,
 } from '@solana/program-client-core';
-import { findConfigPda, findVaultPda } from '../pdas';
 import { LATERITE_PROGRAM_ADDRESS } from '../programs';
 
 export const CREATE_PLAN_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array([77, 43, 141, 254, 212, 118, 41, 186]);
@@ -53,8 +52,8 @@ export function getCreatePlanDiscriminatorBytes(): ReadonlyUint8Array {
 export type CreatePlanInstruction<
     TProgram extends string = typeof LATERITE_PROGRAM_ADDRESS,
     TAccountAdmin extends string | AccountMeta<string> = string,
-    TAccountConfig extends string | AccountMeta<string> = string,
-    TAccountVault extends string | AccountMeta<string> = string,
+    TAccountConfig extends string | AccountMeta<string> = '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5',
+    TAccountVault extends string | AccountMeta<string> = '3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7',
     TAccountPlan extends string | AccountMeta<string> = string,
     TAccountMint extends string | AccountMeta<string> = string,
     TAccountTokenProgram extends string | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
@@ -111,7 +110,7 @@ export function getCreatePlanInstructionDataCodec(): FixedSizeCodec<
     return combineCodec(getCreatePlanInstructionDataEncoder(), getCreatePlanInstructionDataDecoder());
 }
 
-export type CreatePlanAsyncInput<
+export type CreatePlanInput<
     TAccountAdmin extends InstructionSignerInput = InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
     TAccountVault extends InstructionAccountInput = InstructionAccountInput,
@@ -124,137 +123,6 @@ export type CreatePlanAsyncInput<
     admin: TAccountAdmin;
     config?: TAccountConfig;
     vault?: TAccountVault;
-    plan: TAccountPlan;
-    mint: TAccountMint;
-    tokenProgram?: TAccountTokenProgram;
-    systemProgram?: TAccountSystemProgram;
-    subscriptionsProgram?: TAccountSubscriptionsProgram;
-    paymentToken: CreatePlanInstructionDataArgs['paymentToken'];
-    tier: CreatePlanInstructionDataArgs['tier'];
-};
-
-export async function getCreatePlanInstructionAsync<
-    TAccountAdmin extends InstructionSignerInput,
-    TAccountConfig extends InstructionAccountInput,
-    TAccountVault extends InstructionAccountInput,
-    TAccountPlan extends InstructionAccountInput,
-    TAccountMint extends InstructionAccountInput,
-    TAccountTokenProgram extends InstructionAccountInput,
-    TAccountSystemProgram extends InstructionAccountInput,
-    TAccountSubscriptionsProgram extends InstructionAccountInput,
-    TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
->(
-    input: CreatePlanAsyncInput<
-        TAccountAdmin,
-        TAccountConfig,
-        TAccountVault,
-        TAccountPlan,
-        TAccountMint,
-        TAccountTokenProgram,
-        TAccountSystemProgram,
-        TAccountSubscriptionsProgram
-    >,
-    config?: { programAddress?: TProgramAddress },
-): Promise<
-    CreatePlanInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountAdmin, InstructionAccountInputAddress<TAccountAdmin>>,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountVault, InstructionAccountInputAddress<TAccountVault>>,
-        ResolvedInstructionAccountMeta<TAccountPlan, InstructionAccountInputAddress<TAccountPlan>>,
-        ResolvedInstructionAccountMeta<TAccountMint, InstructionAccountInputAddress<TAccountMint>>,
-        ResolvedInstructionAccountMeta<TAccountTokenProgram, InstructionAccountInputAddress<TAccountTokenProgram>>,
-        ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsProgram,
-            InstructionAccountInputAddress<TAccountSubscriptionsProgram>
-        >
-    >
-> {
-    // Program address.
-    const programAddress = config?.programAddress ?? LATERITE_PROGRAM_ADDRESS;
-
-    // Account meta helper.
-    const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
-
-    // Original accounts.
-    const originalAccounts = {
-        admin: { value: input.admin ?? null, isSigner: true, isWritable: true },
-        config: { value: input.config ?? null, isSigner: false, isWritable: false },
-        vault: { value: input.vault ?? null, isSigner: false, isWritable: true },
-        plan: { value: input.plan ?? null, isSigner: false, isWritable: true },
-        mint: { value: input.mint ?? null, isSigner: false, isWritable: false },
-        tokenProgram: { value: input.tokenProgram ?? null, isSigner: false, isWritable: false },
-        systemProgram: { value: input.systemProgram ?? null, isSigner: false, isWritable: false },
-        subscriptionsProgram: { value: input.subscriptionsProgram ?? null, isSigner: false, isWritable: false },
-    };
-    const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedInstructionAccount>;
-
-    // Original args.
-    const args = { ...input };
-
-    // Resolve default values.
-    if (!accounts.config.value) {
-        accounts.config.value = await findConfigPda({ programAddress });
-    }
-    if (!accounts.vault.value) {
-        accounts.vault.value = await findVaultPda({ programAddress });
-    }
-    if (!accounts.tokenProgram.value) {
-        accounts.tokenProgram.value =
-            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;
-    }
-    if (!accounts.systemProgram.value) {
-        accounts.systemProgram.value =
-            '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
-    }
-    if (!accounts.subscriptionsProgram.value) {
-        accounts.subscriptionsProgram.value =
-            'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44' as Address<'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44'>;
-    }
-
-    return Object.freeze({
-        accounts: [
-            getAccountMeta('admin', accounts.admin),
-            getAccountMeta('config', accounts.config),
-            getAccountMeta('vault', accounts.vault),
-            getAccountMeta('plan', accounts.plan),
-            getAccountMeta('mint', accounts.mint),
-            getAccountMeta('tokenProgram', accounts.tokenProgram),
-            getAccountMeta('systemProgram', accounts.systemProgram),
-            getAccountMeta('subscriptionsProgram', accounts.subscriptionsProgram),
-        ],
-        data: getCreatePlanInstructionDataEncoder().encode(args as CreatePlanInstructionDataArgs),
-        programAddress,
-    } as CreatePlanInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountAdmin, InstructionAccountInputAddress<TAccountAdmin>>,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountVault, InstructionAccountInputAddress<TAccountVault>>,
-        ResolvedInstructionAccountMeta<TAccountPlan, InstructionAccountInputAddress<TAccountPlan>>,
-        ResolvedInstructionAccountMeta<TAccountMint, InstructionAccountInputAddress<TAccountMint>>,
-        ResolvedInstructionAccountMeta<TAccountTokenProgram, InstructionAccountInputAddress<TAccountTokenProgram>>,
-        ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsProgram,
-            InstructionAccountInputAddress<TAccountSubscriptionsProgram>
-        >
-    >);
-}
-
-export type CreatePlanInput<
-    TAccountAdmin extends InstructionSignerInput = InstructionSignerInput,
-    TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
-    TAccountVault extends InstructionAccountInput = InstructionAccountInput,
-    TAccountPlan extends InstructionAccountInput = InstructionAccountInput,
-    TAccountMint extends InstructionAccountInput = InstructionAccountInput,
-    TAccountTokenProgram extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSystemProgram extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSubscriptionsProgram extends InstructionAccountInput = InstructionAccountInput,
-> = {
-    admin: TAccountAdmin;
-    config: TAccountConfig;
-    vault: TAccountVault;
     plan: TAccountPlan;
     mint: TAccountMint;
     tokenProgram?: TAccountTokenProgram;
@@ -323,6 +191,14 @@ export function getCreatePlanInstruction<
     const args = { ...input };
 
     // Resolve default values.
+    if (!accounts.config.value) {
+        accounts.config.value =
+            '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5' as Address<'58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5'>;
+    }
+    if (!accounts.vault.value) {
+        accounts.vault.value =
+            '3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7' as Address<'3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7'>;
+    }
     if (!accounts.tokenProgram.value) {
         accounts.tokenProgram.value =
             'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' as Address<'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'>;

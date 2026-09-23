@@ -282,7 +282,6 @@ pub fn initialize_ix(authority: Pubkey, params: ConfigParams) -> Instruction {
     let mut accounts = laterite::accounts::Initialize {
         authority,
         config: config_address(),
-        program: laterite::ID,
         program_data: program_data_address(),
         system_program: system_program::ID,
     }
@@ -1180,6 +1179,23 @@ pub fn swept(metadata: &TransactionMetadata) -> Swept {
     Swept::deserialize(&mut &data[..]).unwrap()
 }
 
+/// Compute units of the program's first top-level instruction in a transaction, its CPIs included, from the runtime's
+/// `invoke` and `consumed` log lines.
+pub fn program_units(metadata: &TransactionMetadata) -> u64 {
+    let consumed = format!("Program {} consumed ", laterite::ID);
+    let mut depth = 0;
+    for line in &metadata.logs {
+        if line.contains(" invoke [") {
+            depth += 1;
+        } else if line.ends_with(" success") || line.contains(" failed: ") {
+            depth -= 1;
+        } else if let Some(rest) = line.strip_prefix(&consumed).filter(|_| depth == 1) {
+            return rest.split(' ').next().unwrap().parse().unwrap();
+        }
+    }
+    panic!("the program did not run at the top level")
+}
+
 /// Compute units of each invocation of `program`, in the order they finished.
 pub fn units_of(metadata: &TransactionMetadata, program: &Pubkey) -> Vec<u64> {
     let prefix = format!("Program {program} consumed ");
@@ -1269,17 +1285,13 @@ fn cancellation(user: Pubkey) -> laterite::accounts::Cancellation {
     }
 }
 
-fn plan_change_accounts(user: Pubkey) -> Vec<AccountMeta> {
-    laterite::accounts::PlanChange {
+pub fn change_tier_ix(user: Pubkey, from: usize, tier: usize, payment_tokens: u8) -> Instruction {
+    let mut accounts = laterite::accounts::TierChange {
         cancellation: cancellation(user),
         config: config_address(),
         user_config: user_config_address(&user),
     }
-    .to_account_metas(None)
-}
-
-pub fn change_tier_ix(user: Pubkey, from: usize, tier: usize, payment_tokens: u8) -> Instruction {
-    let mut accounts = plan_change_accounts(user);
+    .to_account_metas(None);
     for token in enabled(payment_tokens) {
         accounts.extend([
             AccountMeta::new_readonly(plan_address(token, from), false),
@@ -1295,7 +1307,11 @@ pub fn change_tier_ix(user: Pubkey, from: usize, tier: usize, payment_tokens: u8
 }
 
 pub fn change_payment_tokens_ix(user: Pubkey, tier: usize, from: u8, payment_tokens: u8) -> Instruction {
-    let mut accounts = plan_change_accounts(user);
+    let mut accounts = laterite::accounts::PaymentTokensChange {
+        cancellation: cancellation(user),
+        user_config: user_config_address(&user),
+    }
+    .to_account_metas(None);
     for token in 0..2 {
         let (was, is) = (from & (1 << token) != 0, payment_tokens & (1 << token) != 0);
         if was && !is {

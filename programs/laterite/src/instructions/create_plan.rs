@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token_interface::{Mint, TokenInterface};
 use subscriptions::{
     instructions::CreatePlanCpiBuilder,
     types::{PlanData, PlanTerms},
@@ -7,24 +6,26 @@ use subscriptions::{
 };
 
 use crate::{
-    errors::LateriteError, events::PlanCreated, plan_id, Config, CONFIG_SEED, PLAN_PERIOD_HOURS, SWAP_AUTHORITY, TIERS,
-    VAULT_SEED,
+    errors::LateriteError, events::PlanCreated, plan_id, Config, CONFIG, PLAN_PERIOD_HOURS, SWAP_AUTHORITY, TIERS,
+    VAULT, VAULT_BUMP, VAULT_SEED,
 };
 
 #[derive(Accounts)]
 pub struct CreatePlan<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
-    #[account(seeds = [CONFIG_SEED], bump = config.bump, has_one = admin @ LateriteError::Unauthorized)]
+    #[account(address = CONFIG, has_one = admin @ LateriteError::Unauthorized)]
     pub config: Account<'info, Config>,
-    /// CHECK: the vault authority; it owns the plan and signs for it.
-    #[account(mut, seeds = [VAULT_SEED], bump = config.vault_bump)]
+    /// CHECK: the vault authority, checked by address; it owns the plan and signs for it.
+    #[account(mut, address = VAULT)]
     pub vault: UncheckedAccount<'info>,
     /// CHECK: created and validated by the Subscriptions program.
     #[account(mut)]
     pub plan: UncheckedAccount<'info>,
-    pub mint: InterfaceAccount<'info, Mint>,
-    pub token_program: Interface<'info, TokenInterface>,
+    /// CHECK: the payment token's mint, checked against the table, whose mints `initialize` checked.
+    pub mint: UncheckedAccount<'info>,
+    /// CHECK: the payment token's program, checked against the table.
+    pub token_program: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
     /// CHECK: address-constrained.
     #[account(address = SUBSCRIPTIONS_ID)]
@@ -64,7 +65,7 @@ impl CreatePlan<'_> {
                 pullers: [Pubkey::default(); 4],
                 metadata_uri: [0; 128],
             })
-            .invoke_signed(&[&[VAULT_SEED, &[self.config.vault_bump]]])?;
+            .invoke_signed(&[&[VAULT_SEED, &[VAULT_BUMP]]])?;
 
         emit!(PlanCreated { payment_token, tier, plan: self.plan.key() });
         Ok(())

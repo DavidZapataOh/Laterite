@@ -3,13 +3,13 @@ use anchor_lang::prelude::*;
 use crate::{
     errors::LateriteError,
     events::{AdminProposed, MarketCalendarSet, PausedSet, SettingsUpdated},
-    Config, MarketCalendar, Settings, CONFIG_SEED, DAY_SECONDS,
+    Config, MarketCalendar, Settings, CONFIG, DAY_SECONDS,
 };
 
 #[derive(Accounts)]
 pub struct AdminOnly<'info> {
     pub admin: Signer<'info>,
-    #[account(mut, seeds = [CONFIG_SEED], bump = config.bump, has_one = admin @ LateriteError::Unauthorized)]
+    #[account(mut, address = CONFIG, has_one = admin @ LateriteError::Unauthorized)]
     pub config: Account<'info, Config>,
 }
 

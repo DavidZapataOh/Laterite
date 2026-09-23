@@ -1,0 +1,6 @@
+[advisories]
+ignore = [
+    # ed25519-dalek 1.0.1 and curve25519-dalek 3.2.0 reach only the tests, through LiteSVM's ed25519 precompile
+    "RUSTSEC-2022-0093",
+    "RUSTSEC-2024-0344",
+]

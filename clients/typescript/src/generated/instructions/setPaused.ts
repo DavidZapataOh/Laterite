@@ -40,7 +40,6 @@ import {
     type ResolvedInstructionAccount,
     type ResolvedInstructionAccountMeta,
 } from '@solana/program-client-core';
-import { findConfigPda } from '../pdas';
 import { LATERITE_PROGRAM_ADDRESS } from '../programs';
 
 export const SET_PAUSED_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array([91, 60, 125, 192, 176, 225, 166, 218]);
@@ -52,7 +51,7 @@ export function getSetPausedDiscriminatorBytes(): ReadonlyUint8Array {
 export type SetPausedInstruction<
     TProgram extends string = typeof LATERITE_PROGRAM_ADDRESS,
     TAccountAdmin extends string | AccountMeta<string> = string,
-    TAccountConfig extends string | AccountMeta<string> = string,
+    TAccountConfig extends string | AccountMeta<string> = '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5',
     TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
     InstructionWithData<ReadonlyUint8Array> &
@@ -94,67 +93,12 @@ export function getSetPausedInstructionDataCodec(): FixedSizeCodec<
     return combineCodec(getSetPausedInstructionDataEncoder(), getSetPausedInstructionDataDecoder());
 }
 
-export type SetPausedAsyncInput<
-    TAccountAdmin extends InstructionSignerInput = InstructionSignerInput,
-    TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
-> = {
-    admin: TAccountAdmin;
-    config?: TAccountConfig;
-    paused: SetPausedInstructionDataArgs['paused'];
-};
-
-export async function getSetPausedInstructionAsync<
-    TAccountAdmin extends InstructionSignerInput,
-    TAccountConfig extends InstructionAccountInput,
-    TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
->(
-    input: SetPausedAsyncInput<TAccountAdmin, TAccountConfig>,
-    config?: { programAddress?: TProgramAddress },
-): Promise<
-    SetPausedInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountAdmin, InstructionAccountInputAddress<TAccountAdmin>>,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>
-    >
-> {
-    // Program address.
-    const programAddress = config?.programAddress ?? LATERITE_PROGRAM_ADDRESS;
-
-    // Account meta helper.
-    const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
-
-    // Original accounts.
-    const originalAccounts = {
-        admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
-        config: { value: input.config ?? null, isSigner: false, isWritable: true },
-    };
-    const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedInstructionAccount>;
-
-    // Original args.
-    const args = { ...input };
-
-    // Resolve default values.
-    if (!accounts.config.value) {
-        accounts.config.value = await findConfigPda({ programAddress });
-    }
-
-    return Object.freeze({
-        accounts: [getAccountMeta('admin', accounts.admin), getAccountMeta('config', accounts.config)],
-        data: getSetPausedInstructionDataEncoder().encode(args as SetPausedInstructionDataArgs),
-        programAddress,
-    } as SetPausedInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountAdmin, InstructionAccountInputAddress<TAccountAdmin>>,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>
-    >);
-}
-
 export type SetPausedInput<
     TAccountAdmin extends InstructionSignerInput = InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
 > = {
     admin: TAccountAdmin;
-    config: TAccountConfig;
+    config?: TAccountConfig;
     paused: SetPausedInstructionDataArgs['paused'];
 };
 
@@ -185,6 +129,12 @@ export function getSetPausedInstruction<
 
     // Original args.
     const args = { ...input };
+
+    // Resolve default values.
+    if (!accounts.config.value) {
+        accounts.config.value =
+            '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5' as Address<'58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5'>;
+    }
 
     return Object.freeze({
         accounts: [getAccountMeta('admin', accounts.admin), getAccountMeta('config', accounts.config)],

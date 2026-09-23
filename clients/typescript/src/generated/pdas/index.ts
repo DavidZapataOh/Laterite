@@ -8,4 +8,3 @@
 
 export * from './config';
 export * from './userConfig';
-export * from './vault';

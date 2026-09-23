@@ -1,0 +1,165 @@
+{
+    "format": "solana-security-standard-baseline",
+    "version": 1,
+    "tool": "solana-security-standard",
+    "toolVersion": "1.12.1",
+    "findingCount": 26,
+    "fingerprints": {
+        "3ec55d6c0437f4d6e8a86c04ad9d1da1": {
+            "rule": "sol_014_unchecked_arithmetic",
+            "file": "programs/laterite/src/constants.rs",
+            "line": 43,
+            "match": "i64 = 7 * DAY_SECONDS;"
+        },
+        "be641a25595a291d0d70860aae1f9400": {
+            "rule": "sol_014_unchecked_arithmetic",
+            "file": "programs/laterite/src/constants.rs",
+            "line": 58,
+            "match": "i64 = 7 * DAY_SECONDS;"
+        },
+        "5e15aa032f29c8ff9e3796203ba6e394": {
+            "rule": "sol_035_instructions_sysvar_substitution",
+            "file": "programs/laterite/src/instructions/attest.rs",
+            "line": 2,
+            "match": "get_instruction_relative"
+        },
+        "b835fe8762bd90594cf14ae51396aff3": {
+            "rule": "sol_016_bump_field_read",
+            "file": "programs/laterite/src/instructions/attest.rs",
+            "line": 23,
+            "match": ".bump)"
+        },
+        "2aaf6641b6c7425f5b887f9a439d1778": {
+            "rule": "sol_011_close_attr",
+            "file": "programs/laterite/src/instructions/attest.rs",
+            "line": 86,
+            "match": "#[account(mut, close ="
+        },
+        "316ec65722c16e8d72c2ac0001305807": {
+            "rule": "sol_035_instructions_sysvar_substitution",
+            "file": "programs/laterite/src/instructions/attest.rs",
+            "line": 104,
+            "match": "get_instruction_relative"
+        },
+        "ff64857f05ba393ba446fc371b62c311": {
+            "rule": "sol_009_invoke_signed",
+            "file": "programs/laterite/src/instructions/create_plan.rs",
+            "line": 68,
+            "match": "invoke_signed("
+        },
+        "dace32795fdb44bf619d226f320f8186": {
+            "rule": "sol_006_raw_account_info",
+            "file": "programs/laterite/src/instructions/sweep.rs",
+            "line": 96,
+            "match": "AccountInfo<"
+        },
+        "ea8c970ff4323c19cfefbf87f3330688": {
+            "rule": "sol_009_invoke_signed",
+            "file": "programs/laterite/src/instructions/sweep.rs",
+            "line": 165,
+            "match": "invoke_signed("
+        },
+        "72083a29101c2c5b7f2b54f49d5647d0": {
+            "rule": "sol_009_invoke_signed",
+            "file": "programs/laterite/src/instructions/sweep.rs",
+            "line": 176,
+            "match": "invoke_signed("
+        },
+        "08c7bc360a0d94fe086ac1df1845cb7b": {
+            "rule": "sol_016_bump_field_read",
+            "file": "programs/laterite/src/instructions/user.rs",
+            "line": 17,
+            "match": ".bump,"
+        },
+        "2dc04d842f301621b022222d13206e03": {
+            "rule": "sol_016_bump_field_read",
+            "file": "programs/laterite/src/instructions/user.rs",
+            "line": 87,
+            "match": ".bump,"
+        },
+        "a66aaf9260e14ac850c61f8335e1a5f6": {
+            "rule": "sol_006_raw_account_info",
+            "file": "programs/laterite/src/instructions/user.rs",
+            "line": 96,
+            "match": "AccountInfo<"
+        },
+        "a349334ddbbdc610ff4ef6ba96aed2aa": {
+            "rule": "sol_016_bump_field_read",
+            "file": "programs/laterite/src/instructions/user.rs",
+            "line": 128,
+            "match": ".bump,"
+        },
+        "dd1d01aa79ffa190943574ea393ffc89": {
+            "rule": "sol_006_raw_account_info",
+            "file": "programs/laterite/src/instructions/user.rs",
+            "line": 137,
+            "match": "AccountInfo<"
+        },
+        "037cf927e59415f2b481d79cb8ef22cb": {
+            "rule": "sol_016_bump_field_read",
+            "file": "programs/laterite/src/instructions/user.rs",
+            "line": 178,
+            "match": ".bump,"
+        },
+        "b86464474bd2001d09136c0370e844d3": {
+            "rule": "sol_006_raw_account_info",
+            "file": "programs/laterite/src/instructions/user.rs",
+            "line": 186,
+            "match": "AccountInfo<"
+        },
+        "4d14c217ec1ba0792b5937392e6c1daa": {
+            "rule": "sol_016_bump_field_read",
+            "file": "programs/laterite/src/instructions/user.rs",
+            "line": 221,
+            "match": ".bump,"
+        },
+        "9067efb77c63867b936218dfcacf601c": {
+            "rule": "sol_014_unchecked_arithmetic",
+            "file": "programs/laterite/src/market.rs",
+            "line": 7,
+            "match": "i64 = 60 * 60;"
+        },
+        "21e3cc5c75cb9fc20b62bc13501ca9a4": {
+            "rule": "sol_014_unchecked_arithmetic",
+            "file": "programs/laterite/src/market.rs",
+            "line": 11,
+            "match": "i64 = 16 * HOUR;"
+        },
+        "03de0e63d2677f913b80e049a75c1af1": {
+            "rule": "sol_014_unchecked_arithmetic",
+            "file": "programs/laterite/src/market.rs",
+            "line": 12,
+            "match": "i64 = 13 * HOUR;"
+        },
+        "3694378603cb13ed970c293048b83bb4": {
+            "rule": "sol_016_bump_field_read",
+            "file": "programs/laterite/src/subscription.rs",
+            "line": 24,
+            "match": ".bump)"
+        },
+        "52a922c3f53f8e59e8a14fc1210b6944": {
+            "rule": "sol_006_raw_account_info",
+            "file": "programs/laterite/src/subscription.rs",
+            "line": 67,
+            "match": "AccountInfo<"
+        },
+        "20b66d06c08f860d68bda496ae64c0fd": {
+            "rule": "sol_006_raw_account_info",
+            "file": "programs/laterite/src/subscription.rs",
+            "line": 68,
+            "match": "AccountInfo<"
+        },
+        "a361b17b5b871d28190b56f665a0e61b": {
+            "rule": "sol_016_bump_field_read",
+            "file": "programs/laterite/src/subscription.rs",
+            "line": 77,
+            "match": ".bump)"
+        },
+        "f2166e1ac7464edfe5e33dd2d733e829": {
+            "rule": "sol_009_invoke_signed",
+            "file": "programs/laterite/src/subscription.rs",
+            "line": 98,
+            "match": "invoke_signed("
+        }
+    }
+}

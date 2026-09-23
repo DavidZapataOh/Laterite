@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::{
-    errors::LateriteError, events::Enrolled, subscription, Config, EnrollParams, UserConfig, UserStatus, CONFIG_SEED,
+    errors::LateriteError, events::Enrolled, subscription, Config, EnrollParams, UserConfig, UserStatus, CONFIG,
     PAYMENT_TOKEN_COUNT, USER_CONFIG_SEED,
 };
 
@@ -12,8 +12,7 @@ pub struct Enroll<'info> {
     pub payer: Signer<'info>,
     #[account(
         mut,
-        seeds = [CONFIG_SEED],
-        bump = config.bump,
+        address = CONFIG,
         constraint = config.sponsor == payer.key() @ LateriteError::NotSponsor
     )]
     pub config: Account<'info, Config>,

@@ -21,14 +21,7 @@
                 {
                     "name": "config",
                     "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 }
             ],
             "args": []
@@ -49,14 +42,7 @@
                 },
                 {
                     "name": "config",
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 },
                 {
                     "name": "user_config",
@@ -129,17 +115,6 @@
                     ]
                 },
                 {
-                    "name": "config",
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
-                },
-                {
                     "name": "user_config",
                     "writable": true,
                     "pda": {
@@ -196,14 +171,7 @@
                 },
                 {
                     "name": "config",
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 },
                 {
                     "name": "user_config",
@@ -263,26 +231,12 @@
                 },
                 {
                     "name": "config",
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 },
                 {
                     "name": "vault",
                     "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [118, 97, 117, 108, 116]
-                            }
-                        ]
-                    }
+                    "address": "3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7"
                 },
                 {
                     "name": "plan",
@@ -334,14 +288,7 @@
                 {
                     "name": "config",
                     "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 },
                 {
                     "name": "user_config",
@@ -408,14 +355,7 @@
                 {
                     "name": "config",
                     "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 },
                 {
                     "name": "user_config",
@@ -463,11 +403,8 @@
                     }
                 },
                 {
-                    "name": "program",
-                    "address": "LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf"
-                },
-                {
-                    "name": "program_data"
+                    "name": "program_data",
+                    "address": "DPqKps8eSDrK8S86oxCFDJUvXYy3JQbihz3FbueyZPey"
                 },
                 {
                     "name": "system_program",
@@ -531,14 +468,7 @@
                 {
                     "name": "config",
                     "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 }
             ],
             "args": [
@@ -568,14 +498,7 @@
                 {
                     "name": "config",
                     "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 },
                 {
                     "name": "user_config",
@@ -621,14 +544,7 @@
                 {
                     "name": "config",
                     "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 }
             ],
             "args": [
@@ -665,14 +581,7 @@
                 {
                     "name": "config",
                     "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 }
             ],
             "args": [
@@ -737,42 +646,19 @@
                 },
                 {
                     "name": "config",
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 },
                 {
                     "name": "user_config",
-                    "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [117, 115, 101, 114]
-                            },
-                            {
-                                "kind": "account",
-                                "path": "user_config.user",
-                                "account": "UserConfig"
-                            }
-                        ]
-                    }
+                    "docs": [
+                        "The swept user's settings. Only `enroll` creates one, at its user's address, so the account type alone identifies",
+                        "it; the accounts below are checked against the user it names."
+                    ],
+                    "writable": true
                 },
                 {
                     "name": "vault",
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [118, 97, 117, 108, 116]
-                            }
-                        ]
-                    }
+                    "address": "3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7"
                 },
                 {
                     "name": "subscription",
@@ -881,14 +767,7 @@
                 {
                     "name": "config",
                     "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [99, 111, 110, 102, 105, 103]
-                            }
-                        ]
-                    }
+                    "address": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5"
                 }
             ],
             "args": [
@@ -1386,7 +1265,9 @@
         },
         {
             "name": "Config",
-            "docs": ["Global settings at `[CONFIG_SEED]`: 865 bytes with the discriminator."],
+            "docs": [
+                "Global settings at `[CONFIG_SEED]` ([`CONFIG`](crate::CONFIG)): 863 bytes with the discriminator."
+            ],
             "type": {
                 "kind": "struct",
                 "fields": [
@@ -1464,15 +1345,6 @@
                                 2
                             ]
                         }
-                    },
-                    {
-                        "name": "bump",
-                        "type": "u8"
-                    },
-                    {
-                        "name": "vault_bump",
-                        "docs": ["Bump of the vault authority at `[VAULT_SEED]`."],
-                        "type": "u8"
                     },
                     {
                         "name": "market_calendar",

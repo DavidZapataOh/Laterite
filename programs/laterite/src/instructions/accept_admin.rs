@@ -1,16 +1,11 @@
 use anchor_lang::prelude::*;
 
-use crate::{errors::LateriteError, events::AdminAccepted, Config, CONFIG_SEED};
+use crate::{errors::LateriteError, events::AdminAccepted, Config, CONFIG};
 
 #[derive(Accounts)]
 pub struct AcceptAdmin<'info> {
     pub pending_admin: Signer<'info>,
-    #[account(
-        mut,
-        seeds = [CONFIG_SEED],
-        bump = config.bump,
-        has_one = pending_admin @ LateriteError::NotPendingAdmin
-    )]
+    #[account(mut, address = CONFIG, has_one = pending_admin @ LateriteError::NotPendingAdmin)]
     pub config: Account<'info, Config>,
 }
 

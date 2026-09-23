@@ -1,0 +1,110 @@
+name: Fuzz
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      timeout:
+        description: Fuzz duration per target in seconds
+        required: false
+        default: '7200'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # A minute per target on every change: keeps the harness building and its happy paths landing.
+  fuzz-smoke:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [invariant_sweep, invariant_attest, invariant_controls, invariant_admin]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+      - uses: ./.github/actions/setup
+        with:
+          enable-rust-cache: 'false'
+          install-pnpm: 'false'
+      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2.9.2
+        with:
+          shared-key: fuzz
+          workspaces: |
+            . -> target
+            fuzz/laterite -> target
+          save-if: ${{ matrix.target == 'invariant_sweep' && github.ref == 'refs/heads/main' }}
+          cache-on-failure: true
+      - name: Build the program and the harness
+        run: just build-program && just fuzz-build ${{ matrix.target }}
+      - name: Fuzz (smoke)
+        run: just fuzz ${{ matrix.target }} 60
+      - name: Check for crashes
+        run: just fuzz-check ${{ matrix.target }}
+      - name: Upload crashes
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fuzz-smoke-crashes-${{ matrix.target }}
+          path: fuzz/laterite/crashes/
+          if-no-files-found: ignore
+
+  # Nightly deep run on every core, resuming from the corpus earlier nights found.
+  fuzz-nightly:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [invariant_sweep, invariant_attest, invariant_controls, invariant_admin]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+      - uses: ./.github/actions/setup
+        with:
+          enable-rust-cache: 'false'
+          install-pnpm: 'false'
+      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2.9.2
+        with:
+          shared-key: fuzz
+          workspaces: |
+            . -> target
+            fuzz/laterite -> target
+          save-if: false
+      - name: Restore corpus
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: fuzz/laterite/corpus-${{ matrix.target }}
+          key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
+          restore-keys: fuzz-corpus-${{ matrix.target }}-
+      - name: Build the program and the harness
+        run: just build-program && just fuzz-build ${{ matrix.target }}
+      - name: Fuzz (deep)
+        env:
+          CORPUS: fuzz/laterite/corpus-${{ matrix.target }}
+          TIMEOUT: ${{ inputs.timeout || '7200' }}
+        run: |
+          mkdir -p "$CORPUS"
+          just fuzz ${{ matrix.target }} "$TIMEOUT" -j 4 --corpus-in "$CORPUS" --corpus-out "$CORPUS"
+      - name: Upload crashes
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fuzz-nightly-crashes-${{ matrix.target }}
+          path: fuzz/laterite/crashes/
+          if-no-files-found: ignore
+      - name: Fail on crashes
+        run: just fuzz-check ${{ matrix.target }}

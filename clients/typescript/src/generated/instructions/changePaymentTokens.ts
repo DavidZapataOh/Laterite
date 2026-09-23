@@ -41,7 +41,6 @@ import {
     type ResolvedInstructionAccount,
     type ResolvedInstructionAccountMeta,
 } from '@solana/program-client-core';
-import { findConfigPda } from '../pdas';
 import { LATERITE_PROGRAM_ADDRESS } from '../programs';
 
 export const CHANGE_PAYMENT_TOKENS_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array([
@@ -59,7 +58,6 @@ export type ChangePaymentTokensInstruction<
     TAccountSubscriptionsProgram extends string | AccountMeta<string> = 'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44',
     TAccountSubscriptionsEventAuthority extends string | AccountMeta<string> =
         '3Hnj4BYoDgtpBuqXfiy7Y8cNa3jXaNd4oqgSXBzkMcH7',
-    TAccountConfig extends string | AccountMeta<string> = string,
     TAccountUserConfig extends string | AccountMeta<string> = string,
     TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -76,7 +74,6 @@ export type ChangePaymentTokensInstruction<
             TAccountSubscriptionsEventAuthority extends string
                 ? ReadonlyAccount<TAccountSubscriptionsEventAuthority>
                 : TAccountSubscriptionsEventAuthority,
-            TAccountConfig extends string ? ReadonlyAccount<TAccountConfig> : TAccountConfig,
             TAccountUserConfig extends string ? WritableAccount<TAccountUserConfig> : TAccountUserConfig,
             ...TRemainingAccounts,
         ]
@@ -110,140 +107,17 @@ export function getChangePaymentTokensInstructionDataCodec(): FixedSizeCodec<
     return combineCodec(getChangePaymentTokensInstructionDataEncoder(), getChangePaymentTokensInstructionDataDecoder());
 }
 
-export type ChangePaymentTokensAsyncInput<
-    TAccountUser extends InstructionSignerInput = InstructionSignerInput,
-    TAccountVault extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSubscriptionsProgram extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSubscriptionsEventAuthority extends InstructionAccountInput = InstructionAccountInput,
-    TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
-    TAccountUserConfig extends InstructionAccountInput = InstructionAccountInput,
-> = {
-    user: TAccountUser;
-    vault?: TAccountVault;
-    subscriptionsProgram?: TAccountSubscriptionsProgram;
-    subscriptionsEventAuthority?: TAccountSubscriptionsEventAuthority;
-    config?: TAccountConfig;
-    userConfig: TAccountUserConfig;
-    paymentTokens: ChangePaymentTokensInstructionDataArgs['paymentTokens'];
-};
-
-export async function getChangePaymentTokensInstructionAsync<
-    TAccountUser extends InstructionSignerInput,
-    TAccountVault extends InstructionAccountInput,
-    TAccountSubscriptionsProgram extends InstructionAccountInput,
-    TAccountSubscriptionsEventAuthority extends InstructionAccountInput,
-    TAccountConfig extends InstructionAccountInput,
-    TAccountUserConfig extends InstructionAccountInput,
-    TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
->(
-    input: ChangePaymentTokensAsyncInput<
-        TAccountUser,
-        TAccountVault,
-        TAccountSubscriptionsProgram,
-        TAccountSubscriptionsEventAuthority,
-        TAccountConfig,
-        TAccountUserConfig
-    >,
-    config?: { programAddress?: TProgramAddress },
-): Promise<
-    ChangePaymentTokensInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountUser, InstructionAccountInputAddress<TAccountUser>>,
-        ResolvedInstructionAccountMeta<TAccountVault, InstructionAccountInputAddress<TAccountVault>>,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsProgram,
-            InstructionAccountInputAddress<TAccountSubscriptionsProgram>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsEventAuthority,
-            InstructionAccountInputAddress<TAccountSubscriptionsEventAuthority>
-        >,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>
-    >
-> {
-    // Program address.
-    const programAddress = config?.programAddress ?? LATERITE_PROGRAM_ADDRESS;
-
-    // Account meta helper.
-    const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
-
-    // Original accounts.
-    const originalAccounts = {
-        user: { value: input.user ?? null, isSigner: true, isWritable: false },
-        vault: { value: input.vault ?? null, isSigner: false, isWritable: false },
-        subscriptionsProgram: { value: input.subscriptionsProgram ?? null, isSigner: false, isWritable: false },
-        subscriptionsEventAuthority: {
-            value: input.subscriptionsEventAuthority ?? null,
-            isSigner: false,
-            isWritable: false,
-        },
-        config: { value: input.config ?? null, isSigner: false, isWritable: false },
-        userConfig: { value: input.userConfig ?? null, isSigner: false, isWritable: true },
-    };
-    const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedInstructionAccount>;
-
-    // Original args.
-    const args = { ...input };
-
-    // Resolve default values.
-    if (!accounts.vault.value) {
-        accounts.vault.value =
-            '3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7' as Address<'3F5hEKJ6nuechsanXLQHiWvVJe1YxeekBYWkpQebhmv7'>;
-    }
-    if (!accounts.subscriptionsProgram.value) {
-        accounts.subscriptionsProgram.value =
-            'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44' as Address<'De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44'>;
-    }
-    if (!accounts.subscriptionsEventAuthority.value) {
-        accounts.subscriptionsEventAuthority.value =
-            '3Hnj4BYoDgtpBuqXfiy7Y8cNa3jXaNd4oqgSXBzkMcH7' as Address<'3Hnj4BYoDgtpBuqXfiy7Y8cNa3jXaNd4oqgSXBzkMcH7'>;
-    }
-    if (!accounts.config.value) {
-        accounts.config.value = await findConfigPda({ programAddress });
-    }
-
-    return Object.freeze({
-        accounts: [
-            getAccountMeta('user', accounts.user),
-            getAccountMeta('vault', accounts.vault),
-            getAccountMeta('subscriptionsProgram', accounts.subscriptionsProgram),
-            getAccountMeta('subscriptionsEventAuthority', accounts.subscriptionsEventAuthority),
-            getAccountMeta('config', accounts.config),
-            getAccountMeta('userConfig', accounts.userConfig),
-        ],
-        data: getChangePaymentTokensInstructionDataEncoder().encode(args as ChangePaymentTokensInstructionDataArgs),
-        programAddress,
-    } as ChangePaymentTokensInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountUser, InstructionAccountInputAddress<TAccountUser>>,
-        ResolvedInstructionAccountMeta<TAccountVault, InstructionAccountInputAddress<TAccountVault>>,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsProgram,
-            InstructionAccountInputAddress<TAccountSubscriptionsProgram>
-        >,
-        ResolvedInstructionAccountMeta<
-            TAccountSubscriptionsEventAuthority,
-            InstructionAccountInputAddress<TAccountSubscriptionsEventAuthority>
-        >,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>
-    >);
-}
-
 export type ChangePaymentTokensInput<
     TAccountUser extends InstructionSignerInput = InstructionSignerInput,
     TAccountVault extends InstructionAccountInput = InstructionAccountInput,
     TAccountSubscriptionsProgram extends InstructionAccountInput = InstructionAccountInput,
     TAccountSubscriptionsEventAuthority extends InstructionAccountInput = InstructionAccountInput,
-    TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
     TAccountUserConfig extends InstructionAccountInput = InstructionAccountInput,
 > = {
     user: TAccountUser;
     vault?: TAccountVault;
     subscriptionsProgram?: TAccountSubscriptionsProgram;
     subscriptionsEventAuthority?: TAccountSubscriptionsEventAuthority;
-    config: TAccountConfig;
     userConfig: TAccountUserConfig;
     paymentTokens: ChangePaymentTokensInstructionDataArgs['paymentTokens'];
 };
@@ -253,7 +127,6 @@ export function getChangePaymentTokensInstruction<
     TAccountVault extends InstructionAccountInput,
     TAccountSubscriptionsProgram extends InstructionAccountInput,
     TAccountSubscriptionsEventAuthority extends InstructionAccountInput,
-    TAccountConfig extends InstructionAccountInput,
     TAccountUserConfig extends InstructionAccountInput,
     TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
 >(
@@ -262,7 +135,6 @@ export function getChangePaymentTokensInstruction<
         TAccountVault,
         TAccountSubscriptionsProgram,
         TAccountSubscriptionsEventAuthority,
-        TAccountConfig,
         TAccountUserConfig
     >,
     config?: { programAddress?: TProgramAddress },
@@ -278,7 +150,6 @@ export function getChangePaymentTokensInstruction<
         TAccountSubscriptionsEventAuthority,
         InstructionAccountInputAddress<TAccountSubscriptionsEventAuthority>
     >,
-    ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
     ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>
 > {
     // Program address.
@@ -297,7 +168,6 @@ export function getChangePaymentTokensInstruction<
             isSigner: false,
             isWritable: false,
         },
-        config: { value: input.config ?? null, isSigner: false, isWritable: false },
         userConfig: { value: input.userConfig ?? null, isSigner: false, isWritable: true },
     };
     const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedInstructionAccount>;
@@ -325,7 +195,6 @@ export function getChangePaymentTokensInstruction<
             getAccountMeta('vault', accounts.vault),
             getAccountMeta('subscriptionsProgram', accounts.subscriptionsProgram),
             getAccountMeta('subscriptionsEventAuthority', accounts.subscriptionsEventAuthority),
-            getAccountMeta('config', accounts.config),
             getAccountMeta('userConfig', accounts.userConfig),
         ],
         data: getChangePaymentTokensInstructionDataEncoder().encode(args as ChangePaymentTokensInstructionDataArgs),
@@ -342,7 +211,6 @@ export function getChangePaymentTokensInstruction<
             TAccountSubscriptionsEventAuthority,
             InstructionAccountInputAddress<TAccountSubscriptionsEventAuthority>
         >,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
         ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>
     >);
 }
@@ -357,8 +225,7 @@ export type ParsedChangePaymentTokensInstruction<
         vault: TAccountMetas[1];
         subscriptionsProgram: TAccountMetas[2];
         subscriptionsEventAuthority: TAccountMetas[3];
-        config: TAccountMetas[4];
-        userConfig: TAccountMetas[5];
+        userConfig: TAccountMetas[4];
     };
     data: ChangePaymentTokensInstructionData;
 };
@@ -371,10 +238,10 @@ export function parseChangePaymentTokensInstruction<
         InstructionWithAccounts<TAccountMetas> &
         InstructionWithData<ReadonlyUint8Array>,
 ): ParsedChangePaymentTokensInstruction<TProgram, TAccountMetas> {
-    if (instruction.accounts.length < 6) {
+    if (instruction.accounts.length < 5) {
         throw new SolanaError(SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS, {
             actualAccountMetas: instruction.accounts.length,
-            expectedAccountMetas: 6,
+            expectedAccountMetas: 5,
         });
     }
     let accountIndex = 0;
@@ -390,7 +257,6 @@ export function parseChangePaymentTokensInstruction<
             vault: getNextAccount(),
             subscriptionsProgram: getNextAccount(),
             subscriptionsEventAuthority: getNextAccount(),
-            config: getNextAccount(),
             userConfig: getNextAccount(),
         },
         data: getChangePaymentTokensInstructionDataDecoder().decode(instruction.data),

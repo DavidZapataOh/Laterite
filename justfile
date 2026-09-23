@@ -107,7 +107,7 @@ dump-devnet-accounts:
     done
     echo "✓ Devnet accounts written to $dir"
 
-# Write cu_report.md with the sweep's compute units, as the CU Benchmark workflow reads it
+# Write cu_report.md with every instruction's and transaction's compute units, as the CU Benchmark workflow reads it
 test-and-benchmark: build-program
     CU_REPORT=1 cargo test -p laterite --test test_sweep cu_report
 
@@ -389,6 +389,64 @@ lint: build-program
 
 # Format and lint checks
 check: fmt-check lint-check
+
+# ============================================
+# Fuzz
+# ============================================
+
+fuzz_targets := "invariant_sweep invariant_attest invariant_controls invariant_admin"
+
+# Build one fuzz target's harness in release, as `anchor fuzz run` does; the first build compiles Crucible, LibAFL and LiteSVM
+fuzz-build target="invariant_sweep":
+    cd fuzz/laterite && RUSTUP_TOOLCHAIN=stable cargo build --release --features {{target}}
+
+# Fuzz one invariant target of fuzz/laterite (release build); extra args pass through to `anchor fuzz run`
+fuzz target="invariant_sweep" seconds="60" *args: build-program (fuzz-build target)
+    anchor fuzz run laterite {{target}} --release --timeout {{seconds}} {{args}}
+
+# Fail when a fuzz target left crashes; the fuzzer itself exits 0 on them
+fuzz-check target:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    crashes="fuzz/laterite/crashes/{{target}}"
+    # The fuzzer also keeps an empty .crash_corpus directory there, so look for crash files only
+    if [[ -d "$crashes" && -n "$(find "$crashes" -maxdepth 1 -type f -name 'crash_*')" ]]; then
+        ls -la "$crashes"
+        echo "Error: {{target}} found crashes. List them with 'anchor fuzz show laterite'."
+        exit 1
+    fi
+    echo "✓ No crashes in {{target}}"
+
+# Run every fuzz target for a minute, as CI does on each change
+fuzz-smoke: build-program
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for target in {{fuzz_targets}}; do
+        rm -rf "fuzz/laterite/crashes/$target"
+        just fuzz-build "$target"
+        anchor fuzz run laterite "$target" --release --timeout 60
+        just fuzz-check "$target"
+    done
+
+# ============================================
+# Security
+# ============================================
+
+# Check the Rust and JavaScript dependencies against their advisory databases (reviewed ignores: .cargo/audit.toml, pnpm-workspace.yaml)
+audit:
+    cargo audit
+    pnpm audit
+
+sss_version := "1.12.1"
+
+# Scan the program against the Solana Security Standard, as the Security workflow does; fails on findings not in the baseline
+scan:
+    npx -y @jelleo/solana-security-standard@{{sss_version}} scan --no-color --root . --baseline .sss-baseline.json -- {{program_dir}}/src
+
+# Rewrite the scan baseline after reviewing every finding; review its diff like code
+scan-baseline:
+    npx -y @jelleo/solana-security-standard@{{sss_version}} scan --no-color --no-fail --root . --write-baseline .sss-baseline.json -- {{program_dir}}/src >/dev/null
+    @pnpm exec prettier --write .sss-baseline.json >/dev/null
 
 # ============================================
 # Clean

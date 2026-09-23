@@ -38,7 +38,6 @@ import {
     type ResolvedInstructionAccount,
     type ResolvedInstructionAccountMeta,
 } from '@solana/program-client-core';
-import { findConfigPda } from '../pdas';
 import { LATERITE_PROGRAM_ADDRESS } from '../programs';
 
 export const ACCEPT_ADMIN_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array([112, 42, 45, 90, 116, 181, 13, 170]);
@@ -50,7 +49,7 @@ export function getAcceptAdminDiscriminatorBytes(): ReadonlyUint8Array {
 export type AcceptAdminInstruction<
     TProgram extends string = typeof LATERITE_PROGRAM_ADDRESS,
     TAccountPendingAdmin extends string | AccountMeta<string> = string,
-    TAccountConfig extends string | AccountMeta<string> = string,
+    TAccountConfig extends string | AccountMeta<string> = '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5',
     TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
     InstructionWithData<ReadonlyUint8Array> &
@@ -86,63 +85,12 @@ export function getAcceptAdminInstructionDataCodec(): FixedSizeCodec<
     return combineCodec(getAcceptAdminInstructionDataEncoder(), getAcceptAdminInstructionDataDecoder());
 }
 
-export type AcceptAdminAsyncInput<
-    TAccountPendingAdmin extends InstructionSignerInput = InstructionSignerInput,
-    TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
-> = {
-    pendingAdmin: TAccountPendingAdmin;
-    config?: TAccountConfig;
-};
-
-export async function getAcceptAdminInstructionAsync<
-    TAccountPendingAdmin extends InstructionSignerInput,
-    TAccountConfig extends InstructionAccountInput,
-    TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
->(
-    input: AcceptAdminAsyncInput<TAccountPendingAdmin, TAccountConfig>,
-    config?: { programAddress?: TProgramAddress },
-): Promise<
-    AcceptAdminInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountPendingAdmin, InstructionAccountInputAddress<TAccountPendingAdmin>>,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>
-    >
-> {
-    // Program address.
-    const programAddress = config?.programAddress ?? LATERITE_PROGRAM_ADDRESS;
-
-    // Account meta helper.
-    const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
-
-    // Original accounts.
-    const originalAccounts = {
-        pendingAdmin: { value: input.pendingAdmin ?? null, isSigner: true, isWritable: false },
-        config: { value: input.config ?? null, isSigner: false, isWritable: true },
-    };
-    const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedInstructionAccount>;
-
-    // Resolve default values.
-    if (!accounts.config.value) {
-        accounts.config.value = await findConfigPda({ programAddress });
-    }
-
-    return Object.freeze({
-        accounts: [getAccountMeta('pendingAdmin', accounts.pendingAdmin), getAccountMeta('config', accounts.config)],
-        data: getAcceptAdminInstructionDataEncoder().encode({}),
-        programAddress,
-    } as AcceptAdminInstruction<
-        TProgramAddress,
-        ResolvedInstructionAccountMeta<TAccountPendingAdmin, InstructionAccountInputAddress<TAccountPendingAdmin>>,
-        ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>
-    >);
-}
-
 export type AcceptAdminInput<
     TAccountPendingAdmin extends InstructionSignerInput = InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
 > = {
     pendingAdmin: TAccountPendingAdmin;
-    config: TAccountConfig;
+    config?: TAccountConfig;
 };
 
 export function getAcceptAdminInstruction<
@@ -169,6 +117,12 @@ export function getAcceptAdminInstruction<
         config: { value: input.config ?? null, isSigner: false, isWritable: true },
     };
     const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedInstructionAccount>;
+
+    // Resolve default values.
+    if (!accounts.config.value) {
+        accounts.config.value =
+            '58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5' as Address<'58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5'>;
+    }
 
     return Object.freeze({
         accounts: [getAccountMeta('pendingAdmin', accounts.pendingAdmin), getAccountMeta('config', accounts.config)],
