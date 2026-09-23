@@ -58,22 +58,36 @@ build-landing:
 # ============================================
 
 subscriptions_sha256 := "af3cefa5947173e03298361b3f461e2a314382a7206c084f77ad9a40c8b18d3a"
+pyth_pro_mainnet_sha256 := "3cfe21cea519b47f63196fc29f05822ec74a0ca563dfba0d51d0516eb50ce023"
+pyth_storage_mainnet_sha256 := "9317148d8a36da529f5eec39d325cd6ae2c15eb2c3e00f5d020dcf41e8544d21"
+pyth_pro_devnet_sha256 := "a23441843d485a8bbae0f0b2e561e3453691c2843b506b63f02adc1bca6fb6bb"
+pyth_storage_devnet_sha256 := "bc95799804292206529561227b9c376c6de09fd3f9d463aed94c275f30b36cbe"
 
-# Refresh the committed program fixtures from mainnet; fails when a program no longer matches its pin
+# Refresh the committed program fixtures from mainnet and devnet; fails when one no longer matches its pin
 dump-programs:
     #!/usr/bin/env bash
     set -euo pipefail
-    file=$(mktemp)
-    trap 'rm -f "$file"' EXIT
-    solana program dump -u mainnet-beta De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44 "$file" >/dev/null
-    if ! echo "{{subscriptions_sha256}}  $file" | shasum -a 256 -c --status; then
-        echo "Error: mainnet Subscriptions no longer matches the pinned hash."
-        echo "Review the upstream change, then update subscriptions_sha256 and run this again."
-        exit 1
-    fi
+    dir=$(mktemp -d)
+    trap 'rm -rf "$dir"' EXIT
+    solana program dump -u mainnet-beta De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44 "$dir/subscriptions.so" >/dev/null
+    for cluster in mainnet devnet; do
+        url=$([[ "$cluster" == mainnet ]] && echo mainnet-beta || echo devnet)
+        solana program dump -u "$url" pytd2yyk641x7ak7mkaasSJVXh6YYZnC7wTmtgAyxPt "$dir/pyth_pro_$cluster.so" >/dev/null
+        solana account -u "$url" 3rdJbqfnagQ4yx9HXJViD4zc4xpiSqmFsKpPuSCQVyQL --output-file "$dir/pyth_storage_$cluster.bin" >/dev/null
+    done
+    for pin in "{{subscriptions_sha256}} subscriptions.so" \
+        "{{pyth_pro_mainnet_sha256}} pyth_pro_mainnet.so" "{{pyth_storage_mainnet_sha256}} pyth_storage_mainnet.bin" \
+        "{{pyth_pro_devnet_sha256}} pyth_pro_devnet.so" "{{pyth_storage_devnet_sha256}} pyth_storage_devnet.bin"; do
+        set -- $pin
+        if ! echo "$1  $dir/$2" | shasum -a 256 -c --status; then
+            echo "Error: $2 no longer matches its pinned hash."
+            echo "Review the upstream change, then update its pin and run this again."
+            exit 1
+        fi
+    done
     mkdir -p "{{program_dir}}/tests/fixtures"
-    cp "$file" "{{program_dir}}/tests/fixtures/subscriptions.so"
-    echo "✓ Program fixtures match mainnet"
+    cp "$dir"/* "{{program_dir}}/tests/fixtures/"
+    echo "✓ Program fixtures match their pins"
 
 # Run every suite CI runs
 test: unit-test devnet-unit-test ui-test

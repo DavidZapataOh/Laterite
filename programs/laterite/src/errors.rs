@@ -44,4 +44,14 @@ pub enum LateriteError {
     CalendarNotAscending,
     #[msg("A market closure falls on a weekend, on both lists or outside the calendar's window")]
     ImplausibleMarketDay,
+    #[msg("The price update is malformed, or given for a token counted at one dollar")]
+    InvalidPriceUpdate,
+    #[msg("The price update has no usable price for the feed")]
+    PriceUnavailable,
+    #[msg("The price is too old")]
+    StalePrice,
+    #[msg("The price's confidence interval is too wide")]
+    PriceUncertain,
+    #[msg("The amount buys less than one raw unit of the asset")]
+    AmountTooSmall,
 }

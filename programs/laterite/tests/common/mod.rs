@@ -36,6 +36,47 @@ pub const PROGRAM: &[u8] = include_bytes!(concat!(env!("CARGO_TARGET_TMPDIR"), "
 pub const SUBSCRIPTIONS: &[u8] = include_bytes!("../fixtures/subscriptions.so");
 pub const NOW: i64 = 1_790_000_000;
 
+pub const PYTH_PRO_ID: Pubkey = anchor_lang::pubkey!("pytd2yyk641x7ak7mkaasSJVXh6YYZnC7wTmtgAyxPt");
+pub const PYTH_STORAGE_ID: Pubkey = anchor_lang::pubkey!("3rdJbqfnagQ4yx9HXJViD4zc4xpiSqmFsKpPuSCQVyQL");
+
+/// A cluster's Pyth Pro: the program binary, its storage account and the treasury that storage names.
+pub struct PythDeployment {
+    pub program: &'static [u8],
+    pub storage: &'static [u8],
+    pub treasury: Pubkey,
+}
+
+/// Mainnet's Pyth Pro, pinned by `pyth_pro_mainnet_sha256` and `pyth_storage_mainnet_sha256` in the justfile.
+pub const PYTH_MAINNET: PythDeployment = PythDeployment {
+    program: include_bytes!("../fixtures/pyth_pro_mainnet.so"),
+    storage: include_bytes!("../fixtures/pyth_storage_mainnet.bin"),
+    treasury: anchor_lang::pubkey!("Gx4MBPb1vqZLJajZmsKLg8fGw9ErhoKsR8LeKcCKFyak"),
+};
+
+/// Devnet's Pyth Pro, pinned by `pyth_pro_devnet_sha256` and `pyth_storage_devnet_sha256` in the justfile. Its
+/// storage trusts Pyth's production key next to its own.
+pub const PYTH_DEVNET: PythDeployment = PythDeployment {
+    program: include_bytes!("../fixtures/pyth_pro_devnet.so"),
+    storage: include_bytes!("../fixtures/pyth_storage_devnet.bin"),
+    treasury: anchor_lang::pubkey!("opsLibxVY7Vz5eYMmSfX8cLFCFVYTtH6fr6MiifMpA7"),
+};
+
+/// A real update signed by Pyth's production key with SPYX/USD, QQQX/USD and six other feeds, as Kamino Scope
+/// posted it in mainnet transaction
+/// d5LTmTbE5NoYog5oXNNUBRFKBLS4Zokhnzotsm7GLRq2pLcLbeGTTLmUJFWrSQAsHdcn9VkxzBLzrkp3bUnyU2C.
+pub const PYTH_SPYX_QQQX: &[u8] = include_bytes!("../fixtures/pyth_spyx_qqqx.bin");
+/// A real USDT/USD update signed by Pyth's production key, from Pyth Pro's price API at the same time as
+/// [`PYTH_SPYX_QQQX`].
+pub const PYTH_USDT: &[u8] = include_bytes!("../fixtures/pyth_usdt.bin");
+/// When both real updates were published, in seconds.
+pub const PYTH_UPDATES_AT: i64 = 1_790_043_964;
+
+const ED25519_PROGRAM: Pubkey = anchor_lang::pubkey!("Ed25519SigVerify111111111111111111111111111");
+const INSTRUCTIONS_SYSVAR: Pubkey = anchor_lang::pubkey!("Sysvar1nstructions1111111111111111111111111");
+const VERIFY_MESSAGE: [u8; 8] = [180, 193, 120, 55, 189, 135, 203, 83];
+/// Envelope bytes before the payload: magic, signature, public key, length.
+const ENVELOPE: u16 = 4 + 64 + 32 + 2;
+
 const TOKEN: Pubkey = anchor_spl::token::ID;
 const TOKEN_2022: Pubkey = anchor_spl::token_2022::ID;
 
@@ -546,4 +587,69 @@ pub fn nyse_calendar() -> (Vec<u16>, Vec<u16>, u16) {
 pub fn nyse_market_calendar() -> MarketCalendar {
     let (holidays, early_closes, valid_through) = nyse_calendar();
     MarketCalendar::new(&holidays, &early_closes, valid_through, day((2026, 1, 1)).into()).unwrap()
+}
+
+/// Loads a cluster's Pyth Pro program with its storage account and a funded treasury.
+pub fn add_pyth(svm: &mut LiteSVM, pyth: &PythDeployment) {
+    svm.add_program(PYTH_PRO_ID, pyth.program).unwrap();
+    svm.airdrop(&PYTH_STORAGE_ID, 3_542_640).unwrap();
+    let mut storage = svm.get_account(&PYTH_STORAGE_ID).unwrap();
+    storage.data = pyth.storage.to_vec();
+    storage.owner = PYTH_PRO_ID;
+    svm.set_account(PYTH_STORAGE_ID, storage).unwrap();
+    svm.airdrop(&pyth.treasury, 1_000_000_000).unwrap();
+}
+
+/// The ed25519 precompile instruction over Solana-format messages, each given with the index of the instruction
+/// whose data holds it and its offset there, the layout Pyth Pro checks. A message's position in `messages` is
+/// the `signature_index` Pyth Pro's `verify_message` takes for it.
+pub fn ed25519_ix(messages: &[(&[u8], u16, u16)]) -> Instruction {
+    let mut data = vec![messages.len() as u8, 0];
+    for &(message, instruction_index, offset) in messages {
+        let signature = offset + 4;
+        let public_key = signature + 64;
+        let payload = offset + ENVELOPE;
+        let payload_len = message.len() as u16 - ENVELOPE;
+        let offsets =
+            [signature, instruction_index, public_key, instruction_index, payload, payload_len, instruction_index];
+        data.extend(offsets.iter().flat_map(|value| value.to_le_bytes()));
+    }
+    Instruction { program_id: ED25519_PROGRAM, accounts: vec![], data }
+}
+
+/// Pyth Pro's `verify_message` for `message`, whose signature is entry `signature_index` of the ed25519
+/// instruction at `ed25519_index`. The message starts at offset 12 of this instruction's data: discriminator, then
+/// the `Vec` length.
+pub fn verify_message_ix(
+    payer: Pubkey,
+    treasury: Pubkey,
+    message: &[u8],
+    ed25519_index: u16,
+    signature_index: u8,
+) -> Instruction {
+    let mut data = VERIFY_MESSAGE.to_vec();
+    data.extend((message.len() as u32).to_le_bytes());
+    data.extend(message);
+    data.extend(ed25519_index.to_le_bytes());
+    data.push(signature_index);
+    Instruction {
+        program_id: PYTH_PRO_ID,
+        accounts: vec![
+            AccountMeta::new(payer, true),
+            AccountMeta::new_readonly(PYTH_STORAGE_ID, false),
+            AccountMeta::new(treasury, false),
+            AccountMeta::new_readonly(system_program::ID, false),
+            AccountMeta::new_readonly(INSTRUCTIONS_SYSVAR, false),
+        ],
+        data,
+    }
+}
+
+/// Replaces the envelope's signature and public key with `signer`'s over the same payload.
+pub fn signed_by(message: &[u8], signer: &Keypair) -> Vec<u8> {
+    let mut resigned = message.to_vec();
+    let signature = signer.sign_message(&message[usize::from(ENVELOPE)..]);
+    resigned[4..68].copy_from_slice(signature.as_ref());
+    resigned[68..100].copy_from_slice(signer.pubkey().as_ref());
+    resigned
 }

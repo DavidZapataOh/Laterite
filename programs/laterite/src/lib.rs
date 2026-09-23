@@ -8,6 +8,7 @@ pub mod errors;
 pub mod events;
 pub mod instructions;
 pub mod market;
+pub mod price;
 pub mod state;
 
 pub use amount::*;
@@ -15,6 +16,7 @@ pub use constants::*;
 pub use errors::LateriteError;
 pub use instructions::*;
 pub use market::*;
+pub use price::*;
 pub use state::*;
 
 declare_id!("LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf");

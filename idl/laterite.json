@@ -500,6 +500,31 @@
             "code": 6020,
             "name": "ImplausibleMarketDay",
             "msg": "A market closure falls on a weekend, on both lists or outside the calendar's window"
+        },
+        {
+            "code": 6021,
+            "name": "InvalidPriceUpdate",
+            "msg": "The price update is malformed, or given for a token counted at one dollar"
+        },
+        {
+            "code": 6022,
+            "name": "PriceUnavailable",
+            "msg": "The price update has no usable price for the feed"
+        },
+        {
+            "code": 6023,
+            "name": "StalePrice",
+            "msg": "The price is too old"
+        },
+        {
+            "code": 6024,
+            "name": "PriceUncertain",
+            "msg": "The price's confidence interval is too wide"
+        },
+        {
+            "code": 6025,
+            "name": "AmountTooSmall",
+            "msg": "The amount buys less than one raw unit of the asset"
         }
     ],
     "types": [
