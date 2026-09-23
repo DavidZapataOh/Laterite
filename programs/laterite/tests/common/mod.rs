@@ -1160,7 +1160,8 @@ impl SweepEnv {
         let message =
             v1::Message::try_compile_with_config(&self.crank.pubkey(), instructions, blockhash, config).unwrap();
         let transaction = VersionedTransaction::try_new(VersionedMessage::V1(message), &[&self.crank]).unwrap();
-        let size = transaction.message.serialize().len() + 1 + 64 * transaction.signatures.len();
+        // A version 1 transaction is its message, then its signatures with no length prefix.
+        let size = transaction.message.serialize().len() + 64 * transaction.signatures.len();
         let result = self.env.svm.send_transaction(transaction);
         self.env.svm.expire_blockhash();
         (size, result)
@@ -1432,12 +1433,16 @@ pub fn reactivate_ix(user: Pubkey, sponsor: Pubkey, params: EnrollParams) -> Ins
     Instruction { program_id: laterite::ID, accounts, data: laterite::instruction::Reactivate { params }.data() }
 }
 
-/// A return as the app sends it, sponsored like onboarding: the asset's account, then per enabled token the authority
-/// when it was revoked and the subscription, then `reactivate`.
+/// A return as the app sends it, sponsored like onboarding: the asset's account unless it exists, then per enabled
+/// token the authority when it was revoked and the subscription, then `reactivate`.
 pub fn reactivation_ixs(svm: &LiteSVM, user: Pubkey, params: &EnrollParams) -> Vec<Instruction> {
     let sponsor = sponsor().pubkey();
     let asset = valid_params().assets[usize::from(params.asset)];
-    let mut instructions = vec![create_ata_ix(sponsor, user, asset.mint, asset.token_program)];
+    let asset_account = ata(&user, &asset.mint, &asset.token_program);
+    let mut instructions = vec![];
+    if svm.get_account(&asset_account).is_none_or(|account| account.data.is_empty()) {
+        instructions.push(create_ata_ix(sponsor, user, asset.mint, asset.token_program));
+    }
     let tier = usize::from(params.tier);
     instructions
         .extend(enabled(params.payment_tokens).flat_map(|token| subscribe_ixs(svm, user, sponsor, token, tier)));

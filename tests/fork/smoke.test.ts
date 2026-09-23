@@ -1,3 +1,4 @@
+import { buildJupiterSwap } from '@laterite/client/node';
 import { TOKEN_PROGRAM_ADDRESS } from '@solana-program/token';
 import { fetchMint, TOKEN_2022_PROGRAM_ADDRESS } from '@solana-program/token-2022';
 import {
@@ -13,7 +14,6 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import { createAta, fundedSigner, fundToken, rpc, send, SPYX, syncClock, tokenBalance, USDC } from './src/fork';
-import { buildSwap } from './src/jupiter';
 
 const WEEKLY_CAP = 25_000_000n;
 
@@ -96,13 +96,15 @@ describe('mainnet fork', () => {
         expect(await tokenBalance(subscriberUsdc)).toBe(100_000_000n - WEEKLY_CAP);
 
         await syncClock();
-        const route = await buildSwap({
+        const route = await buildJupiterSwap({
             amount: WEEKLY_CAP,
+            apiKey: process.env.JUPITER_API_KEY,
             dexes: ['Raydium CLMM', 'Whirlpool'],
             inputMint: USDC,
             maxAccounts: 30,
             outputMint: SPYX,
             payer: merchant.address,
+            slippageBps: 200,
             taker: merchant.address,
         });
         await send(merchant, route.instructions, { lookupTables: route.lookupTables });

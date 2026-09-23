@@ -3,9 +3,12 @@
         "target": "ES2023",
         "module": "ESNext",
         "moduleResolution": "bundler",
+        "resolveJsonModule": true,
         "strict": true,
+        "noUncheckedIndexedAccess": true,
         "skipLibCheck": true,
+        "types": ["node"],
         "noEmit": true
     },
-    "include": ["src"]
+    "include": ["src", "test"]
 }

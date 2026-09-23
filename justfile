@@ -112,7 +112,16 @@ test-and-benchmark: build-program
     CU_REPORT=1 cargo test -p laterite --test test_sweep cu_report
 
 # Run every suite CI runs
-test: unit-test devnet-unit-test ui-test
+test: unit-test client-test devnet-unit-test ui-test
+
+# Type-check the TypeScript client and run its tests against the built program
+client-test: build-program
+    pnpm --filter @laterite/client typecheck
+    pnpm --filter @laterite/client test
+
+# Rewrite the conformance vectors the TypeScript client is tested against; review their diff like code
+vectors: build-program
+    UPDATE_VECTORS=1 cargo test -p laterite --test test_vectors
 
 # Type-check the shared UI package and run its tests
 ui-test:

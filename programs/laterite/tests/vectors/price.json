@@ -1,0 +1,8895 @@
+{
+  "minOuts": [
+    {
+      "amount": "0",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "0",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "74597430644",
+        "40282152",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "0",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "74597430644",
+        "40282152",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "5000000",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "0",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "635611"
+      }
+    },
+    {
+      "amount": "5000000",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "635393"
+      }
+    },
+    {
+      "amount": "5000000",
+      "asset": [
+        "74597430644",
+        "40282152",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "662975"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "0",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "3178060"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "3176969"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "74597430644",
+        "40282152",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "3314879"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1000000000000000000",
+        "7028",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        3
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1000000000000000000",
+        "30532893",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "3138984512954294806"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "0",
+        "7028",
+        3
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "7028",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "259850265124821"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1000000000000000000",
+        "1000000000",
+        -5
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "0",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "99972708",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1",
+        "0",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "1000000000",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "0",
+        "0",
+        0
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "18446744073709551615",
+        "7028",
+        3
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "536"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "77847155496",
+        "0",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "77847155496",
+        "7028",
+        -5
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "77847155496",
+        "0",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1",
+        "30532893",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "0",
+        "30532893",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        3
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "99972708",
+        "1000000000",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "18446744073709551615",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "77847155496",
+        "30532893",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "18446744073709551615",
+        "7028",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1000000000000000000",
+        "0",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1",
+        "1000000000",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1",
+        "7028",
+        -5
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "0",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "14084507042253"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "77847155496",
+        "7028",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "98862215737275"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        3
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "99972708",
+        "1000000000",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "77847155496",
+        "7028",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "0",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "77847155496",
+        "0",
+        -12
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "99972708",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "0",
+        "7028",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "99972708",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "3520"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1",
+        "30532893",
+        3
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "0",
+        "1000000000",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "99972708",
+        "30532893",
+        40
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "99972708",
+        "1000000000",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "77847155496",
+        "0",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "99972708",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1000000000000000000",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "0",
+        "30532893",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "99972708",
+        "0",
+        3
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "99972708",
+        "7028",
+        -12
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "30532893",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1",
+        "0",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "30532893",
+        -8
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1",
+        "0",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1",
+        "30532893",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1",
+        "0",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "597"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        -5
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "99972708",
+        "30532893",
+        40
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "30532893",
+        40
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "0",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "0",
+        "0",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "1000000000",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "99972708",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1000000000000000000",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "1000000000",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "99972708",
+        "7028",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "7028",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "0",
+        "7028",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1",
+        "7028",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "77847155496",
+        "0",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "77847155496",
+        "7028",
+        -12
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1000000000000000000",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -5
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "126"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "0",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1",
+        "0",
+        40
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        -5
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "1000000000",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "231616175854"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "30532893",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1000000000000000000",
+        "0",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "7028",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "99972708",
+        "0",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "99972708",
+        "30532893",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -5
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "7028",
+        40
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "18446744073709551615",
+        "7028",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "7028",
+        -12
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "77847155496",
+        "0",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "30532893",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1",
+        "0",
+        -12
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "7028",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "77847155496",
+        "30532893",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "18446744073709551615",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "234264970"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "77847155496",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1",
+        "0",
+        3
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "77847155496",
+        "30532893",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "76961417920593"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1000000000000000000",
+        "7028",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "18446744073709551615",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1",
+        "0",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "9890100000000000"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1000000000000000000",
+        "0",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "45654"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1",
+        "7028",
+        0
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "1000000000",
+        40
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1",
+        "30532893",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1",
+        "0",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "0",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1",
+        "0",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "0",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "18446744073709551615",
+        "7028",
+        40
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "99972708",
+        "7028",
+        40
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "77847155496",
+        "7028",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -5
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "0",
+        "7028",
+        -5
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "0",
+        "1000000000",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1",
+        "7028",
+        3
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "77847155496",
+        "30532893",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "0",
+        "30532893",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "5975200042573913203"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1",
+        "0",
+        -5
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "18446744073709551615",
+        "0",
+        40
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "0",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "18446744073709551615",
+        "7028",
+        40
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        -5
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "77847155496",
+        "0",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "0",
+        "30532893",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "30532893",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "0",
+        "1000000000",
+        -5
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "77847155496",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "99972708",
+        "7028",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1",
+        "1000000000",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "0",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "1000000000",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1",
+        "30532893",
+        -5
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "77847155496",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "30532893",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "59811810282190179"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1000000000000000000",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1000000000000000000",
+        "0",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "99972708",
+        "1000000000",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "30532893",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1000000000000000000",
+        "7028",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "0",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "77847155496",
+        "1000000000",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1000000000000000000",
+        "0",
+        3
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "77847155496",
+        "7028",
+        40
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "99972708",
+        "30532893",
+        3
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1",
+        "7028",
+        -8
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1",
+        "7028",
+        0
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "259813296812810"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1000000000000000000",
+        "7028",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "98"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        40
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "99972708",
+        "7028",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1",
+        "30532893",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "0",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "99972708",
+        "30532893",
+        -5
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1",
+        "0",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "19267169245830"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "0",
+        "7028",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "77847155496",
+        "30532893",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "1000000000",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "0",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "18446744073709551615",
+        "7028",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1000000000000000000",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1",
+        "0",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "0",
+        "0",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1",
+        "0",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "7028",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "77847155496",
+        "0",
+        3
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "0",
+        "1000000000",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1",
+        "1000000000",
+        -8
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1000000000000000000",
+        "30532893",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "988"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1",
+        "0",
+        -8
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "0",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "77847155496",
+        "1000000000",
+        40
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "964888123895598"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "0",
+        "0",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1000000000000000000",
+        "0",
+        40
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "0",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1000000000000000000",
+        "7028",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "30532893",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1",
+        "0",
+        -5
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "9897298092"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "99972708",
+        "30532893",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "99972708",
+        "7028",
+        -5
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        40
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "99972708",
+        "7028",
+        3
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "30532893",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "0",
+        "7028",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1",
+        "0",
+        3
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "7028",
+        40
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1000000000000000000",
+        "7028",
+        3
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "99972708",
+        "0",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        -8
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "0",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "536533604654151"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1000000000000000000",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "12555938052200548"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        -5
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "0",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "99972708",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "30532893",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1",
+        "0",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "1826227663297245"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "77847155496",
+        "0",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "0",
+        "0",
+        40
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1000000000000000000",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "30532893",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        3
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "99972708",
+        "0",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "133"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "77847155496",
+        "0",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "99972708",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1000000000000000000",
+        "0",
+        40
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        40
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "99972708",
+        "0",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "0",
+        "7028",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "0",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1",
+        "0",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "77847155496",
+        "30532893",
+        0
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1000000000000000000",
+        "7028",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "3368795432517266"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1",
+        "30532893",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "1000000000",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "99972708",
+        "7028",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1000000000000000000",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "99972708",
+        "30532893",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "77847155496",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        3
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "99972708",
+        "1000000000",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "18446744073709551615",
+        "7028",
+        3
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1000000000000000000",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "0",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "1000000000",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "0",
+        "1000000000",
+        40
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "0",
+        "30532893",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "0",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "99972708",
+        "30532893",
+        -5
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "1000000000",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "18446744073709551615",
+        "7028",
+        3
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "77847155496",
+        "0",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "77847155496",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "990000000"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1000000000000000000",
+        "0",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "0",
+        "1000000000",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "99972708",
+        "0",
+        -8
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        -12
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "456681"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1000000000000000000",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "77847155496",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "77847155496",
+        "0",
+        3
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "30532893",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "220770"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1",
+        "7028",
+        0
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        3
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1",
+        "7028",
+        -5
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "30532893",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "1000000000",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "99972708",
+        "1000000000",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "18446744073709551615",
+        "30532893",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "18446744073709551615",
+        "7028",
+        3
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "0",
+        "7028",
+        -8
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        -5
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "0",
+        "30532893",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1000000000000000000",
+        "7028",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1000000000000000000",
+        "0",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "99972708",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "1",
+        "7028",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "0",
+        "0",
+        0
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "99972708",
+        "0",
+        3
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "1000000000",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "99972708",
+        "0",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "0",
+        "30532893",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "30532893",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1",
+        "0",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "18446744073709551615",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1",
+        "1000000000",
+        -8
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "99972708",
+        "0",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "99972708",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1000000000000000000",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1",
+        "0",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "18446744073709551615",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1",
+        "7028",
+        3
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "978025563380"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "77847155496",
+        "0",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1000000000000000000",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1",
+        "30532893",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -5
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "317"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1000000000000000000",
+        "1000000000",
+        -5
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "77847155496",
+        "7028",
+        -8
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1000000000000000000",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "77847155496",
+        "1000000000",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "964888123"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "77847155496",
+        "0",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1000000000000000000",
+        "30532893",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "77847155496",
+        "0",
+        3
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "77847155496",
+        "0",
+        -5
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "18262276632971"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "0",
+        "0",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "18446744073709551615",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "7028",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "99972708",
+        "0",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1000000000000000000",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "77847155496",
+        "30532893",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1000000000000000000",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "99972708",
+        "0",
+        0
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "77847155496",
+        "0",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "989611706"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1",
+        "0",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "77847155496",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "77847155496",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "77847155496",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "98961185848352"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "77847155496",
+        "7028",
+        0
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "99972708",
+        "0",
+        -5
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1000000000000000000",
+        "30532893",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1000000000000000000",
+        "0",
+        -5
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "99972708",
+        "7028",
+        0
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "1826597804"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "1000000000000000000",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "0",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "0"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1000000000000000000",
+        "7028",
+        3
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "77847155496",
+        "30532893",
+        40
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "30532893",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "0",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "77847155496",
+        "1000000000",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "76078"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "0",
+        "0",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "0",
+        "7028",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "99972708",
+        "1000000000",
+        -12
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "99972708",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "22492"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "0",
+        "30532893",
+        3
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "1000000000",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1000000000000000000",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1000000000000000000",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "0",
+        "7028",
+        -5
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "99972708",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "1406759492"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "0",
+      "asset": [
+        "0",
+        "0",
+        -12
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "99972708",
+        "30532893",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "18446744073709551615",
+        "7028",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "0",
+        "7028",
+        -5
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1000000000000000000",
+        "0",
+        40
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "0",
+        "1000000000",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "1000000000000000000",
+        "7028",
+        0
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "0",
+        "0",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1",
+        "30532893",
+        -12
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "7028",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "77847155496",
+        "7028",
+        40
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1",
+        "30532893",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1000000000000000000",
+        "30532893",
+        -5
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "99972708",
+        "0",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "989"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "0",
+        "0",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1000000000000000000",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1",
+        "30532893",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "1000000000000000000",
+        "0",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "99972708",
+        "7028",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "77847155496",
+        "30532893",
+        -12
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "1926351765345979709"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1000000000000000000",
+        "7028",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "18446744073709551615",
+        "30532893",
+        -12
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "99972708",
+        "1000000000",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "77847155496",
+        "0",
+        -5
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "77847155496",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "value": "976305489556444768"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        3
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1",
+        "7028",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1000000000000000000",
+        "7028",
+        -8
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1000000000000000000",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "8"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "99972708",
+        "7028",
+        -5
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "0",
+        0
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "0",
+        "0",
+        -12
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "18446744073709551615",
+        "1000000000",
+        -8
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1000000000000000000",
+        "0",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "value": "5366800753"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "0",
+        "1000000000",
+        40
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "0",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "99972708",
+        "7028",
+        -8
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "0",
+        3
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "99972708",
+        "30532893",
+        -12
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "7028",
+        0
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1",
+        "7028",
+        -12
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "18446744073709551615",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "value": "25955348350192"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "0",
+        "1000000000",
+        -5
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "0",
+        "0",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "1",
+        "0",
+        -5
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "18446744073709551615",
+        "7028",
+        3
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "1000000000000000000",
+        "0",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "77847155496",
+        "7028",
+        -5
+      ],
+      "paymentDecimals": 0,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1000000",
+      "asset": [
+        "0",
+        "7028",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "99972708",
+        "1000000000",
+        -8
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "99972708",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 18,
+      "payment": [
+        "99972708",
+        "1000000000",
+        40
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "18446744073709551615",
+      "asset": [
+        "77847155496",
+        "1000000000",
+        0
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1000000000000000000",
+        "0",
+        0
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "25000000",
+      "asset": [
+        "18446744073709551615",
+        "0",
+        0
+      ],
+      "assetDecimals": 0,
+      "payment": [
+        "1000000000000000000",
+        "30532893",
+        3
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "AmountTooSmall"
+      }
+    },
+    {
+      "amount": "1",
+      "asset": [
+        "1",
+        "7028",
+        40
+      ],
+      "assetDecimals": 8,
+      "payment": [
+        "1000000000000000000",
+        "7028",
+        -8
+      ],
+      "paymentDecimals": 9,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "amount": "999",
+      "asset": [
+        "0",
+        "0",
+        40
+      ],
+      "assetDecimals": 6,
+      "payment": [
+        "1",
+        "0",
+        -12
+      ],
+      "paymentDecimals": 6,
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    }
+  ],
+  "quotes": [
+    {
+      "feedId": 0,
+      "now": "1790043963",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 0,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 0,
+      "now": "1790044024",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 0,
+      "now": "1790044025",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043963",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790044024",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790044025",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043963",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790044024",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790044025",
+      "result": {
+        "error": "StalePrice"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043963",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790044024",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790044025",
+      "result": {
+        "error": "StalePrice"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 2419,
+      "now": "1790043963",
+      "result": {
+        "error": "StalePrice"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 2419,
+      "now": "1790043964",
+      "result": {
+        "error": "StalePrice"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 2419,
+      "now": "1790044024",
+      "result": {
+        "error": "StalePrice"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 2419,
+      "now": "1790044025",
+      "result": {
+        "error": "StalePrice"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 0,
+      "now": "1790043964",
+      "result": {
+        "confidence": "0",
+        "exponent": 0,
+        "price": "1"
+      },
+      "update": "empty"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "empty"
+    },
+    {
+      "cut": 0,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 7,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 14,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 21,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 28,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 35,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 42,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 49,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 56,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 63,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 70,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 77,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 84,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 91,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 98,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 105,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 112,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 119,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 126,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 133,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 140,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 147,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 154,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 161,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 168,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 175,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 182,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 189,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 196,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 203,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 210,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 217,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 224,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 231,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 238,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 245,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 252,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 259,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 266,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 273,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 280,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 287,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 294,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 301,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 308,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 315,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 322,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 329,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 336,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 343,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 350,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 357,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 364,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 371,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 378,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 385,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 392,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 399,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 406,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 413,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 420,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 427,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 434,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 441,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 448,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 455,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 462,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 469,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 476,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 483,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 490,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 497,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 504,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 511,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 518,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 525,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 532,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 539,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "cut": 546,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        0,
+        125
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        2,
+        28
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        4,
+        228
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        6,
+        2
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        8,
+        30
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        10,
+        63
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        12,
+        117
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        14,
+        19
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        16,
+        74
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        18,
+        24
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        20,
+        200
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        22,
+        33
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        24,
+        122
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        26,
+        191
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        28,
+        83
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        30,
+        95
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        32,
+        144
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        34,
+        196
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        36,
+        223
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        38,
+        206
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        40,
+        34
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        42,
+        236
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        44,
+        26
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        46,
+        255
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        48,
+        23
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        50,
+        120
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        52,
+        41
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        54,
+        74
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        56,
+        41
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        58,
+        188
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        60,
+        226
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        62,
+        34
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        64,
+        36
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        66,
+        97
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        68,
+        91
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        70,
+        81
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        72,
+        193
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        74,
+        29
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        76,
+        163
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        78,
+        88
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        80,
+        7
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        82,
+        37
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        84,
+        244
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        86,
+        26
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        88,
+        118
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        90,
+        33
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        92,
+        126
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        94,
+        146
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        96,
+        239
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        98,
+        106
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        100,
+        76
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        102,
+        145
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        104,
+        82
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        106,
+        11
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        108,
+        123
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        110,
+        229
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        112,
+        250
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        114,
+        157
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        116,
+        146
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        118,
+        135
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        120,
+        133
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        122,
+        118
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        124,
+        35
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        126,
+        202
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        128,
+        239
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        130,
+        167
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        132,
+        98
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        134,
+        235
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        136,
+        9
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        138,
+        135
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        140,
+        35
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        142,
+        255
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        144,
+        31
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        146,
+        23
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        148,
+        111
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        150,
+        13
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        152,
+        86
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        154,
+        91
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        156,
+        165
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        158,
+        12
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        160,
+        134
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        162,
+        166
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        164,
+        229
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        166,
+        36
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        168,
+        9
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        170,
+        2
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        172,
+        144
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        174,
+        38
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        176,
+        185
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        178,
+        254
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        180,
+        25
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        182,
+        67
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        184,
+        72
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        186,
+        166
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        188,
+        145
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        190,
+        56
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        192,
+        99
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        194,
+        44
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        196,
+        26
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        198,
+        97
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        200,
+        18
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        202,
+        36
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        204,
+        217
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        206,
+        133
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        208,
+        131
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        210,
+        155
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        212,
+        88
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        214,
+        46
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        216,
+        131
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        218,
+        42
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        220,
+        225
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        222,
+        226
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        224,
+        65
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        226,
+        226
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        228,
+        207
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155558"
+      },
+      "set": [
+        230,
+        102
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        232,
+        172
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "614718067496"
+      },
+      "set": [
+        234,
+        143
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "5911052358079272"
+      },
+      "set": [
+        236,
+        21
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        238,
+        199
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        240,
+        39
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        242,
+        151
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        244,
+        178
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        246,
+        251
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        248,
+        129
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        250,
+        148
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      },
+      "set": [
+        252,
+        118
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "confidence": "40282152",
+        "exponent": -8,
+        "price": "74597430644"
+      },
+      "set": [
+        254,
+        161
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        256,
+        206
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -32520,
+        "price": "77847155496"
+      },
+      "set": [
+        258,
+        128
+      ],
+      "update": "spyx_qqqx"
+    },
+    {
+      "feedId": 0,
+      "now": "1790043963",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 0,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 0,
+      "now": "1790044024",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 0,
+      "now": "1790044025",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043963",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790044024",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790044025",
+      "result": {
+        "error": "StalePrice"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043963",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790044024",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790044025",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043963",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790044024",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790044025",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 2419,
+      "now": "1790043963",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 2419,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 2419,
+      "now": "1790044024",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 2419,
+      "now": "1790044025",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 0,
+      "now": "1790043964",
+      "result": {
+        "confidence": "0",
+        "exponent": 0,
+        "price": "1"
+      },
+      "update": "empty"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "empty"
+    },
+    {
+      "cut": 0,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 7,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 14,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 21,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 28,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 35,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 42,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 49,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 56,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 63,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 70,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 77,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 84,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 91,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 98,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 105,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 112,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 119,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 126,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 133,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 140,
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "cut": 147,
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        0,
+        76
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        2,
+        197
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        4,
+        152
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        6,
+        159
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        8,
+        197
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        10,
+        87
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        12,
+        231
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        14,
+        70
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        16,
+        234
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        18,
+        69
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        20,
+        185
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        22,
+        75
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        24,
+        109
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        26,
+        180
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        28,
+        45
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        30,
+        77
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        32,
+        240
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        34,
+        250
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        36,
+        156
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        38,
+        11
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        40,
+        145
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        42,
+        101
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        44,
+        221
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        46,
+        228
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        48,
+        160
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        50,
+        67
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        52,
+        211
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        54,
+        161
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        56,
+        226
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        58,
+        225
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        60,
+        236
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        62,
+        98
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        64,
+        118
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        66,
+        20
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        68,
+        218
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        70,
+        51
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        72,
+        23
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        74,
+        27
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        76,
+        234
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        78,
+        186
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        80,
+        207
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        82,
+        107
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        84,
+        179
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        86,
+        21
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        88,
+        92
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        90,
+        17
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        92,
+        84
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        94,
+        25
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        96,
+        156
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        98,
+        240
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        100,
+        185
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        102,
+        19
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        104,
+        75
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        106,
+        48
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        108,
+        220
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        110,
+        216
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        112,
+        232
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        114,
+        207
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        116,
+        224
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        118,
+        87
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        120,
+        79
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972636"
+      },
+      "set": [
+        122,
+        28
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "93943396"
+      },
+      "set": [
+        124,
+        153
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        126,
+        145
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        128,
+        176
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        130,
+        209
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        132,
+        176
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        134,
+        229
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        136,
+        144
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUncertain"
+      },
+      "set": [
+        138,
+        19
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        140,
+        216
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      },
+      "set": [
+        142,
+        46
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      },
+      "set": [
+        144,
+        192
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        146,
+        255
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1843,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        148,
+        62
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 1837,
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      },
+      "set": [
+        150,
+        113
+      ],
+      "update": "usdt"
+    },
+    {
+      "feedId": 8,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d60075d3c79300479b16095c06000302080000000d006476f50500000000016376f50500000000026576f5050000000003070004f8ff05741b00000000000006010c0000000000000007000801100e0000000000000901000a6476f505000000000b741b0000000000000c0100479b16095c0600330700000d0028530d20120000000127530d20120000000229530d201200000003070004f8ff051de5d1010000000006010c0000000000000007000801100e0000000000000901000a28530d20120000000b1de5d101000000000c0100479b16095c0600",
+      "name": "every property",
+      "now": "1790043964",
+      "result": {
+        "confidence": "7028",
+        "exponent": -8,
+        "price": "99972708"
+      }
+    },
+    {
+      "feedId": 1843,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d60075d3c79300479b16095c06000302080000000d006476f50500000000016376f50500000000026576f5050000000003070004f8ff05741b00000000000006010c0000000000000007000801100e0000000000000901000a6476f505000000000b741b0000000000000c0100479b16095c0600330700000d0028530d20120000000127530d20120000000229530d201200000003070004f8ff051de5d1010000000006010c0000000000000007000801100e0000000000000901000a28530d20120000000b1de5d101000000000c0100479b16095c0600",
+      "name": "every property",
+      "now": "1790043964",
+      "result": {
+        "confidence": "30532893",
+        "exponent": -8,
+        "price": "77847155496"
+      }
+    },
+    {
+      "feedId": 8,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000740075d3c79300479b16095c06000301330700000e0028530d20120000000127530d20120000000229530d201200000003070004f8ff051de5d1010000000006010c0000000000000007000801100e0000000000000901000a28530d20120000000b1de5d101000000000c0100479b16095c06000d00",
+      "name": "an unknown property",
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "feedId": 1843,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000740075d3c79300479b16095c06000301330700000e0028530d20120000000127530d20120000000229530d201200000003070004f8ff051de5d1010000000006010c0000000000000007000801100e0000000000000901000a28530d20120000000b1de5d101000000000c0100479b16095c06000d00",
+      "name": "an unknown property",
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "feedId": 8,
+      "message": "b9011a820000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006a0075d3c79300479b16095c06000301330700000d0028530d20120000000127530d20120000000229530d201200000003070004f8ff051de5d10100000000060207000801100e0000000000000901000a28530d20120000000b1de5d101000000000c0100479b16095c0600",
+      "name": "a presence flag of 2",
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "feedId": 1843,
+      "message": "b9011a820000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006a0075d3c79300479b16095c06000301330700000d0028530d20120000000127530d20120000000229530d201200000003070004f8ff051de5d10100000000060207000801100e0000000000000901000a28530d20120000000b1de5d101000000000c0100479b16095c0600",
+      "name": "a presence flag of 2",
+      "now": "1790043964",
+      "result": {
+        "error": "InvalidPriceUpdate"
+      }
+    },
+    {
+      "feedId": 8,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000720075d3c79300479b16095c06000301330700000d0000000000000000000127530d20120000000229530d201200000003070004f8ff051de5d1010000000006010c0000000000000007000801100e0000000000000901000a28530d20120000000b1de5d101000000000c0100479b16095c0600",
+      "name": "a price of 0",
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      }
+    },
+    {
+      "feedId": 1843,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000720075d3c79300479b16095c06000301330700000d0000000000000000000127530d20120000000229530d201200000003070004f8ff051de5d1010000000006010c0000000000000007000801100e0000000000000901000a28530d20120000000b1de5d101000000000c0100479b16095c0600",
+      "name": "a price of 0",
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      }
+    },
+    {
+      "feedId": 8,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000720075d3c79300479b16095c06000301330700000d00fbffffffffffffff01faffffffffffffff02fcffffffffffffff03070004f8ff05010000000000000006010c0000000000000007000801100e0000000000000901000afbffffffffffffff0b01000000000000000c0100479b16095c0600",
+      "name": "a negative price",
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      }
+    },
+    {
+      "feedId": 1843,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000720075d3c79300479b16095c06000301330700000d00fbffffffffffffff01faffffffffffffff02fcffffffffffffff03070004f8ff05010000000000000006010c0000000000000007000801100e0000000000000901000afbffffffffffffff0b01000000000000000c0100479b16095c0600",
+      "name": "a negative price",
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      }
+    },
+    {
+      "feedId": 8,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000720075d3c79300479b16095c06000301330700000d0028530d20120000000127530d20120000000229530d201200000003070004f8ff05000000000000000006010c0000000000000007000801100e0000000000000901000a28530d20120000000b00000000000000000c0100479b16095c0600",
+      "name": "a confidence of 0",
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      }
+    },
+    {
+      "feedId": 1843,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000720075d3c79300479b16095c06000301330700000d0028530d20120000000127530d20120000000229530d201200000003070004f8ff05000000000000000006010c0000000000000007000801100e0000000000000901000a28530d20120000000b00000000000000000c0100479b16095c0600",
+      "name": "a confidence of 0",
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      }
+    },
+    {
+      "feedId": 8,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000720075d3c79300479b16095c06000301330700000d0040420f0000000000013f420f00000000000241420f000000000003070004f8ff05891300000000000006010c0000000000000007000801100e0000000000000901000a40420f00000000000b89130000000000000c0100479b16095c0600",
+      "name": "a wide confidence",
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUnavailable"
+      }
+    },
+    {
+      "feedId": 1843,
+      "message": "b9011a82000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000720075d3c79300479b16095c06000301330700000d0040420f0000000000013f420f00000000000241420f000000000003070004f8ff05891300000000000006010c0000000000000007000801100e0000000000000901000a40420f00000000000b89130000000000000c0100479b16095c0600",
+      "name": "a wide confidence",
+      "now": "1790043964",
+      "result": {
+        "error": "PriceUncertain"
+      }
+    }
+  ]
+}

@@ -14,16 +14,16 @@
 | set_user_paused (pause) | 4680 | 310 |
 | set_user_paused (resume) | 4852 | 310 |
 | lower_pending | 4681 | 317 |
-| sweep (USDC, CPMM) | 78913 | 1794 |
-| sweep (USDT, CPMM) | 101777 | 1960 |
+| sweep (USDC, CPMM) | 78913 | 1793 |
+| sweep (USDT, CPMM) | 101777 | 1959 |
 | change_tier | 23981 | 774 |
 | change_payment_tokens (drop USDT) | 12170 | 500 |
 | change_payment_tokens (add USDT) | 7853 | 579 |
 | exit | 21691 | 619 |
-| reactivate | 12777 | 920 |
+| reactivate | 12777 | 844 |
 | onboarding (ATA, two authorities and subscriptions, enroll) | 67078 | 921 |
 | change_tier (both tokens, with subscribe and close) | 38233 | 774 |
 | change_payment_tokens (drop USDT, with close and revoke) | 20709 | 500 |
 | change_payment_tokens (add USDT, with authority and subscribe) | 26892 | 579 |
 | exit (both tokens, with close and revoke) | 37269 | 619 |
-| reactivate (both tokens, with authorities and subscribe) | 58309 | 920 |
+| reactivate (both tokens, with authorities and subscribe) | 49355 | 844 |

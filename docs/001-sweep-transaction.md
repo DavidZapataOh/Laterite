@@ -52,12 +52,12 @@ These numbers are the baseline. The program's CU benchmark in CI supersedes them
 
 Attestations became their own instruction and transaction, so the sweep carries no dedupe account and no attestation signature. It carries one ed25519 instruction with one signature entry per price update: the asset's (SPYX/USD or QQQX/USD), and for USDT a second, separate USDT/USD update, each verified by its own Pyth Pro `verify_message` call. USDC counts at one dollar and carries no second update. The 8 reserved accounts are Pyth Pro's program, storage and treasury, the instructions sysvar, the system program, the config, the user's settings and the event authority of the sweep's self-CPI event.
 
-Measured through our devnet CPMM, which exercises the same instruction as mainnet with a 13-account route, against devnet's Pyth Pro, with the relayed 548-byte asset update and a 152-byte USDT update:
+Measured through our devnet CPMM (sizes as the wire carries them: a version 1 transaction is its message, then its signatures with no length prefix), which exercises the same instruction as mainnet with a 13-account route, against devnet's Pyth Pro, with the relayed 548-byte asset update and a 152-byte USDT update:
 
 | Payment token | Updates     | Size    | Accounts | CU (total) | Pyth Pro        | Subscriptions | CPMM   | Event | Laterite | Fees (lamports) |
 | ------------- | ----------- | ------- | -------- | ---------- | --------------- | ------------- | ------ | ----- | -------- | --------------- |
-| USDC          | 548 B       | 1,794 B | 32       | 78,913     | 18,500          | 5,919         | 26,525 | 419   | 27,550   | 10,001          |
-| USDT          | 548 + 152 B | 1,960 B | 32       | 101,777    | 18,557 + 18,579 | 7,419         | 26,525 | 419   | 30,278   | 15,002          |
+| USDC          | 548 B       | 1,793 B | 32       | 78,913     | 18,500          | 5,919         | 26,525 | 419   | 27,550   | 10,001          |
+| USDT          | 548 + 152 B | 1,959 B | 32       | 101,777    | 18,557 + 18,579 | 7,419         | 26,525 | 419   | 30,278   | 15,002          |
 
 - A USDT sweep costs 166 bytes (its update and a 14-byte signature entry), about 23,000 compute units (a second Pyth Pro call and USDT's own price) and 5,001 lamports (a second precompile signature and Pyth Pro's fee) more than a USDC sweep.
 - The asset update's size is set by Kamino Scope's feed list (eight feeds today), a third party's choice; a single-feed update would be 152 bytes. Even a USDC sweep through the shortest route is past v0's 1,232 bytes without a lookup table.
@@ -65,7 +65,7 @@ Measured through our devnet CPMM, which exercises the same instruction as mainne
 - Separating the swap authority from the plan owner costs one account: 33 bytes (its address and its index in the sweep) and, like every account the sweep carries, about 210 compute units in each Pyth Pro call.
 - Checking the swap authority's token accounts before and after the route costs 950 compute units on the CPMM route, about 75 more per further writable token account in the route and about 280 per further swap-authority account.
 - The config the sweep loads is 863 bytes, 402 of them the NYSE calendar and the cluster's genesis hash; the loaded-accounts data a v1 sweep must budget is dominated by the program binaries it invokes, so the crank sets that limit from simulation.
-- Worst case at `maxAccounts` 40, estimated from the USDT row above and the USDT fork rows (the fork suite measures it): 59 of 64 accounts (the fork's 58, the reserve's 8 now named, plus the swap authority); 2,900–3,050 of 4,096 bytes, that is 1,960 bytes, plus about 27 more accounts than the CPMM route at 33 bytes each (32 for the address, 1 for its index in the sweep), about 890, plus Jupiter's route data in place of the CPMM's 24 bytes, 50 to 200 more; about 238,000 compute units.
+- Worst case at `maxAccounts` 40, estimated from the USDT row above and the USDT fork rows (the fork suite measures it): 59 of 64 accounts (the fork's 58, the reserve's 8 now named, plus the swap authority); 2,900–3,050 of 4,096 bytes, that is 1,959 bytes, plus about 27 more accounts than the CPMM route at 33 bytes each (32 for the address, 1 for its index in the sweep), about 890, plus Jupiter's route data in place of the CPMM's 24 bytes, 50 to 200 more; about 238,000 compute units.
 - Logs: 3.1–3.7 KB through the CPMM. Classic-pool Jupiter routes for SPYx logged up to 5.8 KB on mainnet, and longer routes up to 7.2 KB, so a sweep can approach the 10,000-byte truncation limit; the event is emitted by self-CPI, which truncation cannot drop.
 
 ## Consequences

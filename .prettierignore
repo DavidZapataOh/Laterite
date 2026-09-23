@@ -12,3 +12,4 @@ apps/landing/.impeccable/
 apps/landing/*.md
 cu_baseline.md
 cu_report.md
+programs/laterite/tests/vectors/

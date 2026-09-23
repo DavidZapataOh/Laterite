@@ -1,5 +1,6 @@
 import {
     type Address,
+    createNoopSigner,
     Endian,
     getAddressEncoder,
     getProgramDerivedAddress,
@@ -109,4 +110,42 @@ export async function swapInstruction(p: {
             poolState: p.pool.address,
         }),
     ];
+}
+
+/**
+ * A buy of `pool`'s base with exactly `amountIn` of its quote, from `authority`'s associated account into
+ * `destination`, with no minimum of its own: the route a caller signs for by program, as the Laterite sweep does
+ * through its swap authority.
+ */
+export async function routeInstruction(p: {
+    pool: PoolInfo;
+    tokens: Record<TokenSymbol, TokenInfo>;
+    ammConfig: Address;
+    authority: Address;
+    destination: Address;
+    amountIn: bigint;
+}): Promise<Instruction> {
+    const [input, output] = [p.tokens[p.pool.quote], p.tokens[p.pool.base]];
+    const vault = (token: TokenInfo) => (token.mint === p.pool.token0Mint ? p.pool.token0Vault : p.pool.token1Vault);
+    const [inputTokenAccount] = await findAssociatedTokenPda({
+        mint: input.mint,
+        owner: p.authority,
+        tokenProgram: input.tokenProgram,
+    });
+    return getSwapBaseInputInstructionAsync({
+        amountIn: p.amountIn,
+        ammConfig: p.ammConfig,
+        inputTokenAccount,
+        inputTokenMint: input.mint,
+        inputTokenProgram: input.tokenProgram,
+        inputVault: vault(input),
+        minimumAmountOut: 0n,
+        observationState: p.pool.observation,
+        outputTokenAccount: p.destination,
+        outputTokenMint: output.mint,
+        outputTokenProgram: output.tokenProgram,
+        outputVault: vault(output),
+        payer: createNoopSigner(p.authority),
+        poolState: p.pool.address,
+    });
 }

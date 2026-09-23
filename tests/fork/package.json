@@ -7,6 +7,7 @@
         "typecheck": "tsc --noEmit"
     },
     "devDependencies": {
+        "@laterite/client": "workspace:*",
         "@solana-program/token": "0.17.0",
         "@solana-program/token-2022": "0.19.0",
         "@solana/kit": "8.3.0",
