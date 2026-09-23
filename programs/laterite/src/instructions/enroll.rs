@@ -1,9 +1,8 @@
 use anchor_lang::prelude::*;
-use subscriptions::{SubscriptionDelegation, SUBSCRIPTIONS_ID};
 
 use crate::{
-    errors::LateriteError, events::Enrolled, Config, EnrollParams, UserConfig, UserStatus, CONFIG_SEED,
-    PAYMENT_TOKEN_COUNT, PLANS, USER_CONFIG_SEED,
+    errors::LateriteError, events::Enrolled, subscription, Config, EnrollParams, UserConfig, UserStatus, CONFIG_SEED,
+    PAYMENT_TOKEN_COUNT, USER_CONFIG_SEED,
 };
 
 #[derive(Accounts)]
@@ -34,18 +33,11 @@ impl Enroll<'_> {
         require!(!self.config.paused, LateriteError::ProgramPaused);
         require_gt!(self.config.max_users, self.config.user_count, LateriteError::BetaFull);
         params.validate(&self.config)?;
-
-        let mut accounts = subscriptions.iter();
-        for payment_token in (0..PAYMENT_TOKEN_COUNT).filter(|i| params.payment_tokens & (1 << i) != 0) {
-            let account = accounts.next().ok_or(LateriteError::SubscriptionMismatch)?;
-            let plan = PLANS[payment_token][params.tier as usize];
-            require!(is_subscription(account, plan, self.user.key()), LateriteError::SubscriptionMismatch);
-        }
+        subscription::require_live(subscriptions, params.payment_tokens, params.tier, self.user.key())?;
 
         let now = Clock::get()?.unix_timestamp;
         self.user_config.set_inner(UserConfig {
             user: self.user.key(),
-            payer: self.payer.key(),
             tier: params.tier,
             payment_tokens: params.payment_tokens,
             asset: params.asset,
@@ -76,21 +68,4 @@ impl Enroll<'_> {
         });
         Ok(())
     }
-}
-
-/// The account is `user`'s live subscription to `plan`: owned by Subscriptions, at the address its stored bump
-/// derives, and not yet cancelled.
-fn is_subscription(account: &AccountInfo, plan: Pubkey, user: Pubkey) -> bool {
-    if *account.owner != SUBSCRIPTIONS_ID {
-        return false;
-    }
-    let Ok(data) = account.try_borrow_data() else {
-        return false;
-    };
-    let Ok(subscription) = SubscriptionDelegation::from_bytes(&data) else {
-        return false;
-    };
-    subscription.expires_at_ts == 0
-        && SubscriptionDelegation::create_pda(plan, user, subscription.header.bump)
-            .is_ok_and(|address| address == *account.key)
 }

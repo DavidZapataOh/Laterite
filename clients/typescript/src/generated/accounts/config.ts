@@ -70,7 +70,7 @@ export type Config = {
     admin: Address;
     /** Set by `propose_admin`; `Pubkey::default()` when no handover is pending. */
     pendingAdmin: Address;
-    /** Kill switch: when set, enrollment and sweeps stop. */
+    /** Kill switch: when set, enrollment, reactivation and sweeps stop; the users' own controls keep working. */
     paused: boolean;
     /** The only program the sweep may swap through. Set once by `initialize`. */
     router: Address;
@@ -80,7 +80,7 @@ export type Config = {
     sponsor: Address;
     /** Beta cap per user and week, in USD with 6 decimals. */
     userWeeklyCap: bigint;
-    /** Beta cap on enrolled users; `user_count` is kept by enrollment and exit. */
+    /** Beta cap on enrolled users; `user_count` is kept by enrollment, reactivation and exit. */
     maxUsers: number;
     userCount: number;
     /** SPYx first (the default), then QQQx. Set once by `initialize`. */
@@ -106,7 +106,7 @@ export type ConfigArgs = {
     admin: Address;
     /** Set by `propose_admin`; `Pubkey::default()` when no handover is pending. */
     pendingAdmin: Address;
-    /** Kill switch: when set, enrollment and sweeps stop. */
+    /** Kill switch: when set, enrollment, reactivation and sweeps stop; the users' own controls keep working. */
     paused: boolean;
     /** The only program the sweep may swap through. Set once by `initialize`. */
     router: Address;
@@ -116,7 +116,7 @@ export type ConfigArgs = {
     sponsor: Address;
     /** Beta cap per user and week, in USD with 6 decimals. */
     userWeeklyCap: number | bigint;
-    /** Beta cap on enrolled users; `user_count` is kept by enrollment and exit. */
+    /** Beta cap on enrolled users; `user_count` is kept by enrollment, reactivation and exit. */
     maxUsers: number;
     userCount: number;
     /** SPYx first (the default), then QQQx. Set once by `initialize`. */

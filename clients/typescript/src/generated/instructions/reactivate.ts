@@ -26,11 +26,9 @@ import {
     type Instruction,
     type InstructionWithAccounts,
     type InstructionWithData,
-    type ReadonlyAccount,
     type ReadonlySignerAccount,
     type ReadonlyUint8Array,
     type WritableAccount,
-    type WritableSignerAccount,
 } from '@solana/kit';
 import {
     getAccountMetaFactory,
@@ -45,19 +43,18 @@ import { findConfigPda, findUserConfigPda } from '../pdas';
 import { LATERITE_PROGRAM_ADDRESS } from '../programs';
 import { getEnrollParamsDecoder, getEnrollParamsEncoder, type EnrollParams, type EnrollParamsArgs } from '../types';
 
-export const ENROLL_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array([58, 12, 36, 3, 142, 28, 1, 43]);
+export const REACTIVATE_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array([80, 134, 169, 195, 146, 45, 28, 140]);
 
-export function getEnrollDiscriminatorBytes(): ReadonlyUint8Array {
-    return fixEncoderSize(getBytesEncoder(), 8).encode(ENROLL_DISCRIMINATOR);
+export function getReactivateDiscriminatorBytes(): ReadonlyUint8Array {
+    return fixEncoderSize(getBytesEncoder(), 8).encode(REACTIVATE_DISCRIMINATOR);
 }
 
-export type EnrollInstruction<
+export type ReactivateInstruction<
     TProgram extends string = typeof LATERITE_PROGRAM_ADDRESS,
     TAccountUser extends string | AccountMeta<string> = string,
-    TAccountPayer extends string | AccountMeta<string> = string,
+    TAccountSponsor extends string | AccountMeta<string> = string,
     TAccountConfig extends string | AccountMeta<string> = string,
     TAccountUserConfig extends string | AccountMeta<string> = string,
-    TAccountSystemProgram extends string | AccountMeta<string> = '11111111111111111111111111111111',
     TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
     InstructionWithData<ReadonlyUint8Array> &
@@ -66,74 +63,72 @@ export type EnrollInstruction<
             TAccountUser extends string
                 ? ReadonlySignerAccount<TAccountUser> & AccountSignerMeta<TAccountUser>
                 : TAccountUser,
-            TAccountPayer extends string
-                ? WritableSignerAccount<TAccountPayer> & AccountSignerMeta<TAccountPayer>
-                : TAccountPayer,
+            TAccountSponsor extends string
+                ? ReadonlySignerAccount<TAccountSponsor> & AccountSignerMeta<TAccountSponsor>
+                : TAccountSponsor,
             TAccountConfig extends string ? WritableAccount<TAccountConfig> : TAccountConfig,
             TAccountUserConfig extends string ? WritableAccount<TAccountUserConfig> : TAccountUserConfig,
-            TAccountSystemProgram extends string ? ReadonlyAccount<TAccountSystemProgram> : TAccountSystemProgram,
             ...TRemainingAccounts,
         ]
     >;
 
-export type EnrollInstructionData = { discriminator: ReadonlyUint8Array; params: EnrollParams };
+export type ReactivateInstructionData = { discriminator: ReadonlyUint8Array; params: EnrollParams };
 
-export type EnrollInstructionDataArgs = { params: EnrollParamsArgs };
+export type ReactivateInstructionDataArgs = { params: EnrollParamsArgs };
 
-export function getEnrollInstructionDataEncoder(): FixedSizeEncoder<EnrollInstructionDataArgs> {
+export function getReactivateInstructionDataEncoder(): FixedSizeEncoder<ReactivateInstructionDataArgs> {
     return transformEncoder(
         getStructEncoder([
             ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
             ['params', getEnrollParamsEncoder()],
         ]),
-        value => ({ ...value, discriminator: ENROLL_DISCRIMINATOR }),
+        value => ({ ...value, discriminator: REACTIVATE_DISCRIMINATOR }),
     );
 }
 
-export function getEnrollInstructionDataDecoder(): FixedSizeDecoder<EnrollInstructionData> {
+export function getReactivateInstructionDataDecoder(): FixedSizeDecoder<ReactivateInstructionData> {
     return getStructDecoder([
         ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
         ['params', getEnrollParamsDecoder()],
     ]);
 }
 
-export function getEnrollInstructionDataCodec(): FixedSizeCodec<EnrollInstructionDataArgs, EnrollInstructionData> {
-    return combineCodec(getEnrollInstructionDataEncoder(), getEnrollInstructionDataDecoder());
+export function getReactivateInstructionDataCodec(): FixedSizeCodec<
+    ReactivateInstructionDataArgs,
+    ReactivateInstructionData
+> {
+    return combineCodec(getReactivateInstructionDataEncoder(), getReactivateInstructionDataDecoder());
 }
 
-export type EnrollAsyncInput<
+export type ReactivateAsyncInput<
     TAccountUser extends InstructionSignerInput = InstructionSignerInput,
-    TAccountPayer extends InstructionSignerInput = InstructionSignerInput,
+    TAccountSponsor extends InstructionSignerInput = InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
     TAccountUserConfig extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSystemProgram extends InstructionAccountInput = InstructionAccountInput,
 > = {
     user: TAccountUser;
-    payer: TAccountPayer;
+    sponsor: TAccountSponsor;
     config?: TAccountConfig;
     userConfig?: TAccountUserConfig;
-    systemProgram?: TAccountSystemProgram;
-    params: EnrollInstructionDataArgs['params'];
+    params: ReactivateInstructionDataArgs['params'];
 };
 
-export async function getEnrollInstructionAsync<
+export async function getReactivateInstructionAsync<
     TAccountUser extends InstructionSignerInput,
-    TAccountPayer extends InstructionSignerInput,
+    TAccountSponsor extends InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput,
     TAccountUserConfig extends InstructionAccountInput,
-    TAccountSystemProgram extends InstructionAccountInput,
     TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
 >(
-    input: EnrollAsyncInput<TAccountUser, TAccountPayer, TAccountConfig, TAccountUserConfig, TAccountSystemProgram>,
+    input: ReactivateAsyncInput<TAccountUser, TAccountSponsor, TAccountConfig, TAccountUserConfig>,
     config?: { programAddress?: TProgramAddress },
 ): Promise<
-    EnrollInstruction<
+    ReactivateInstruction<
         TProgramAddress,
         ResolvedInstructionAccountMeta<TAccountUser, InstructionAccountInputAddress<TAccountUser>>,
-        ResolvedInstructionAccountMeta<TAccountPayer, InstructionAccountInputAddress<TAccountPayer>>,
+        ResolvedInstructionAccountMeta<TAccountSponsor, InstructionAccountInputAddress<TAccountSponsor>>,
         ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>,
-        ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>
+        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>
     >
 > {
     // Program address.
@@ -145,10 +140,9 @@ export async function getEnrollInstructionAsync<
     // Original accounts.
     const originalAccounts = {
         user: { value: input.user ?? null, isSigner: true, isWritable: false },
-        payer: { value: input.payer ?? null, isSigner: true, isWritable: true },
+        sponsor: { value: input.sponsor ?? null, isSigner: true, isWritable: false },
         config: { value: input.config ?? null, isSigner: false, isWritable: true },
         userConfig: { value: input.userConfig ?? null, isSigner: false, isWritable: true },
-        systemProgram: { value: input.systemProgram ?? null, isSigner: false, isWritable: false },
     };
     const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedInstructionAccount>;
 
@@ -165,63 +159,53 @@ export async function getEnrollInstructionAsync<
             { programAddress },
         );
     }
-    if (!accounts.systemProgram.value) {
-        accounts.systemProgram.value =
-            '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
-    }
 
     return Object.freeze({
         accounts: [
             getAccountMeta('user', accounts.user),
-            getAccountMeta('payer', accounts.payer),
+            getAccountMeta('sponsor', accounts.sponsor),
             getAccountMeta('config', accounts.config),
             getAccountMeta('userConfig', accounts.userConfig),
-            getAccountMeta('systemProgram', accounts.systemProgram),
         ],
-        data: getEnrollInstructionDataEncoder().encode(args as EnrollInstructionDataArgs),
+        data: getReactivateInstructionDataEncoder().encode(args as ReactivateInstructionDataArgs),
         programAddress,
-    } as EnrollInstruction<
+    } as ReactivateInstruction<
         TProgramAddress,
         ResolvedInstructionAccountMeta<TAccountUser, InstructionAccountInputAddress<TAccountUser>>,
-        ResolvedInstructionAccountMeta<TAccountPayer, InstructionAccountInputAddress<TAccountPayer>>,
+        ResolvedInstructionAccountMeta<TAccountSponsor, InstructionAccountInputAddress<TAccountSponsor>>,
         ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>,
-        ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>
+        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>
     >);
 }
 
-export type EnrollInput<
+export type ReactivateInput<
     TAccountUser extends InstructionSignerInput = InstructionSignerInput,
-    TAccountPayer extends InstructionSignerInput = InstructionSignerInput,
+    TAccountSponsor extends InstructionSignerInput = InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput = InstructionAccountInput,
     TAccountUserConfig extends InstructionAccountInput = InstructionAccountInput,
-    TAccountSystemProgram extends InstructionAccountInput = InstructionAccountInput,
 > = {
     user: TAccountUser;
-    payer: TAccountPayer;
+    sponsor: TAccountSponsor;
     config: TAccountConfig;
     userConfig: TAccountUserConfig;
-    systemProgram?: TAccountSystemProgram;
-    params: EnrollInstructionDataArgs['params'];
+    params: ReactivateInstructionDataArgs['params'];
 };
 
-export function getEnrollInstruction<
+export function getReactivateInstruction<
     TAccountUser extends InstructionSignerInput,
-    TAccountPayer extends InstructionSignerInput,
+    TAccountSponsor extends InstructionSignerInput,
     TAccountConfig extends InstructionAccountInput,
     TAccountUserConfig extends InstructionAccountInput,
-    TAccountSystemProgram extends InstructionAccountInput,
     TProgramAddress extends Address = typeof LATERITE_PROGRAM_ADDRESS,
 >(
-    input: EnrollInput<TAccountUser, TAccountPayer, TAccountConfig, TAccountUserConfig, TAccountSystemProgram>,
+    input: ReactivateInput<TAccountUser, TAccountSponsor, TAccountConfig, TAccountUserConfig>,
     config?: { programAddress?: TProgramAddress },
-): EnrollInstruction<
+): ReactivateInstruction<
     TProgramAddress,
     ResolvedInstructionAccountMeta<TAccountUser, InstructionAccountInputAddress<TAccountUser>>,
-    ResolvedInstructionAccountMeta<TAccountPayer, InstructionAccountInputAddress<TAccountPayer>>,
+    ResolvedInstructionAccountMeta<TAccountSponsor, InstructionAccountInputAddress<TAccountSponsor>>,
     ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-    ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>,
-    ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>
+    ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>
 > {
     // Program address.
     const programAddress = config?.programAddress ?? LATERITE_PROGRAM_ADDRESS;
@@ -232,66 +216,56 @@ export function getEnrollInstruction<
     // Original accounts.
     const originalAccounts = {
         user: { value: input.user ?? null, isSigner: true, isWritable: false },
-        payer: { value: input.payer ?? null, isSigner: true, isWritable: true },
+        sponsor: { value: input.sponsor ?? null, isSigner: true, isWritable: false },
         config: { value: input.config ?? null, isSigner: false, isWritable: true },
         userConfig: { value: input.userConfig ?? null, isSigner: false, isWritable: true },
-        systemProgram: { value: input.systemProgram ?? null, isSigner: false, isWritable: false },
     };
     const accounts = originalAccounts as Record<keyof typeof originalAccounts, ResolvedInstructionAccount>;
 
     // Original args.
     const args = { ...input };
 
-    // Resolve default values.
-    if (!accounts.systemProgram.value) {
-        accounts.systemProgram.value =
-            '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
-    }
-
     return Object.freeze({
         accounts: [
             getAccountMeta('user', accounts.user),
-            getAccountMeta('payer', accounts.payer),
+            getAccountMeta('sponsor', accounts.sponsor),
             getAccountMeta('config', accounts.config),
             getAccountMeta('userConfig', accounts.userConfig),
-            getAccountMeta('systemProgram', accounts.systemProgram),
         ],
-        data: getEnrollInstructionDataEncoder().encode(args as EnrollInstructionDataArgs),
+        data: getReactivateInstructionDataEncoder().encode(args as ReactivateInstructionDataArgs),
         programAddress,
-    } as EnrollInstruction<
+    } as ReactivateInstruction<
         TProgramAddress,
         ResolvedInstructionAccountMeta<TAccountUser, InstructionAccountInputAddress<TAccountUser>>,
-        ResolvedInstructionAccountMeta<TAccountPayer, InstructionAccountInputAddress<TAccountPayer>>,
+        ResolvedInstructionAccountMeta<TAccountSponsor, InstructionAccountInputAddress<TAccountSponsor>>,
         ResolvedInstructionAccountMeta<TAccountConfig, InstructionAccountInputAddress<TAccountConfig>>,
-        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>,
-        ResolvedInstructionAccountMeta<TAccountSystemProgram, InstructionAccountInputAddress<TAccountSystemProgram>>
+        ResolvedInstructionAccountMeta<TAccountUserConfig, InstructionAccountInputAddress<TAccountUserConfig>>
     >);
 }
 
-export type ParsedEnrollInstruction<
+export type ParsedReactivateInstruction<
     TProgram extends string = typeof LATERITE_PROGRAM_ADDRESS,
     TAccountMetas extends readonly AccountMeta[] = readonly AccountMeta[],
 > = {
     programAddress: Address<TProgram>;
     accounts: {
         user: TAccountMetas[0];
-        payer: TAccountMetas[1];
+        sponsor: TAccountMetas[1];
         config: TAccountMetas[2];
         userConfig: TAccountMetas[3];
-        systemProgram: TAccountMetas[4];
     };
-    data: EnrollInstructionData;
+    data: ReactivateInstructionData;
 };
 
-export function parseEnrollInstruction<TProgram extends string, TAccountMetas extends readonly AccountMeta[]>(
+export function parseReactivateInstruction<TProgram extends string, TAccountMetas extends readonly AccountMeta[]>(
     instruction: Instruction<TProgram> &
         InstructionWithAccounts<TAccountMetas> &
         InstructionWithData<ReadonlyUint8Array>,
-): ParsedEnrollInstruction<TProgram, TAccountMetas> {
-    if (instruction.accounts.length < 5) {
+): ParsedReactivateInstruction<TProgram, TAccountMetas> {
+    if (instruction.accounts.length < 4) {
         throw new SolanaError(SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS, {
             actualAccountMetas: instruction.accounts.length,
-            expectedAccountMetas: 5,
+            expectedAccountMetas: 4,
         });
     }
     let accountIndex = 0;
@@ -304,11 +278,10 @@ export function parseEnrollInstruction<TProgram extends string, TAccountMetas ex
         programAddress: instruction.programAddress,
         accounts: {
             user: getNextAccount(),
-            payer: getNextAccount(),
+            sponsor: getNextAccount(),
             config: getNextAccount(),
             userConfig: getNextAccount(),
-            systemProgram: getNextAccount(),
         },
-        data: getEnrollInstructionDataDecoder().decode(instruction.data),
+        data: getReactivateInstructionDataDecoder().decode(instruction.data),
     };
 }

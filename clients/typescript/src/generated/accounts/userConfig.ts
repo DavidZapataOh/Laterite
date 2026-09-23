@@ -66,8 +66,6 @@ export function getUserConfigDiscriminatorBytes(): ReadonlyUint8Array {
 export type UserConfig = {
     discriminator: ReadonlyUint8Array;
     user: Address;
-    /** Who paid this account's rent: the sponsor at enrollment, recorded because the admin can rotate the sponsor. */
-    payer: Address;
     /** Index into `TIERS`: the weekly cap across both payment tokens. */
     tier: number;
     /** Bit `i` set when `Config.payment_tokens[i]` is enabled. */
@@ -111,8 +109,6 @@ export type UserConfig = {
 
 export type UserConfigArgs = {
     user: Address;
-    /** Who paid this account's rent: the sponsor at enrollment, recorded because the admin can rotate the sponsor. */
-    payer: Address;
     /** Index into `TIERS`: the weekly cap across both payment tokens. */
     tier: number;
     /** Bit `i` set when `Config.payment_tokens[i]` is enabled. */
@@ -160,7 +156,6 @@ export function getUserConfigEncoder(): FixedSizeEncoder<UserConfigArgs> {
         getStructEncoder([
             ['discriminator', fixEncoderSize(getBytesEncoder(), 8)],
             ['user', getAddressEncoder()],
-            ['payer', getAddressEncoder()],
             ['tier', getU8Encoder()],
             ['paymentTokens', getU8Encoder()],
             ['asset', getU8Encoder()],
@@ -190,7 +185,6 @@ export function getUserConfigDecoder(): FixedSizeDecoder<UserConfig> {
     return getStructDecoder([
         ['discriminator', fixDecoderSize(getBytesDecoder(), 8)],
         ['user', getAddressDecoder()],
-        ['payer', getAddressDecoder()],
         ['tier', getU8Decoder()],
         ['paymentTokens', getU8Decoder()],
         ['asset', getU8Decoder()],
@@ -269,5 +263,5 @@ export async function fetchAllMaybeUserConfig(
 }
 
 export function getUserConfigSize(): number {
-    return 196;
+    return 164;
 }

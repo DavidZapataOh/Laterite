@@ -10,7 +10,7 @@ pub struct Config {
     pub admin: Pubkey,
     /// Set by `propose_admin`; `Pubkey::default()` when no handover is pending.
     pub pending_admin: Pubkey,
-    /// Kill switch: when set, enrollment and sweeps stop.
+    /// Kill switch: when set, enrollment, reactivation and sweeps stop; the users' own controls keep working.
     pub paused: bool,
     /// The only program the sweep may swap through. Set once by `initialize`.
     pub router: Pubkey,
@@ -20,7 +20,7 @@ pub struct Config {
     pub sponsor: Pubkey,
     /// Beta cap per user and week, in USD with 6 decimals.
     pub user_weekly_cap: u64,
-    /// Beta cap on enrolled users; `user_count` is kept by enrollment and exit.
+    /// Beta cap on enrolled users; `user_count` is kept by enrollment, reactivation and exit.
     pub max_users: u32,
     pub user_count: u32,
     /// SPYx first (the default), then QQQx. Set once by `initialize`.
@@ -160,13 +160,12 @@ impl Config {
     }
 }
 
-/// A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 196 bytes with the discriminator.
+/// A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 164 bytes with the discriminator. It is
+/// never closed, so its counters outlive an exit.
 #[account]
 #[derive(InitSpace, Debug)]
 pub struct UserConfig {
     pub user: Pubkey,
-    /// Who paid this account's rent: the sponsor at enrollment, recorded because the admin can rotate the sponsor.
-    pub payer: Pubkey,
     /// Index into `TIERS`: the weekly cap across both payment tokens.
     pub tier: u8,
     /// Bit `i` set when `Config.payment_tokens[i]` is enabled.
@@ -216,8 +215,9 @@ pub enum UserStatus {
     Exited,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, InitSpace, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(AnchorSerialize, AnchorDeserialize, InitSpace, Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Engine {
+    #[default]
     Daily,
     Weekly,
 }
@@ -258,8 +258,8 @@ pub struct AttestationRecord {
     pub expires_at: i64,
 }
 
-/// What a user chooses when enrolling.
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, PartialEq, Eq)]
+/// What a user chooses when enrolling; the default is the cleared settings of a user who exited.
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, Default, PartialEq, Eq)]
 pub struct EnrollParams {
     pub tier: u8,
     pub payment_tokens: u8,
@@ -277,11 +277,38 @@ impl EnrollParams {
     pub fn validate(&self, config: &Config) -> Result<()> {
         let cap = *TIERS.get(self.tier as usize).ok_or(LateriteError::InvalidTier)?;
         require_gte!(config.user_weekly_cap, cap, LateriteError::CapAboveBetaLimit);
+        self.validate_rules()
+    }
+
+    /// Everything but the beta cap, which binds only when a tier is chosen: the tier, asset, tokens and rules.
+    pub fn validate_rules(&self) -> Result<()> {
+        let cap = *TIERS.get(self.tier as usize).ok_or(LateriteError::InvalidTier)?;
         require!((self.asset as usize) < ASSET_COUNT, LateriteError::UnknownAsset);
         require!(self.payment_tokens != 0, LateriteError::NoPaymentToken);
         require!(self.payment_tokens >> PAYMENT_TOKEN_COUNT == 0, LateriteError::UnknownPaymentToken);
         let invests = self.engine_amount > 0 || self.income_rule || self.change_multiplier > 0;
         require!(invests && self.change_multiplier <= 3 && self.engine_amount <= cap, LateriteError::InvalidRules);
         Ok(())
+    }
+}
+
+impl UserConfig {
+    /// Writes the settings the user chose, field by field; the counters are left as they are.
+    pub fn set_settings(&mut self, params: &EnrollParams) {
+        self.tier = params.tier;
+        self.payment_tokens = params.payment_tokens;
+        self.asset = params.asset;
+        self.engine = params.engine;
+        self.engine_amount = params.engine_amount;
+        self.income_rule = params.income_rule;
+        self.change_multiplier = params.change_multiplier;
+        self.cushions = params.cushions;
+        self.goal_amount = params.goal_amount;
+        self.goal_label = params.goal_label;
+    }
+
+    /// Credits only transfers from `now` on; `attestable_from` is never lowered.
+    pub fn raise_attestable_from(&mut self, now: i64) {
+        self.attestable_from = self.attestable_from.max(now);
     }
 }

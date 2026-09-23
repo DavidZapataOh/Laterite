@@ -11,8 +11,8 @@ use {
 };
 
 #[test]
-fn user_config_is_196_bytes() {
-    assert_eq!(8 + UserConfig::INIT_SPACE, 196);
+fn user_config_is_164_bytes() {
+    assert_eq!(8 + UserConfig::INIT_SPACE, 164);
 }
 
 #[test]
@@ -44,7 +44,6 @@ fn onboarding_is_one_sponsored_transaction() {
 
     let config = fetch_user_config(&env, &user.pubkey());
     assert_eq!(config.user, user.pubkey());
-    assert_eq!(config.payer, sponsor.pubkey());
     assert_eq!(config.payment_tokens, 0b11);
     assert_eq!(config.enrolled_at, NOW);
     assert_eq!((config.week, config.week_spent, config.engine_ran_at, config.pending), (0, 0, 0, 0));

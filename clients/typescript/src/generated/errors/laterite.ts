@@ -90,6 +90,14 @@ export const LATERITE_ERROR__INVALID_TOKEN_ACCOUNT = 0x1793; // 6035
 export const LATERITE_ERROR__SWAP_ACCOUNT_CHANGED = 0x1794; // 6036
 /** SlippageExceeded: The swap returned less than the minimum output */
 export const LATERITE_ERROR__SLIPPAGE_EXCEEDED = 0x1795; // 6037
+/** PlanChangeRequired: The tier and the payment tokens change through their own instructions */
+export const LATERITE_ERROR__PLAN_CHANGE_REQUIRED = 0x1796; // 6038
+/** PendingIncrease: Pending amounts can only be lowered */
+export const LATERITE_ERROR__PENDING_INCREASE = 0x1797; // 6039
+/** UserNotPaused: The user is not paused */
+export const LATERITE_ERROR__USER_NOT_PAUSED = 0x1798; // 6040
+/** UserNotExited: The user has not exited */
+export const LATERITE_ERROR__USER_NOT_EXITED = 0x1799; // 6041
 
 export type LateriteError =
     | typeof LATERITE_ERROR__ALREADY_SWEPT
@@ -119,6 +127,8 @@ export type LateriteError =
     | typeof LATERITE_ERROR__NOT_PENDING_ADMIN
     | typeof LATERITE_ERROR__NOT_SPONSOR
     | typeof LATERITE_ERROR__NOT_UPGRADE_AUTHORITY
+    | typeof LATERITE_ERROR__PENDING_INCREASE
+    | typeof LATERITE_ERROR__PLAN_CHANGE_REQUIRED
     | typeof LATERITE_ERROR__PRICE_UNAVAILABLE
     | typeof LATERITE_ERROR__PRICE_UNCERTAIN
     | typeof LATERITE_ERROR__PROGRAM_PAUSED
@@ -129,7 +139,9 @@ export type LateriteError =
     | typeof LATERITE_ERROR__UNAUTHORIZED
     | typeof LATERITE_ERROR__UNKNOWN_ASSET
     | typeof LATERITE_ERROR__UNKNOWN_PAYMENT_TOKEN
-    | typeof LATERITE_ERROR__USER_NOT_ACTIVE;
+    | typeof LATERITE_ERROR__USER_NOT_ACTIVE
+    | typeof LATERITE_ERROR__USER_NOT_EXITED
+    | typeof LATERITE_ERROR__USER_NOT_PAUSED;
 
 let lateriteErrorMessages: Record<LateriteError, string> | undefined;
 if (process.env['NODE_ENV'] !== 'production') {
@@ -161,6 +173,8 @@ if (process.env['NODE_ENV'] !== 'production') {
         [LATERITE_ERROR__NOT_PENDING_ADMIN]: `The signer is not the pending admin`,
         [LATERITE_ERROR__NOT_SPONSOR]: `Only the configured sponsor can pay for enrollment`,
         [LATERITE_ERROR__NOT_UPGRADE_AUTHORITY]: `Only the program's upgrade authority can initialize the config`,
+        [LATERITE_ERROR__PENDING_INCREASE]: `Pending amounts can only be lowered`,
+        [LATERITE_ERROR__PLAN_CHANGE_REQUIRED]: `The tier and the payment tokens change through their own instructions`,
         [LATERITE_ERROR__PRICE_UNAVAILABLE]: `The price update has no usable price for the feed`,
         [LATERITE_ERROR__PRICE_UNCERTAIN]: `The price's confidence interval is too wide`,
         [LATERITE_ERROR__PROGRAM_PAUSED]: `The program is paused`,
@@ -172,6 +186,8 @@ if (process.env['NODE_ENV'] !== 'production') {
         [LATERITE_ERROR__UNKNOWN_ASSET]: `Not one of the configured assets`,
         [LATERITE_ERROR__UNKNOWN_PAYMENT_TOKEN]: `Not one of the configured payment tokens`,
         [LATERITE_ERROR__USER_NOT_ACTIVE]: `The user is paused or has exited`,
+        [LATERITE_ERROR__USER_NOT_EXITED]: `The user has not exited`,
+        [LATERITE_ERROR__USER_NOT_PAUSED]: `The user is not paused`,
     };
 }
 

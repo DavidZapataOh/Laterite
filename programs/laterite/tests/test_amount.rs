@@ -16,7 +16,6 @@ const RICH: u64 = 1_000 * DOLLAR;
 fn user(tier: u8, engine: Engine, engine_amount: u64) -> UserConfig {
     UserConfig {
         user: Default::default(),
-        payer: Default::default(),
         tier,
         payment_tokens: 0b11,
         asset: 0,
@@ -203,6 +202,15 @@ fn the_engine_goes_first_and_is_cut_to_the_room_left() {
     assert_eq!(pull, Pull { engine: 3 * DOLLAR, pending: 0 });
     config.record(pull, MONDAY);
     assert_eq!((config.engine_ran_at, config.pending, config.week_spent), (MONDAY, 9 * DOLLAR, TIERS[0]));
+}
+
+#[test]
+fn a_capped_pull_keeps_the_engine_first() {
+    let pull = Pull { engine: 3 * DOLLAR, pending: 5 * DOLLAR };
+    assert_eq!(pull.capped(10 * DOLLAR), pull);
+    assert_eq!(pull.capped(4 * DOLLAR), Pull { engine: 3 * DOLLAR, pending: DOLLAR });
+    assert_eq!(pull.capped(2 * DOLLAR), Pull { engine: 2 * DOLLAR, pending: 0 });
+    assert_eq!(pull.capped(0), Pull::default());
 }
 
 #[test]

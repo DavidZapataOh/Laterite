@@ -10,6 +10,7 @@ pub mod instructions;
 pub mod market;
 pub mod price;
 pub mod state;
+pub mod subscription;
 
 pub use amount::*;
 pub use constants::*;
@@ -38,7 +39,7 @@ pub mod laterite {
         ctx.accounts.update_config(settings)
     }
 
-    /// Kill switch: stops enrollment and sweeps while set.
+    /// Kill switch: stops enrollment, reactivation and sweeps while set; the users' own controls keep working.
     pub fn set_paused(ctx: Context<AdminOnly>, paused: bool) -> Result<()> {
         ctx.accounts.set_paused(paused)
     }
@@ -111,5 +112,50 @@ pub mod laterite {
         )?;
         emit_cpi!(event);
         Ok(())
+    }
+
+    /// Replaces the user's asset, engine, rules, cushions and goal; the tier and the payment tokens change through
+    /// their own instructions. A rule turned on or a larger multiplier credits only transfers from then on.
+    pub fn update_settings(ctx: Context<UserOnly>, params: EnrollParams) -> Result<()> {
+        ctx.accounts.update_settings(params)
+    }
+
+    /// Pauses an active user or resumes a paused one. Nothing is pulled or credited while paused, and a resumed user
+    /// is credited only for transfers from the resume on.
+    pub fn set_user_paused(ctx: Context<UserOnly>, paused: bool) -> Result<()> {
+        ctx.accounts.set_user_paused(paused)
+    }
+
+    /// Lowers the user's pending amount to any smaller value, 0 included; it can never raise it.
+    pub fn lower_pending(ctx: Context<UserOnly>, pending: u64) -> Result<()> {
+        ctx.accounts.lower_pending(pending)
+    }
+
+    /// Moves the user to another weekly tier: ends each current subscription at once, the vault signing as the plans'
+    /// owner, and requires a live subscription to the new tier's plan for each enabled payment token. The week's
+    /// spending carries over, so a change never grants a second cap in one week.
+    pub fn change_tier<'info>(ctx: Context<'info, PlanChange<'info>>, tier: u8) -> Result<()> {
+        ctx.accounts.change_tier(tier, ctx.remaining_accounts)
+    }
+
+    /// Changes the enabled payment tokens: ends a dropped token's subscription at once, the vault signing as the
+    /// plans' owner, and requires a live subscription to the tier's plan for an added one. An added token credits
+    /// only transfers from then on; the day's sweeps stay spent.
+    pub fn change_payment_tokens<'info>(ctx: Context<'info, PlanChange<'info>>, payment_tokens: u8) -> Result<()> {
+        ctx.accounts.change_payment_tokens(payment_tokens, ctx.remaining_accounts)
+    }
+
+    /// Leaves Laterite: ends each subscription at once, the vault signing as the plans' owner, frees the beta seat,
+    /// discards the pending amount and clears the settings. The account and its counters stay, so a return through
+    /// `reactivate` grants no new trial, week or sweep day.
+    pub fn exit<'info>(ctx: Context<'info, Exit<'info>>) -> Result<()> {
+        ctx.accounts.exit(ctx.remaining_accounts)
+    }
+
+    /// Returns a user who exited, with new settings, under enrollment's checks; the configured sponsor signs. Credits
+    /// only transfers from the reactivation on. Remaining accounts: the user's subscription to the chosen tier for each
+    /// enabled payment token, in token order.
+    pub fn reactivate(ctx: Context<Reactivate>, params: EnrollParams) -> Result<()> {
+        ctx.accounts.reactivate(params, ctx.remaining_accounts)
     }
 }

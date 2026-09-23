@@ -10,6 +10,7 @@ export * from './asset';
 export * from './attestation';
 export * from './configParams';
 export * from './engine';
+export * from './enrollParams';
 export * from './eventKind';
 export * from './marketCalendar';
 export * from './paymentToken';

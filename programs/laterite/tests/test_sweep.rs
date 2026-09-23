@@ -20,6 +20,7 @@ use {
         min_out, Engine, EnrollParams, LateriteError, MarketCalendar, Quote, Settings, UserStatus, DAY_SECONDS,
         SWAP_AUTHORITY, TRIAL_CAP, USD_DECIMALS,
     },
+    litesvm::LiteSVM,
     solana_keypair::Keypair,
     solana_signer::Signer,
     solana_transaction::{InstructionError, TransactionError},
@@ -51,25 +52,10 @@ fn real_updates(payment_token: usize) -> (&'static [u8], &'static [u8]) {
     (PYTH_SPYX_QQQX, if payment_token == USDT_TOKEN { PYTH_USDT } else { &[] })
 }
 
-/// Updates composed at `at` with the real quotes: SPYX and QQQX and, for USDT, USDT.
-fn composed_updates(payment_token: usize, at: i64) -> (Vec<u8>, Vec<u8>) {
-    let asset = pyth_update(at, &[(1843, PYTH_SPYX_QUOTE), (1837, PYTH_QQQX_QUOTE)]);
-    let payment = if payment_token == USDT_TOKEN { pyth_update(at, &[(8, PYTH_USDT_QUOTE)]) } else { vec![] };
-    (asset, payment)
-}
-
 /// Sweeps `payment_token` with the real updates.
 fn sweep_real(sweep: &mut SweepEnv, payment_token: usize) -> SweptOutcome {
     let (asset, payment) = real_updates(payment_token);
     let instructions = sweep.sweep_ixs(payment_token, asset, payment);
-    sweep.send(&instructions)
-}
-
-/// Sweeps `payment_token` with updates composed at the clock's time.
-fn sweep_composed(sweep: &mut SweepEnv, payment_token: usize) -> SweptOutcome {
-    let now = sweep.env.svm.get_sysvar::<anchor_lang::solana_program::clock::Clock>().unix_timestamp;
-    let (asset, payment) = composed_updates(payment_token, now);
-    let instructions = sweep.sweep_ixs(payment_token, &asset, &payment);
     sweep.send(&instructions)
 }
 
@@ -183,7 +169,7 @@ fn each_token_is_swept_once_per_utc_day() {
     assert_eq!(error_of(sweep_real(&mut sweep, USDT_TOKEN)), Some(LateriteError::AlreadySwept.into()));
 
     set_now(&mut sweep.env.svm, (PYTH_UPDATES_AT / DAY_SECONDS + 1) * DAY_SECONDS);
-    sweep_composed(&mut sweep, USDC_TOKEN).1.unwrap();
+    sweep.sweep_now(USDC_TOKEN).1.unwrap();
 }
 
 #[test]
@@ -232,18 +218,18 @@ fn a_weekly_user_is_swept_only_in_a_nyse_session() {
     let thanksgiving = i64::from(day((2026, 11, 26))) * DAY_SECONDS;
     for closed in [thanksgiving + 15 * 3_600, thanksgiving + DAY_SECONDS + 18 * 3_600 + 1_800] {
         set_now(&mut sweep.env.svm, closed);
-        assert_eq!(error_of(sweep_composed(&mut sweep, USDC_TOKEN)), Some(LateriteError::NothingToSweep.into()));
+        assert_eq!(error_of(sweep.sweep_now(USDC_TOKEN)), Some(LateriteError::NothingToSweep.into()));
     }
 
     // Without a calendar covering today, no weekly sweep at all.
     set_now(&mut sweep.env.svm, IN_SESSION);
     let loaded = fetch_config(&sweep.env.svm);
     write_config(&mut sweep.env, &laterite::Config { market_calendar: MarketCalendar::default(), ..loaded.clone() });
-    assert_eq!(error_of(sweep_composed(&mut sweep, USDC_TOKEN)), Some(LateriteError::NothingToSweep.into()));
+    assert_eq!(error_of(sweep.sweep_now(USDC_TOKEN)), Some(LateriteError::NothingToSweep.into()));
     assert_eq!(fetch_user_config(&sweep.env, &sweep.user.pubkey()).last_sweep_day, [0; 2]);
 
     write_config(&mut sweep.env, &loaded);
-    let event = swept(&sweep_composed(&mut sweep, USDC_TOKEN).1.unwrap());
+    let event = swept(&sweep.sweep_now(USDC_TOKEN).1.unwrap());
     assert_eq!((event.engine, event.pending), (DOLLAR, 2 * DOLLAR));
 }
 
@@ -579,6 +565,33 @@ fn cu_report() {
     for (name, payment_token) in [("sweep (USDC, CPMM)", USDC_TOKEN), ("sweep (USDT, CPMM)", USDT_TOKEN)] {
         let mut sweep = sweep_env(&params());
         let (size, result) = sweep_real(&mut sweep, payment_token);
+        report.push_str(&format!("| {name} | {} | {size} |\n", result.unwrap().compute_units_consumed));
+    }
+    // The users' controls, each as the one sponsored transaction the app sends, for a user enrolled with the given
+    // tokens who has exited first or not.
+    type Build = fn(&LiteSVM, Pubkey) -> Vec<Instruction>;
+    let controls: [(&str, u8, bool, Build); 5] = [
+        ("change_tier (both tokens, with subscribe and close)", 0b11, false, |svm, user| change_tier_ixs(svm, user, 1)),
+        ("change_payment_tokens (drop USDT, with close and revoke)", 0b11, false, |svm, user| {
+            change_payment_tokens_ixs(svm, user, 0b01)
+        }),
+        ("change_payment_tokens (add USDT, with authority and subscribe)", 0b01, false, |svm, user| {
+            change_payment_tokens_ixs(svm, user, 0b11)
+        }),
+        ("exit (both tokens, with close and revoke)", 0b11, false, exit_ixs),
+        ("reactivate (both tokens, with authorities and subscribe)", 0b11, true, |svm, user| {
+            reactivation_ixs(svm, user, &params())
+        }),
+    ];
+    for (name, payment_tokens, exited, build) in controls {
+        let mut sweep = sweep_env(&EnrollParams { payment_tokens, ..params() });
+        let user = sweep.user.insecure_clone();
+        if exited {
+            let exit = exit_ixs(&sweep.env.svm, user.pubkey());
+            send_many(&mut sweep.env, &sponsor(), &exit, &[&user]).1.unwrap();
+        }
+        let instructions = build(&sweep.env.svm, user.pubkey());
+        let (size, result) = send_many(&mut sweep.env, &sponsor(), &instructions, &[&user]);
         report.push_str(&format!("| {name} | {} | {size} |\n", result.unwrap().compute_units_consumed));
     }
     std::fs::write(concat!(env!("CARGO_MANIFEST_DIR"), "/../../cu_report.md"), report).unwrap();

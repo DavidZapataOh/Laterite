@@ -75,8 +75,11 @@ pub const fn plan_id(payment_token: usize, tier: usize) -> u64 {
     (payment_token * PLAN_IDS_PER_TOKEN + tier) as u64 + 1
 }
 
-/// The vault authority's address, derived at compile time.
-pub const VAULT: Pubkey = Pubkey::new_from_array(derive_program_address(&[VAULT_SEED], &crate::ID.to_bytes()).0);
+const VAULT_PDA: ([u8; 32], u8) = derive_program_address(&[VAULT_SEED], &crate::ID.to_bytes());
+
+/// The vault authority's address and bump, derived at compile time.
+pub const VAULT: Pubkey = Pubkey::new_from_array(VAULT_PDA.0);
+pub const VAULT_BUMP: u8 = VAULT_PDA.1;
 
 const SWAP: ([u8; 32], u8) = derive_program_address(&[SWAP_SEED], &crate::ID.to_bytes());
 

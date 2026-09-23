@@ -78,4 +78,12 @@ pub enum LateriteError {
     SwapAccountChanged,
     #[msg("The swap returned less than the minimum output")]
     SlippageExceeded,
+    #[msg("The tier and the payment tokens change through their own instructions")]
+    PlanChangeRequired,
+    #[msg("Pending amounts can only be lowered")]
+    PendingIncrease,
+    #[msg("The user is not paused")]
+    UserNotPaused,
+    #[msg("The user has not exited")]
+    UserNotExited,
 }

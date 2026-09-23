@@ -5,6 +5,7 @@ pub mod create_plan;
 pub mod enroll;
 pub mod initialize;
 pub mod sweep;
+pub mod user;
 
 pub use accept_admin::*;
 pub use admin::*;
@@ -13,3 +14,4 @@ pub use create_plan::*;
 pub use enroll::*;
 pub use initialize::*;
 pub use sweep::*;
+pub use user::*;

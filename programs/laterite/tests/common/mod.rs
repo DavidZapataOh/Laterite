@@ -28,7 +28,10 @@ use {
     solana_signer::Signer,
     solana_transaction::{versioned::VersionedTransaction, InstructionError, TransactionError},
     subscriptions::{
-        instructions::{CancelSubscriptionBuilder, InitSubscriptionAuthorityBuilder, SubscribeBuilder},
+        instructions::{
+            CancelSubscriptionBuilder, InitSubscriptionAuthorityBuilder, RevokeDelegationBuilder,
+            RevokeSubscriptionAuthorityBuilder, SubscribeBuilder,
+        },
         types::SubscribeData,
         EventAuthority, Plan, SubscriptionAuthority, SubscriptionDelegation, SUBSCRIPTIONS_ID,
     },
@@ -487,7 +490,8 @@ pub fn subscription_address(payment_token: usize, tier: usize, user: &Pubkey) ->
     SubscriptionDelegation::find_pda(&plan_address(payment_token, tier), user).0
 }
 
-/// `init_subscription_authority` + `subscribe` for one payment token, paid by `payer`.
+/// `subscribe` to a payment token's tier, paid by `payer`, preceded by `init_subscription_authority` when the user has
+/// no authority for the token yet.
 pub fn subscribe_ixs(
     svm: &LiteSVM,
     user: Pubkey,
@@ -496,10 +500,11 @@ pub fn subscribe_ixs(
     tier: usize,
 ) -> Vec<Instruction> {
     let token = valid_params().payment_tokens[payment_token];
-    let plan = plan_address(payment_token, tier);
-    let (_, plan_bump) = Plan::find_pda(&vault_address(), plan_id(payment_token, tier));
-    let created_at = Plan::from_bytes(&svm.get_account(&plan).unwrap().data).unwrap().data.terms.created_at;
     let authority = SubscriptionAuthority::find_pda(&user, &token.mint).0;
+    if let Some(account) = svm.get_account(&authority).filter(|account| account.owner == SUBSCRIPTIONS_ID) {
+        let init_id = SubscriptionAuthority::from_bytes(&account.data).unwrap().init_id;
+        return vec![subscribe_ix(svm, user, payer, payment_token, tier, init_id)];
+    }
     vec![
         InitSubscriptionAuthorityBuilder::new()
             .owner(user)
@@ -509,25 +514,41 @@ pub fn subscribe_ixs(
             .token_program(token.token_program)
             .payer(Some(payer))
             .instruction(),
-        SubscribeBuilder::new()
-            .subscriber(user)
-            .merchant(vault_address())
-            .plan_pda(plan)
-            .subscription_pda(subscription_address(payment_token, tier, &user))
-            .subscription_authority_pda(authority)
-            .event_authority(EventAuthority::find_pda().0)
-            .payer(Some(payer))
-            .subscribe_data(SubscribeData {
-                plan_id: plan_id(payment_token, tier),
-                plan_bump,
-                expected_mint: token.mint,
-                expected_amount: TIERS[tier],
-                expected_period_hours: laterite::PLAN_PERIOD_HOURS,
-                expected_created_at: created_at,
-                expected_subscription_authority_init_id: UNKNOWN_INIT_ID,
-            })
-            .instruction(),
+        subscribe_ix(svm, user, payer, payment_token, tier, UNKNOWN_INIT_ID),
     ]
+}
+
+/// `subscribe` to a payment token's tier through the user's authority for the token, created with `init_id`.
+pub fn subscribe_ix(
+    svm: &LiteSVM,
+    user: Pubkey,
+    payer: Pubkey,
+    payment_token: usize,
+    tier: usize,
+    init_id: i64,
+) -> Instruction {
+    let token = valid_params().payment_tokens[payment_token];
+    let plan = plan_address(payment_token, tier);
+    let (_, plan_bump) = Plan::find_pda(&vault_address(), plan_id(payment_token, tier));
+    let created_at = Plan::from_bytes(&svm.get_account(&plan).unwrap().data).unwrap().data.terms.created_at;
+    SubscribeBuilder::new()
+        .subscriber(user)
+        .merchant(vault_address())
+        .plan_pda(plan)
+        .subscription_pda(subscription_address(payment_token, tier, &user))
+        .subscription_authority_pda(SubscriptionAuthority::find_pda(&user, &token.mint).0)
+        .event_authority(EventAuthority::find_pda().0)
+        .payer(Some(payer))
+        .subscribe_data(SubscribeData {
+            plan_id: plan_id(payment_token, tier),
+            plan_bump,
+            expected_mint: token.mint,
+            expected_amount: TIERS[tier],
+            expected_period_hours: laterite::PLAN_PERIOD_HOURS,
+            expected_created_at: created_at,
+            expected_subscription_authority_init_id: init_id,
+        })
+        .instruction()
 }
 
 /// Cancels a user's subscription to a payment token's tier through Subscriptions, signed by the user.
@@ -921,6 +942,13 @@ pub fn pyth_update(at: i64, feeds: &[(u32, Quote)]) -> Vec<u8> {
     message
 }
 
+/// Updates composed at `at` with the real quotes: SPYX and QQQX and, for USDT, USDT.
+pub fn composed_updates(payment_token: usize, at: i64) -> (Vec<u8>, Vec<u8>) {
+    let asset = pyth_update(at, &[(1843, PYTH_SPYX_QUOTE), (1837, PYTH_QQQX_QUOTE)]);
+    let payment = if payment_token == 1 { pyth_update(at, &[(8, PYTH_USDT_QUOTE)]) } else { vec![] };
+    (asset, payment)
+}
+
 /// The ed25519 instruction of a sweep at index 1: signature entry 0 is the asset update, at offset 12 of the sweep's
 /// data, and entry 1, when there is one, the payment update after it.
 pub fn sweep_ed25519_ix(asset_message: &[u8], payment_message: &[u8]) -> Instruction {
@@ -1004,13 +1032,18 @@ impl SweepEnv {
         ata(&self.user.pubkey(), &self.asset_mint(), &TOKEN_2022)
     }
 
-    /// What a sweep of `payment_token` pulls now, computed as a crank does.
+    /// What a sweep of `payment_token` pulls now, computed as a crank does: the amount engine, within what the
+    /// subscription's current period still allows.
     pub fn due(&self, payment_token: usize) -> u64 {
-        let user_config = fetch_user_config(&self.env, &self.user.pubkey());
+        let user = self.user.pubkey();
+        let user_config = fetch_user_config(&self.env, &user);
         let config = fetch_config(&self.env.svm);
         let balance = token_amount(&self.env.svm, &self.user_payment_account(payment_token));
         let now = self.env.svm.get_sysvar::<Clock>().unix_timestamp;
-        user_config.pull(payment_token, balance, config.user_weekly_cap, &config.market_calendar, now).total()
+        let subscription = subscription_address(payment_token, usize::from(user_config.tier), &user);
+        let native = native_remaining(&self.env.svm, &subscription, now);
+        let pull = user_config.pull(payment_token, balance, config.user_weekly_cap, &config.market_calendar, now);
+        pull.capped(native).total()
     }
 
     /// `swap_base_input` on the pool of the user's asset against the payment token, from the swap authority into the
@@ -1103,6 +1136,17 @@ impl SweepEnv {
         ]
     }
 
+    /// A sweep of `payment_token` with updates composed at the clock's time.
+    pub fn sweep_now(
+        &mut self,
+        payment_token: usize,
+    ) -> (usize, Result<TransactionMetadata, FailedTransactionMetadata>) {
+        let now = self.env.svm.get_sysvar::<Clock>().unix_timestamp;
+        let (asset, payment) = composed_updates(payment_token, now);
+        let instructions = self.sweep_ixs(payment_token, &asset, &payment);
+        self.send(&instructions)
+    }
+
     /// Sends `instructions` as one version 1 transaction from the crank; returns its size too.
     pub fn send(
         &mut self,
@@ -1165,4 +1209,222 @@ pub fn test_route(instructions: &[Instruction]) -> (Vec<u8>, Vec<AccountMeta>) {
         data.extend(&instruction.data);
     }
     (data, accounts)
+}
+
+fn user_only(user: Pubkey) -> Vec<AccountMeta> {
+    laterite::accounts::UserOnly { user, user_config: user_config_address(&user) }.to_account_metas(None)
+}
+
+pub fn update_settings_ix(user: Pubkey, params: EnrollParams) -> Instruction {
+    Instruction {
+        program_id: laterite::ID,
+        accounts: user_only(user),
+        data: laterite::instruction::UpdateSettings { params }.data(),
+    }
+}
+
+pub fn set_user_paused_ix(user: Pubkey, paused: bool) -> Instruction {
+    Instruction {
+        program_id: laterite::ID,
+        accounts: user_only(user),
+        data: laterite::instruction::SetUserPaused { paused }.data(),
+    }
+}
+
+pub fn lower_pending_ix(user: Pubkey, pending: u64) -> Instruction {
+    Instruction {
+        program_id: laterite::ID,
+        accounts: user_only(user),
+        data: laterite::instruction::LowerPending { pending }.data(),
+    }
+}
+
+/// The enabled payment tokens of a bitmask, in order.
+pub fn enabled(payment_tokens: u8) -> impl Iterator<Item = usize> {
+    (0..2).filter(move |token| payment_tokens & (1 << token) != 0)
+}
+
+/// What a subscription still lets its plan's owner pull in the current period at `now`, as a crank mirrors the
+/// sweep's bound: 0 once it has expired or closed.
+pub fn native_remaining(svm: &LiteSVM, subscription: &Pubkey, now: i64) -> u64 {
+    let Some(account) = svm.get_account(subscription).filter(|account| account.owner == SUBSCRIPTIONS_ID) else {
+        return 0;
+    };
+    let state = SubscriptionDelegation::from_bytes(&account.data).unwrap();
+    if state.expires_at_ts != 0 && now >= state.expires_at_ts {
+        0
+    } else if now - state.current_period_start_ts >= state.terms.period_hours as i64 * 3_600 {
+        state.terms.amount
+    } else {
+        state.terms.amount - state.amount_pulled_in_period
+    }
+}
+
+fn cancellation(user: Pubkey) -> laterite::accounts::Cancellation {
+    laterite::accounts::Cancellation {
+        user,
+        vault: vault_address(),
+        subscriptions_program: SUBSCRIPTIONS_ID,
+        subscriptions_event_authority: EventAuthority::find_pda().0,
+    }
+}
+
+fn plan_change_accounts(user: Pubkey) -> Vec<AccountMeta> {
+    laterite::accounts::PlanChange {
+        cancellation: cancellation(user),
+        config: config_address(),
+        user_config: user_config_address(&user),
+    }
+    .to_account_metas(None)
+}
+
+pub fn change_tier_ix(user: Pubkey, from: usize, tier: usize, payment_tokens: u8) -> Instruction {
+    let mut accounts = plan_change_accounts(user);
+    for token in enabled(payment_tokens) {
+        accounts.extend([
+            AccountMeta::new_readonly(plan_address(token, from), false),
+            AccountMeta::new(subscription_address(token, from, &user), false),
+            AccountMeta::new_readonly(subscription_address(token, tier, &user), false),
+        ]);
+    }
+    Instruction {
+        program_id: laterite::ID,
+        accounts,
+        data: laterite::instruction::ChangeTier { tier: tier as u8 }.data(),
+    }
+}
+
+pub fn change_payment_tokens_ix(user: Pubkey, tier: usize, from: u8, payment_tokens: u8) -> Instruction {
+    let mut accounts = plan_change_accounts(user);
+    for token in 0..2 {
+        let (was, is) = (from & (1 << token) != 0, payment_tokens & (1 << token) != 0);
+        if was && !is {
+            accounts.push(AccountMeta::new_readonly(plan_address(token, tier), false));
+            accounts.push(AccountMeta::new(subscription_address(token, tier, &user), false));
+        } else if is && !was {
+            accounts.push(AccountMeta::new_readonly(subscription_address(token, tier, &user), false));
+        }
+    }
+    let data = laterite::instruction::ChangePaymentTokens { payment_tokens }.data();
+    Instruction { program_id: laterite::ID, accounts, data }
+}
+
+/// `revoke_delegation` of the user's ended subscription to a tier's plan, signed by the user; the rent returns to the
+/// payer the subscription recorded.
+pub fn close_subscription_ix(svm: &LiteSVM, user: Pubkey, payment_token: usize, tier: usize) -> Instruction {
+    let subscription = subscription_address(payment_token, tier, &user);
+    let payer = SubscriptionDelegation::from_bytes(&svm.get_account(&subscription).unwrap().data).unwrap().header.payer;
+    RevokeDelegationBuilder::new()
+        .authority(user)
+        .delegation_account(subscription)
+        .add_remaining_account(AccountMeta::new_readonly(plan_address(payment_token, tier), false))
+        .add_remaining_account(AccountMeta::new(payer, false))
+        .instruction()
+}
+
+/// `revoke_subscription_authority` for a token: the approval is revoked and the rent returns to the payer the
+/// authority recorded.
+pub fn revoke_authority_ix(svm: &LiteSVM, user: Pubkey, payment_token: usize) -> Instruction {
+    let token = valid_params().payment_tokens[payment_token];
+    let authority = SubscriptionAuthority::find_pda(&user, &token.mint).0;
+    let payer = SubscriptionAuthority::from_bytes(&svm.get_account(&authority).unwrap().data).unwrap().payer;
+    RevokeSubscriptionAuthorityBuilder::new()
+        .user(user)
+        .user_ata(ata(&user, &token.mint, &token.token_program))
+        .token_mint(token.mint)
+        .token_program(token.token_program)
+        .subscription_authority(authority)
+        .receiver(Some(payer))
+        .instruction()
+}
+
+/// A tier change as the app sends it, sponsored: subscribe to the new tier's plans, `change_tier`, then close the
+/// ended subscriptions.
+pub fn change_tier_ixs(svm: &LiteSVM, user: Pubkey, tier: usize) -> Vec<Instruction> {
+    let user_config =
+        UserConfig::try_deserialize(&mut &svm.get_account(&user_config_address(&user)).unwrap().data[..]).unwrap();
+    let from = usize::from(user_config.tier);
+    let tokens = || enabled(user_config.payment_tokens);
+    let mut instructions: Vec<_> =
+        tokens().flat_map(|token| subscribe_ixs(svm, user, sponsor().pubkey(), token, tier)).collect();
+    instructions.push(change_tier_ix(user, from, tier, user_config.payment_tokens));
+    instructions.extend(tokens().map(|token| close_subscription_ix(svm, user, token, from)));
+    instructions
+}
+
+/// A payment-token change as the app sends it, sponsored: subscribe with each added token, `change_payment_tokens`,
+/// then close each dropped token's subscription and revoke its authority. The app revokes an authority only when the
+/// user has no other live subscription with that token, since the approval is per token, not per merchant.
+pub fn change_payment_tokens_ixs(svm: &LiteSVM, user: Pubkey, payment_tokens: u8) -> Vec<Instruction> {
+    let user_config =
+        UserConfig::try_deserialize(&mut &svm.get_account(&user_config_address(&user)).unwrap().data[..]).unwrap();
+    let (tier, from) = (usize::from(user_config.tier), user_config.payment_tokens);
+    let mut instructions: Vec<_> = enabled(payment_tokens & !from)
+        .flat_map(|token| subscribe_ixs(svm, user, sponsor().pubkey(), token, tier))
+        .collect();
+    instructions.push(change_payment_tokens_ix(user, tier, from, payment_tokens));
+    for token in enabled(from & !payment_tokens) {
+        instructions.push(close_subscription_ix(svm, user, token, tier));
+        instructions.push(revoke_authority_ix(svm, user, token));
+    }
+    instructions
+}
+
+pub fn exit_ix(user: Pubkey, tier: usize, payment_tokens: u8) -> Instruction {
+    let mut accounts = laterite::accounts::Exit {
+        cancellation: cancellation(user),
+        config: config_address(),
+        user_config: user_config_address(&user),
+    }
+    .to_account_metas(None);
+    for token in enabled(payment_tokens) {
+        accounts.extend([
+            AccountMeta::new_readonly(plan_address(token, tier), false),
+            AccountMeta::new(subscription_address(token, tier, &user), false),
+        ]);
+    }
+    Instruction { program_id: laterite::ID, accounts, data: laterite::instruction::Exit {}.data() }
+}
+
+/// An exit as the app sends it, sponsored: `exit`, then close the subscriptions and revoke the authorities, each rent
+/// returning to whoever paid it. The app revokes an authority only when the user has no other live subscription with
+/// that token.
+pub fn exit_ixs(svm: &LiteSVM, user: Pubkey) -> Vec<Instruction> {
+    let user_config =
+        UserConfig::try_deserialize(&mut &svm.get_account(&user_config_address(&user)).unwrap().data[..]).unwrap();
+    let tier = usize::from(user_config.tier);
+    let tokens = || enabled(user_config.payment_tokens);
+    let mut instructions = vec![exit_ix(user, tier, user_config.payment_tokens)];
+    instructions.extend(tokens().map(|token| close_subscription_ix(svm, user, token, tier)));
+    instructions.extend(tokens().map(|token| revoke_authority_ix(svm, user, token)));
+    instructions
+}
+
+pub fn reactivate_ix(user: Pubkey, sponsor: Pubkey, params: EnrollParams) -> Instruction {
+    let mut accounts = laterite::accounts::Reactivate {
+        user,
+        sponsor,
+        config: config_address(),
+        user_config: user_config_address(&user),
+    }
+    .to_account_metas(None);
+    let tier = usize::from(params.tier);
+    accounts.extend(
+        enabled(params.payment_tokens)
+            .map(|token| AccountMeta::new_readonly(subscription_address(token, tier, &user), false)),
+    );
+    Instruction { program_id: laterite::ID, accounts, data: laterite::instruction::Reactivate { params }.data() }
+}
+
+/// A return as the app sends it, sponsored like onboarding: the asset's account, then per enabled token the authority
+/// when it was revoked and the subscription, then `reactivate`.
+pub fn reactivation_ixs(svm: &LiteSVM, user: Pubkey, params: &EnrollParams) -> Vec<Instruction> {
+    let sponsor = sponsor().pubkey();
+    let asset = valid_params().assets[usize::from(params.asset)];
+    let mut instructions = vec![create_ata_ix(sponsor, user, asset.mint, asset.token_program)];
+    let tier = usize::from(params.tier);
+    instructions
+        .extend(enabled(params.payment_tokens).flat_map(|token| subscribe_ixs(svm, user, sponsor, token, tier)));
+    instructions.push(reactivate_ix(user, sponsor, params.clone()));
+    instructions
 }

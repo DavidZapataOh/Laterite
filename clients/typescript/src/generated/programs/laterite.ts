@@ -48,48 +48,76 @@ import {
 import {
     getAcceptAdminInstructionAsync,
     getAttestInstructionAsync,
+    getChangePaymentTokensInstructionAsync,
+    getChangeTierInstructionAsync,
     getCloseAttestationInstruction,
     getCreatePlanInstructionAsync,
     getEnrollInstructionAsync,
+    getExitInstructionAsync,
     getInitializeInstructionAsync,
+    getLowerPendingInstructionAsync,
     getProposeAdminInstructionAsync,
+    getReactivateInstructionAsync,
     getSetMarketCalendarInstructionAsync,
     getSetPausedInstructionAsync,
+    getSetUserPausedInstructionAsync,
     getSweepInstructionAsync,
     getUpdateConfigInstructionAsync,
+    getUpdateSettingsInstructionAsync,
     parseAcceptAdminInstruction,
     parseAttestInstruction,
+    parseChangePaymentTokensInstruction,
+    parseChangeTierInstruction,
     parseCloseAttestationInstruction,
     parseCreatePlanInstruction,
     parseEnrollInstruction,
+    parseExitInstruction,
     parseInitializeInstruction,
+    parseLowerPendingInstruction,
     parseProposeAdminInstruction,
+    parseReactivateInstruction,
     parseSetMarketCalendarInstruction,
     parseSetPausedInstruction,
+    parseSetUserPausedInstruction,
     parseSweepInstruction,
     parseUpdateConfigInstruction,
+    parseUpdateSettingsInstruction,
     type AcceptAdminAsyncInput,
     type AttestAsyncInput,
+    type ChangePaymentTokensAsyncInput,
+    type ChangeTierAsyncInput,
     type CloseAttestationInput,
     type CreatePlanAsyncInput,
     type EnrollAsyncInput,
+    type ExitAsyncInput,
     type InitializeAsyncInput,
+    type LowerPendingAsyncInput,
     type ParsedAcceptAdminInstruction,
     type ParsedAttestInstruction,
+    type ParsedChangePaymentTokensInstruction,
+    type ParsedChangeTierInstruction,
     type ParsedCloseAttestationInstruction,
     type ParsedCreatePlanInstruction,
     type ParsedEnrollInstruction,
+    type ParsedExitInstruction,
     type ParsedInitializeInstruction,
+    type ParsedLowerPendingInstruction,
     type ParsedProposeAdminInstruction,
+    type ParsedReactivateInstruction,
     type ParsedSetMarketCalendarInstruction,
     type ParsedSetPausedInstruction,
+    type ParsedSetUserPausedInstruction,
     type ParsedSweepInstruction,
     type ParsedUpdateConfigInstruction,
+    type ParsedUpdateSettingsInstruction,
     type ProposeAdminAsyncInput,
+    type ReactivateAsyncInput,
     type SetMarketCalendarAsyncInput,
     type SetPausedAsyncInput,
+    type SetUserPausedAsyncInput,
     type SweepAsyncInput,
     type UpdateConfigAsyncInput,
+    type UpdateSettingsAsyncInput,
 } from '../instructions';
 import { findConfigPda, findUserConfigPda, findVaultPda } from '../pdas';
 
@@ -143,11 +171,18 @@ export enum LateriteEvent {
     Attested,
     ConfigInitialized,
     Enrolled,
+    Exited,
     MarketCalendarSet,
     PausedSet,
+    PaymentTokensChanged,
+    PendingLowered,
     PlanCreated,
+    Reactivated,
     SettingsUpdated,
     Swept,
+    TierChanged,
+    UserPaused,
+    UserSettingsUpdated,
 }
 
 export function identifyLateriteEvent(event: { data: ReadonlyUint8Array } | ReadonlyUint8Array): LateriteEvent {
@@ -200,6 +235,15 @@ export function identifyLateriteEvent(event: { data: ReadonlyUint8Array } | Read
     if (
         containsBytes(
             data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([219, 97, 107, 184, 198, 48, 50, 243])),
+            0,
+        )
+    ) {
+        return LateriteEvent.Exited;
+    }
+    if (
+        containsBytes(
+            data,
             fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([183, 175, 211, 109, 206, 123, 152, 123])),
             0,
         )
@@ -218,11 +262,38 @@ export function identifyLateriteEvent(event: { data: ReadonlyUint8Array } | Read
     if (
         containsBytes(
             data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([148, 245, 224, 177, 104, 254, 37, 91])),
+            0,
+        )
+    ) {
+        return LateriteEvent.PaymentTokensChanged;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([241, 51, 61, 199, 250, 212, 74, 199])),
+            0,
+        )
+    ) {
+        return LateriteEvent.PendingLowered;
+    }
+    if (
+        containsBytes(
+            data,
             fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([215, 11, 135, 121, 208, 119, 149, 149])),
             0,
         )
     ) {
         return LateriteEvent.PlanCreated;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([218, 95, 111, 68, 220, 147, 110, 236])),
+            0,
+        )
+    ) {
+        return LateriteEvent.Reactivated;
     }
     if (
         containsBytes(
@@ -242,21 +313,55 @@ export function identifyLateriteEvent(event: { data: ReadonlyUint8Array } | Read
     ) {
         return LateriteEvent.Swept;
     }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([126, 9, 150, 127, 199, 123, 136, 1])),
+            0,
+        )
+    ) {
+        return LateriteEvent.TierChanged;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([253, 90, 100, 189, 64, 199, 105, 76])),
+            0,
+        )
+    ) {
+        return LateriteEvent.UserPaused;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([44, 154, 119, 125, 254, 98, 163, 130])),
+            0,
+        )
+    ) {
+        return LateriteEvent.UserSettingsUpdated;
+    }
     throw new Error('The provided event could not be identified as a laterite event.');
 }
 
 export enum LateriteInstruction {
     AcceptAdmin,
     Attest,
+    ChangePaymentTokens,
+    ChangeTier,
     CloseAttestation,
     CreatePlan,
     Enroll,
+    Exit,
     Initialize,
+    LowerPending,
     ProposeAdmin,
+    Reactivate,
     SetMarketCalendar,
     SetPaused,
+    SetUserPaused,
     Sweep,
     UpdateConfig,
+    UpdateSettings,
 }
 
 export function identifyLateriteInstruction(
@@ -280,6 +385,24 @@ export function identifyLateriteInstruction(
         )
     ) {
         return LateriteInstruction.Attest;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([52, 157, 115, 114, 64, 43, 241, 2])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.ChangePaymentTokens;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([102, 152, 56, 92, 156, 1, 87, 130])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.ChangeTier;
     }
     if (
         containsBytes(
@@ -311,6 +434,15 @@ export function identifyLateriteInstruction(
     if (
         containsBytes(
             data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([234, 32, 12, 71, 126, 5, 219, 160])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.Exit;
+    }
+    if (
+        containsBytes(
+            data,
             fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([175, 175, 109, 31, 13, 152, 155, 237])),
             0,
         )
@@ -320,11 +452,29 @@ export function identifyLateriteInstruction(
     if (
         containsBytes(
             data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([6, 213, 208, 12, 142, 156, 34, 179])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.LowerPending;
+    }
+    if (
+        containsBytes(
+            data,
             fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([121, 214, 199, 212, 87, 39, 117, 234])),
             0,
         )
     ) {
         return LateriteInstruction.ProposeAdmin;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([80, 134, 169, 195, 146, 45, 28, 140])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.Reactivate;
     }
     if (
         containsBytes(
@@ -347,6 +497,15 @@ export function identifyLateriteInstruction(
     if (
         containsBytes(
             data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([248, 245, 113, 47, 183, 81, 176, 180])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.SetUserPaused;
+    }
+    if (
+        containsBytes(
+            data,
             fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([40, 23, 234, 175, 14, 61, 154, 177])),
             0,
         )
@@ -362,6 +521,15 @@ export function identifyLateriteInstruction(
     ) {
         return LateriteInstruction.UpdateConfig;
     }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([81, 166, 51, 213, 158, 84, 157, 108])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.UpdateSettings;
+    }
     throw new SolanaError(SOLANA_ERROR__PROGRAM_CLIENTS__FAILED_TO_IDENTIFY_INSTRUCTION, {
         instructionData: data,
         programName: 'laterite',
@@ -371,15 +539,22 @@ export function identifyLateriteInstruction(
 export type ParsedLateriteInstruction<TProgram extends string = 'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf'> =
     | ({ instructionType: LateriteInstruction.AcceptAdmin } & ParsedAcceptAdminInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.Attest } & ParsedAttestInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.ChangePaymentTokens } & ParsedChangePaymentTokensInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.ChangeTier } & ParsedChangeTierInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.CloseAttestation } & ParsedCloseAttestationInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.CreatePlan } & ParsedCreatePlanInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.Enroll } & ParsedEnrollInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.Exit } & ParsedExitInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.Initialize } & ParsedInitializeInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.LowerPending } & ParsedLowerPendingInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.ProposeAdmin } & ParsedProposeAdminInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.Reactivate } & ParsedReactivateInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.SetMarketCalendar } & ParsedSetMarketCalendarInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.SetPaused } & ParsedSetPausedInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.SetUserPaused } & ParsedSetUserPausedInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.Sweep } & ParsedSweepInstruction<TProgram>)
-    | ({ instructionType: LateriteInstruction.UpdateConfig } & ParsedUpdateConfigInstruction<TProgram>);
+    | ({ instructionType: LateriteInstruction.UpdateConfig } & ParsedUpdateConfigInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.UpdateSettings } & ParsedUpdateSettingsInstruction<TProgram>);
 
 export function parseLateriteInstruction<TProgram extends string>(
     instruction: Instruction<TProgram> & InstructionWithData<ReadonlyUint8Array>,
@@ -393,6 +568,17 @@ export function parseLateriteInstruction<TProgram extends string>(
         case LateriteInstruction.Attest: {
             assertIsInstructionWithAccounts(instruction);
             return { instructionType: LateriteInstruction.Attest, ...parseAttestInstruction(instruction) };
+        }
+        case LateriteInstruction.ChangePaymentTokens: {
+            assertIsInstructionWithAccounts(instruction);
+            return {
+                instructionType: LateriteInstruction.ChangePaymentTokens,
+                ...parseChangePaymentTokensInstruction(instruction),
+            };
+        }
+        case LateriteInstruction.ChangeTier: {
+            assertIsInstructionWithAccounts(instruction);
+            return { instructionType: LateriteInstruction.ChangeTier, ...parseChangeTierInstruction(instruction) };
         }
         case LateriteInstruction.CloseAttestation: {
             assertIsInstructionWithAccounts(instruction);
@@ -409,13 +595,25 @@ export function parseLateriteInstruction<TProgram extends string>(
             assertIsInstructionWithAccounts(instruction);
             return { instructionType: LateriteInstruction.Enroll, ...parseEnrollInstruction(instruction) };
         }
+        case LateriteInstruction.Exit: {
+            assertIsInstructionWithAccounts(instruction);
+            return { instructionType: LateriteInstruction.Exit, ...parseExitInstruction(instruction) };
+        }
         case LateriteInstruction.Initialize: {
             assertIsInstructionWithAccounts(instruction);
             return { instructionType: LateriteInstruction.Initialize, ...parseInitializeInstruction(instruction) };
         }
+        case LateriteInstruction.LowerPending: {
+            assertIsInstructionWithAccounts(instruction);
+            return { instructionType: LateriteInstruction.LowerPending, ...parseLowerPendingInstruction(instruction) };
+        }
         case LateriteInstruction.ProposeAdmin: {
             assertIsInstructionWithAccounts(instruction);
             return { instructionType: LateriteInstruction.ProposeAdmin, ...parseProposeAdminInstruction(instruction) };
+        }
+        case LateriteInstruction.Reactivate: {
+            assertIsInstructionWithAccounts(instruction);
+            return { instructionType: LateriteInstruction.Reactivate, ...parseReactivateInstruction(instruction) };
         }
         case LateriteInstruction.SetMarketCalendar: {
             assertIsInstructionWithAccounts(instruction);
@@ -428,6 +626,13 @@ export function parseLateriteInstruction<TProgram extends string>(
             assertIsInstructionWithAccounts(instruction);
             return { instructionType: LateriteInstruction.SetPaused, ...parseSetPausedInstruction(instruction) };
         }
+        case LateriteInstruction.SetUserPaused: {
+            assertIsInstructionWithAccounts(instruction);
+            return {
+                instructionType: LateriteInstruction.SetUserPaused,
+                ...parseSetUserPausedInstruction(instruction),
+            };
+        }
         case LateriteInstruction.Sweep: {
             assertIsInstructionWithAccounts(instruction);
             return { instructionType: LateriteInstruction.Sweep, ...parseSweepInstruction(instruction) };
@@ -435,6 +640,13 @@ export function parseLateriteInstruction<TProgram extends string>(
         case LateriteInstruction.UpdateConfig: {
             assertIsInstructionWithAccounts(instruction);
             return { instructionType: LateriteInstruction.UpdateConfig, ...parseUpdateConfigInstruction(instruction) };
+        }
+        case LateriteInstruction.UpdateSettings: {
+            assertIsInstructionWithAccounts(instruction);
+            return {
+                instructionType: LateriteInstruction.UpdateSettings,
+                ...parseUpdateSettingsInstruction(instruction),
+            };
         }
         default:
             throw new SolanaError(SOLANA_ERROR__PROGRAM_CLIENTS__UNRECOGNIZED_INSTRUCTION_TYPE, {
@@ -467,6 +679,12 @@ export type LateritePluginInstructions = {
     attest: (
         input: MakeOptional<AttestAsyncInput, 'payer'>,
     ) => ReturnType<typeof getAttestInstructionAsync> & SelfPlanAndSendFunctions;
+    changePaymentTokens: (
+        input: ChangePaymentTokensAsyncInput,
+    ) => ReturnType<typeof getChangePaymentTokensInstructionAsync> & SelfPlanAndSendFunctions;
+    changeTier: (
+        input: ChangeTierAsyncInput,
+    ) => ReturnType<typeof getChangeTierInstructionAsync> & SelfPlanAndSendFunctions;
     closeAttestation: (
         input: MakeOptional<CloseAttestationInput, 'payer'>,
     ) => ReturnType<typeof getCloseAttestationInstruction> & SelfPlanAndSendFunctions;
@@ -476,22 +694,35 @@ export type LateritePluginInstructions = {
     enroll: (
         input: MakeOptional<EnrollAsyncInput, 'payer'>,
     ) => ReturnType<typeof getEnrollInstructionAsync> & SelfPlanAndSendFunctions;
+    exit: (input: ExitAsyncInput) => ReturnType<typeof getExitInstructionAsync> & SelfPlanAndSendFunctions;
     initialize: (
         input: InitializeAsyncInput,
     ) => ReturnType<typeof getInitializeInstructionAsync> & SelfPlanAndSendFunctions;
+    lowerPending: (
+        input: LowerPendingAsyncInput,
+    ) => ReturnType<typeof getLowerPendingInstructionAsync> & SelfPlanAndSendFunctions;
     proposeAdmin: (
         input: ProposeAdminAsyncInput,
     ) => ReturnType<typeof getProposeAdminInstructionAsync> & SelfPlanAndSendFunctions;
+    reactivate: (
+        input: ReactivateAsyncInput,
+    ) => ReturnType<typeof getReactivateInstructionAsync> & SelfPlanAndSendFunctions;
     setMarketCalendar: (
         input: SetMarketCalendarAsyncInput,
     ) => ReturnType<typeof getSetMarketCalendarInstructionAsync> & SelfPlanAndSendFunctions;
     setPaused: (
         input: SetPausedAsyncInput,
     ) => ReturnType<typeof getSetPausedInstructionAsync> & SelfPlanAndSendFunctions;
+    setUserPaused: (
+        input: SetUserPausedAsyncInput,
+    ) => ReturnType<typeof getSetUserPausedInstructionAsync> & SelfPlanAndSendFunctions;
     sweep: (input: SweepAsyncInput) => ReturnType<typeof getSweepInstructionAsync> & SelfPlanAndSendFunctions;
     updateConfig: (
         input: UpdateConfigAsyncInput,
     ) => ReturnType<typeof getUpdateConfigInstructionAsync> & SelfPlanAndSendFunctions;
+    updateSettings: (
+        input: UpdateSettingsAsyncInput,
+    ) => ReturnType<typeof getUpdateSettingsInstructionAsync> & SelfPlanAndSendFunctions;
 };
 
 export type LateritePluginPdas = {
@@ -521,6 +752,9 @@ export function lateriteProgram() {
                             client,
                             getAttestInstructionAsync({ ...input, payer: input.payer ?? client.payer }),
                         ),
+                    changePaymentTokens: input =>
+                        addSelfPlanAndSendFunctions(client, getChangePaymentTokensInstructionAsync(input)),
+                    changeTier: input => addSelfPlanAndSendFunctions(client, getChangeTierInstructionAsync(input)),
                     closeAttestation: input =>
                         addSelfPlanAndSendFunctions(
                             client,
@@ -532,13 +766,20 @@ export function lateriteProgram() {
                             client,
                             getEnrollInstructionAsync({ ...input, payer: input.payer ?? client.payer }),
                         ),
+                    exit: input => addSelfPlanAndSendFunctions(client, getExitInstructionAsync(input)),
                     initialize: input => addSelfPlanAndSendFunctions(client, getInitializeInstructionAsync(input)),
+                    lowerPending: input => addSelfPlanAndSendFunctions(client, getLowerPendingInstructionAsync(input)),
                     proposeAdmin: input => addSelfPlanAndSendFunctions(client, getProposeAdminInstructionAsync(input)),
+                    reactivate: input => addSelfPlanAndSendFunctions(client, getReactivateInstructionAsync(input)),
                     setMarketCalendar: input =>
                         addSelfPlanAndSendFunctions(client, getSetMarketCalendarInstructionAsync(input)),
                     setPaused: input => addSelfPlanAndSendFunctions(client, getSetPausedInstructionAsync(input)),
+                    setUserPaused: input =>
+                        addSelfPlanAndSendFunctions(client, getSetUserPausedInstructionAsync(input)),
                     sweep: input => addSelfPlanAndSendFunctions(client, getSweepInstructionAsync(input)),
                     updateConfig: input => addSelfPlanAndSendFunctions(client, getUpdateConfigInstructionAsync(input)),
+                    updateSettings: input =>
+                        addSelfPlanAndSendFunctions(client, getUpdateSettingsInstructionAsync(input)),
                 },
                 pdas: { config: findConfigPda, vault: findVaultPda, userConfig: findUserConfigPda },
                 identifyAccount: identifyLateriteAccount,

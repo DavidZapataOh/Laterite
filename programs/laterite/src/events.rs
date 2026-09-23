@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{Attestation, ConfigParams, Settings};
+use crate::{Attestation, ConfigParams, EnrollParams, Settings};
 
 #[event]
 pub struct ConfigInitialized {
@@ -72,4 +72,47 @@ pub struct Swept {
     /// Raw asset units the user received, and the minimum the prices allowed.
     pub received: u64,
     pub min_out: u64,
+}
+
+#[event]
+pub struct UserSettingsUpdated {
+    pub user: Pubkey,
+    pub params: EnrollParams,
+}
+
+#[event]
+pub struct UserPaused {
+    pub user: Pubkey,
+    pub paused: bool,
+}
+
+#[event]
+pub struct PendingLowered {
+    pub user: Pubkey,
+    pub pending: u64,
+}
+
+#[event]
+pub struct TierChanged {
+    pub user: Pubkey,
+    pub tier: u8,
+}
+
+#[event]
+pub struct PaymentTokensChanged {
+    pub user: Pubkey,
+    pub payment_tokens: u8,
+}
+
+#[event]
+pub struct Exited {
+    pub user: Pubkey,
+}
+
+#[event]
+pub struct Reactivated {
+    pub user: Pubkey,
+    pub tier: u8,
+    pub payment_tokens: u8,
+    pub asset: u8,
 }

@@ -30,6 +30,12 @@ impl Pull {
     pub fn total(&self) -> u64 {
         self.engine + self.pending
     }
+
+    /// The pull within `limit`, the engine kept first.
+    pub fn capped(self, limit: u64) -> Pull {
+        let engine = self.engine.min(limit);
+        Pull { engine, pending: self.pending.min(limit - engine) }
+    }
 }
 
 impl UserConfig {

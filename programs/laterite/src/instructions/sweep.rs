@@ -17,8 +17,9 @@ use crate::{
     events::Swept,
     min_out,
     pyth_lazer_solana_contract::{cpi as pyth, program::PythLazerSolanaContract},
-    quote, us_market_open, Config, Engine, UserConfig, CONFIG_SEED, DAY_SECONDS, PLANS, SUBSCRIPTIONS_EVENT_AUTHORITY,
-    SWAP_AUTHORITY, SWAP_AUTHORITY_BUMP, SWAP_SEED, USD_DECIMALS, USER_CONFIG_SEED, VAULT_SEED,
+    quote, subscription, us_market_open, Config, Engine, UserConfig, CONFIG_SEED, DAY_SECONDS, PLANS,
+    SUBSCRIPTIONS_EVENT_AUTHORITY, SWAP_AUTHORITY, SWAP_AUTHORITY_BUMP, SWAP_SEED, USD_DECIMALS, USER_CONFIG_SEED,
+    VAULT_SEED,
 };
 
 #[event_cpi]
@@ -103,8 +104,7 @@ impl<'info> Sweep<'info> {
         );
         let balance = amount(&self.user_payment_account)?;
         let pull = user_config.pull(index, balance, config.user_weekly_cap, &config.market_calendar, now);
-        let total = pull.total();
-        require_gt!(total, 0, LateriteError::NothingToSweep);
+        require_gt!(pull.total(), 0, LateriteError::NothingToSweep);
 
         require!(user_config.payment_tokens & (1 << index) != 0, LateriteError::UnknownPaymentToken);
         require_keys_eq!(self.payment_mint.key(), token.mint, LateriteError::UnknownPaymentToken);
@@ -114,6 +114,11 @@ impl<'info> Sweep<'info> {
             PLANS[index][usize::from(user_config.tier)],
             LateriteError::SubscriptionMismatch
         );
+        // After a tier change, a reactivation or an added token, the subscription's period no longer starts with the
+        // user's week, so it can allow less than the week does.
+        let pull = pull.capped(subscription::remaining(&self.subscription, now));
+        let total = pull.total();
+        require_gt!(total, 0, LateriteError::NothingToSweep);
         let asset = *config.assets.get(usize::from(user_config.asset)).ok_or(LateriteError::UnknownAsset)?;
         let user = user_config.user;
         require!(
