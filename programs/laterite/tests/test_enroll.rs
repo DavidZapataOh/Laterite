@@ -1,23 +1,18 @@
 mod common;
 
 use {
-    anchor_lang::{AccountDeserialize, Space},
+    anchor_lang::Space,
     common::*,
-    laterite::{LateriteError, UserConfig},
+    laterite::{LateriteError, UserConfig, UserStatus},
     solana_compute_budget_interface::ComputeBudgetInstruction,
     solana_keypair::Keypair,
     solana_signer::Signer,
     subscriptions::{SubscriptionAuthority, SubscriptionDelegation},
 };
 
-fn fetch_user_config(env: &Env, user: &anchor_lang::solana_program::pubkey::Pubkey) -> UserConfig {
-    let account = env.svm.get_account(&user_config_address(user)).unwrap();
-    UserConfig::try_deserialize(&mut account.data.as_slice()).unwrap()
-}
-
 #[test]
-fn user_config_is_179_bytes() {
-    assert_eq!(8 + UserConfig::INIT_SPACE, 179);
+fn user_config_is_188_bytes() {
+    assert_eq!(8 + UserConfig::INIT_SPACE, 188);
 }
 
 #[test]
@@ -53,6 +48,7 @@ fn onboarding_is_one_sponsored_transaction() {
     assert_eq!(config.payment_tokens, 0b11);
     assert_eq!(config.enrolled_at, NOW);
     assert_eq!((config.week, config.week_spent, config.engine_ran_at, config.pending), (0, 0, 0, 0));
+    assert_eq!((config.status, config.attestable_from), (UserStatus::Active, NOW));
     assert_eq!(&config.goal_label[..5], b"House");
     assert_eq!(fetch_config(&env.svm).user_count, 1);
     assert!(env.svm.get_account(&user.pubkey()).is_none_or(|account| account.lamports == 0));

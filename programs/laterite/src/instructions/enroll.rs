@@ -2,8 +2,8 @@ use anchor_lang::prelude::*;
 use subscriptions::{SubscriptionDelegation, SUBSCRIPTIONS_ID};
 
 use crate::{
-    errors::LateriteError, events::Enrolled, Config, EnrollParams, UserConfig, CONFIG_SEED, PAYMENT_TOKEN_COUNT, PLANS,
-    USER_CONFIG_SEED,
+    errors::LateriteError, events::Enrolled, Config, EnrollParams, UserConfig, UserStatus, CONFIG_SEED,
+    PAYMENT_TOKEN_COUNT, PLANS, USER_CONFIG_SEED,
 };
 
 #[derive(Accounts)]
@@ -42,6 +42,7 @@ impl Enroll<'_> {
             require!(is_subscription(account, plan, self.user.key()), LateriteError::SubscriptionMismatch);
         }
 
+        let now = Clock::get()?.unix_timestamp;
         self.user_config.set_inner(UserConfig {
             user: self.user.key(),
             payer: self.payer.key(),
@@ -53,7 +54,7 @@ impl Enroll<'_> {
             income_rule: params.income_rule,
             change_multiplier: params.change_multiplier,
             cushions: params.cushions,
-            enrolled_at: Clock::get()?.unix_timestamp,
+            enrolled_at: now,
             goal_amount: params.goal_amount,
             goal_label: params.goal_label,
             bump: bumps.user_config,
@@ -61,6 +62,8 @@ impl Enroll<'_> {
             week_spent: 0,
             engine_ran_at: 0,
             pending: 0,
+            status: UserStatus::Active,
+            attestable_from: now,
         });
         self.config.user_count += 1;
 

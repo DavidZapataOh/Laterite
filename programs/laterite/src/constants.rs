@@ -22,6 +22,20 @@ pub const USD_DECIMALS: u8 = 6;
 #[constant]
 pub const USER_CONFIG_SEED: &[u8] = b"user";
 
+/// Seed of an [`AttestationRecord`](crate::AttestationRecord), followed by the user's address, the two halves of the
+/// transfer's transaction signature and its transfer index.
+#[constant]
+pub const ATTESTATION_SEED: &[u8] = b"attestation";
+
+/// Prefix of every attested message. The attestor signs it, then the program's address, `Config.genesis_hash` and the
+/// [`Attestation`](crate::Attestation)'s Borsh encoding, so a signature counts only in this deployment.
+#[constant]
+pub const ATTESTATION_DOMAIN: &[u8] = b"laterite:attestation:v1";
+
+/// How long a transfer can be attested after it happened; its record can be closed afterwards.
+#[constant]
+pub const ATTESTATION_TTL_SECONDS: i64 = 7 * DAY_SECONDS;
+
 /// Days a market calendar spans from the day it is loaded: four years, rounded up to whole bytes of its bitmaps.
 pub const CALENDAR_DAYS: usize = 1_464;
 

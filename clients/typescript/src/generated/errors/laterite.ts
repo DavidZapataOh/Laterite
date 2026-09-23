@@ -66,16 +66,35 @@ export const LATERITE_ERROR__STALE_PRICE = 0x1787; // 6023
 export const LATERITE_ERROR__PRICE_UNCERTAIN = 0x1788; // 6024
 /** AmountTooSmall: The amount buys less than one raw unit of the asset */
 export const LATERITE_ERROR__AMOUNT_TOO_SMALL = 0x1789; // 6025
+/** InvalidGenesisHash: The cluster's genesis hash is not set */
+export const LATERITE_ERROR__INVALID_GENESIS_HASH = 0x178a; // 6026
+/** InvalidAttestationSignature: The previous instruction is not the attestor's signature over this attestation for this deployment */
+export const LATERITE_ERROR__INVALID_ATTESTATION_SIGNATURE = 0x178b; // 6027
+/** InvalidAttestation: The attestation has no amount or its transfer is outside the user's window */
+export const LATERITE_ERROR__INVALID_ATTESTATION = 0x178c; // 6028
+/** UserNotActive: The user is paused or has exited */
+export const LATERITE_ERROR__USER_NOT_ACTIVE = 0x178d; // 6029
+/** AttestationExpired: The attested transfer is too old */
+export const LATERITE_ERROR__ATTESTATION_EXPIRED = 0x178e; // 6030
+/** NothingToInvest: The user's rules invest nothing for this transfer */
+export const LATERITE_ERROR__NOTHING_TO_INVEST = 0x178f; // 6031
+/** AttestationNotExpired: The attestation record has not expired yet */
+export const LATERITE_ERROR__ATTESTATION_NOT_EXPIRED = 0x1790; // 6032
 
 export type LateriteError =
     | typeof LATERITE_ERROR__AMOUNT_TOO_SMALL
+    | typeof LATERITE_ERROR__ATTESTATION_EXPIRED
+    | typeof LATERITE_ERROR__ATTESTATION_NOT_EXPIRED
     | typeof LATERITE_ERROR__BETA_FULL
     | typeof LATERITE_ERROR__CALENDAR_NOT_ASCENDING
     | typeof LATERITE_ERROR__CAP_ABOVE_BETA_LIMIT
     | typeof LATERITE_ERROR__IMPLAUSIBLE_MARKET_DAY
     | typeof LATERITE_ERROR__INVALID_ASSET
+    | typeof LATERITE_ERROR__INVALID_ATTESTATION
+    | typeof LATERITE_ERROR__INVALID_ATTESTATION_SIGNATURE
     | typeof LATERITE_ERROR__INVALID_ATTESTOR
     | typeof LATERITE_ERROR__INVALID_CAP
+    | typeof LATERITE_ERROR__INVALID_GENESIS_HASH
     | typeof LATERITE_ERROR__INVALID_PAYMENT_TOKEN
     | typeof LATERITE_ERROR__INVALID_PRICE_UPDATE
     | typeof LATERITE_ERROR__INVALID_ROUTER
@@ -83,6 +102,7 @@ export type LateriteError =
     | typeof LATERITE_ERROR__INVALID_SPONSOR
     | typeof LATERITE_ERROR__INVALID_TIER
     | typeof LATERITE_ERROR__NO_PAYMENT_TOKEN
+    | typeof LATERITE_ERROR__NOTHING_TO_INVEST
     | typeof LATERITE_ERROR__NOT_PENDING_ADMIN
     | typeof LATERITE_ERROR__NOT_SPONSOR
     | typeof LATERITE_ERROR__NOT_UPGRADE_AUTHORITY
@@ -93,19 +113,25 @@ export type LateriteError =
     | typeof LATERITE_ERROR__SUBSCRIPTION_MISMATCH
     | typeof LATERITE_ERROR__UNAUTHORIZED
     | typeof LATERITE_ERROR__UNKNOWN_ASSET
-    | typeof LATERITE_ERROR__UNKNOWN_PAYMENT_TOKEN;
+    | typeof LATERITE_ERROR__UNKNOWN_PAYMENT_TOKEN
+    | typeof LATERITE_ERROR__USER_NOT_ACTIVE;
 
 let lateriteErrorMessages: Record<LateriteError, string> | undefined;
 if (process.env['NODE_ENV'] !== 'production') {
     lateriteErrorMessages = {
         [LATERITE_ERROR__AMOUNT_TOO_SMALL]: `The amount buys less than one raw unit of the asset`,
+        [LATERITE_ERROR__ATTESTATION_EXPIRED]: `The attested transfer is too old`,
+        [LATERITE_ERROR__ATTESTATION_NOT_EXPIRED]: `The attestation record has not expired yet`,
         [LATERITE_ERROR__BETA_FULL]: `The beta is full`,
         [LATERITE_ERROR__CALENDAR_NOT_ASCENDING]: `Market closures must be strictly ascending`,
         [LATERITE_ERROR__CAP_ABOVE_BETA_LIMIT]: `The tier is above the beta's weekly cap`,
         [LATERITE_ERROR__IMPLAUSIBLE_MARKET_DAY]: `A market closure falls on a weekend, on both lists or outside the calendar's window`,
         [LATERITE_ERROR__INVALID_ASSET]: `An asset entry does not match its mint account or has no price feed`,
+        [LATERITE_ERROR__INVALID_ATTESTATION]: `The attestation has no amount or its transfer is outside the user's window`,
+        [LATERITE_ERROR__INVALID_ATTESTATION_SIGNATURE]: `The previous instruction is not the attestor's signature over this attestation for this deployment`,
         [LATERITE_ERROR__INVALID_ATTESTOR]: `The attestor key is not set`,
         [LATERITE_ERROR__INVALID_CAP]: `Caps must be greater than zero`,
+        [LATERITE_ERROR__INVALID_GENESIS_HASH]: `The cluster's genesis hash is not set`,
         [LATERITE_ERROR__INVALID_PAYMENT_TOKEN]: `A payment-token entry does not match its mint account`,
         [LATERITE_ERROR__INVALID_PRICE_UPDATE]: `The price update is malformed, or given for a token counted at one dollar`,
         [LATERITE_ERROR__INVALID_ROUTER]: `The router address is not set`,
@@ -113,6 +139,7 @@ if (process.env['NODE_ENV'] !== 'production') {
         [LATERITE_ERROR__INVALID_SPONSOR]: `The sponsor key is not set`,
         [LATERITE_ERROR__INVALID_TIER]: `Not one of the weekly tiers`,
         [LATERITE_ERROR__NO_PAYMENT_TOKEN]: `At least one configured payment token must be enabled`,
+        [LATERITE_ERROR__NOTHING_TO_INVEST]: `The user's rules invest nothing for this transfer`,
         [LATERITE_ERROR__NOT_PENDING_ADMIN]: `The signer is not the pending admin`,
         [LATERITE_ERROR__NOT_SPONSOR]: `Only the configured sponsor can pay for enrollment`,
         [LATERITE_ERROR__NOT_UPGRADE_AUTHORITY]: `Only the program's upgrade authority can initialize the config`,
@@ -124,6 +151,7 @@ if (process.env['NODE_ENV'] !== 'production') {
         [LATERITE_ERROR__UNAUTHORIZED]: `Only the admin can do this`,
         [LATERITE_ERROR__UNKNOWN_ASSET]: `Not one of the configured assets`,
         [LATERITE_ERROR__UNKNOWN_PAYMENT_TOKEN]: `Not one of the configured payment tokens`,
+        [LATERITE_ERROR__USER_NOT_ACTIVE]: `The user is paused or has exited`,
     };
 }
 

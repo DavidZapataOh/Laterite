@@ -7,6 +7,8 @@
  */
 
 export * from './acceptAdmin';
+export * from './attest';
+export * from './closeAttestation';
 export * from './createPlan';
 export * from './enroll';
 export * from './initialize';

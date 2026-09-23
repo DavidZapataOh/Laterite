@@ -21,6 +21,7 @@ fn admin_updates_settings_and_keeps_the_tables() {
     assert_eq!(config.max_users, 5);
     assert_eq!(config.assets, params.assets);
     assert_eq!(config.payment_tokens, params.payment_tokens);
+    assert_eq!(config.genesis_hash, params.genesis_hash);
     assert_eq!(config.admin, admin.pubkey());
     assert_eq!(config.user_count, 0);
     assert!(!config.paused);

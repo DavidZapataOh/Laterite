@@ -8,17 +8,18 @@ use {
             instruction::{AccountMeta, Instruction},
             pubkey::Pubkey,
         },
-        system_program, AccountDeserialize, InstructionData, ToAccountMetas,
+        system_program, AccountDeserialize, AccountSerialize, AnchorSerialize, InstructionData, ToAccountMetas,
     },
     laterite::{
-        plan_id, Asset, Config, ConfigParams, Engine, EnrollParams, MarketCalendar, PaymentToken, Settings,
-        CONFIG_SEED, TIERS, USER_CONFIG_SEED, VAULT_SEED,
+        plan_id, Asset, Attestation, Config, ConfigParams, Engine, EnrollParams, MarketCalendar, PaymentToken,
+        Settings, UserConfig, ATTESTATION_DOMAIN, ATTESTATION_SEED, CONFIG_SEED, TIERS, USER_CONFIG_SEED, VAULT_SEED,
     },
     litesvm::{
         types::{FailedTransactionMetadata, TransactionMetadata},
         LiteSVM,
     },
     solana_address_lookup_table_interface::instruction::{create_lookup_table, extend_lookup_table},
+    solana_ed25519_program::new_ed25519_instruction_with_signature,
     solana_keypair::Keypair,
     solana_message::{v0, AddressLookupTableAccount, Message, VersionedMessage},
     solana_signer::Signer,
@@ -35,6 +36,13 @@ pub const PROGRAM: &[u8] = include_bytes!(concat!(env!("CARGO_TARGET_TMPDIR"), "
 /// The mainnet Subscriptions program, pinned by `subscriptions_sha256` in the justfile.
 pub const SUBSCRIPTIONS: &[u8] = include_bytes!("../fixtures/subscriptions.so");
 pub const NOW: i64 = 1_790_000_000;
+
+/// Mainnet's genesis hash, as `getGenesisHash` returns it.
+pub const MAINNET_GENESIS_HASH: [u8; 32] =
+    anchor_lang::pubkey!("5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d").to_bytes();
+/// Devnet's genesis hash, as `getGenesisHash` returns it.
+pub const DEVNET_GENESIS_HASH: [u8; 32] =
+    anchor_lang::pubkey!("EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG").to_bytes();
 
 pub const PYTH_PRO_ID: Pubkey = anchor_lang::pubkey!("pytd2yyk641x7ak7mkaasSJVXh6YYZnC7wTmtgAyxPt");
 pub const PYTH_STORAGE_ID: Pubkey = anchor_lang::pubkey!("3rdJbqfnagQ4yx9HXJViD4zc4xpiSqmFsKpPuSCQVyQL");
@@ -128,6 +136,11 @@ pub fn sponsor() -> Keypair {
     Keypair::new_from_array([7; 32])
 }
 
+/// The attestor key `valid_params()` configures.
+pub fn attestor() -> Keypair {
+    Keypair::new_from_array([8; 32])
+}
+
 pub fn funded(svm: &mut LiteSVM) -> Keypair {
     let keypair = Keypair::new();
     svm.airdrop(&keypair.pubkey(), 10_000_000_000).unwrap();
@@ -173,7 +186,7 @@ pub fn deploy_with_authority(svm: &mut LiteSVM, program_id: Pubkey, authority: P
     program_data
 }
 
-/// Mainnet SPYx and QQQx, USDC and USDT, Pyth Pro ids, Jupiter as router.
+/// Mainnet: SPYx and QQQx, USDC and USDT, Pyth Pro ids, Jupiter as router, the cluster's genesis hash.
 pub fn valid_params() -> ConfigParams {
     let asset = |mint: &str, pyth_feed_id| Asset {
         mint: mint.parse().unwrap(),
@@ -190,7 +203,7 @@ pub fn valid_params() -> ConfigParams {
     ConfigParams {
         settings: Settings {
             router: "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4".parse().unwrap(),
-            attestor: Keypair::new().pubkey(),
+            attestor: attestor().pubkey(),
             sponsor: sponsor().pubkey(),
             user_weekly_cap: 25_000_000,
             max_users: 100,
@@ -203,6 +216,7 @@ pub fn valid_params() -> ConfigParams {
             payment("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", 0),
             payment("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", 8),
         ],
+        genesis_hash: MAINNET_GENESIS_HASH,
     }
 }
 
@@ -485,6 +499,11 @@ pub fn user_config_address(user: &Pubkey) -> Pubkey {
     Pubkey::find_program_address(&[USER_CONFIG_SEED, user.as_ref()], &laterite::ID).0
 }
 
+pub fn fetch_user_config(env: &Env, user: &Pubkey) -> UserConfig {
+    let account = env.svm.get_account(&user_config_address(user)).unwrap();
+    UserConfig::try_deserialize(&mut account.data.as_slice()).unwrap()
+}
+
 pub fn enroll_ix(user: Pubkey, payer: Pubkey, params: EnrollParams, subscriptions: &[Pubkey]) -> Instruction {
     let mut accounts = laterite::accounts::Enroll {
         user,
@@ -652,4 +671,96 @@ pub fn signed_by(message: &[u8], signer: &Keypair) -> Vec<u8> {
     resigned[4..68].copy_from_slice(signature.as_ref());
     resigned[68..100].copy_from_slice(signer.pubkey().as_ref());
     resigned
+}
+
+pub fn set_now(svm: &mut LiteSVM, now: i64) {
+    let mut clock: Clock = svm.get_sysvar();
+    clock.unix_timestamp = now;
+    svm.set_sysvar(&clock);
+}
+
+pub fn write_user_config(env: &mut Env, user_config: &UserConfig) {
+    let address = user_config_address(&user_config.user);
+    let mut account = env.svm.get_account(&address).unwrap();
+    account.data.clear();
+    user_config.try_serialize(&mut account.data).unwrap();
+    env.svm.set_account(address, account).unwrap();
+}
+
+/// `user`, funded and enrolled by the sponsor with `params`.
+pub fn enrolled(env: &mut Env, user: Keypair, params: &EnrollParams) -> Keypair {
+    let user = fund_user(&mut env.svm, user);
+    let instructions = onboarding_ixs(&env.svm, user.pubkey(), sponsor().pubkey(), params);
+    send_many(env, &sponsor(), &instructions, &[&user]).1.unwrap();
+    user
+}
+
+/// The transfer's record address and canonical bump.
+pub fn find_attestation_record(attestation: &Attestation) -> (Pubkey, u8) {
+    let seeds: &[&[u8]] = &[
+        ATTESTATION_SEED,
+        attestation.user.as_ref(),
+        &attestation.signature[..32],
+        &attestation.signature[32..],
+        &attestation.transfer_index.to_le_bytes(),
+    ];
+    Pubkey::find_program_address(seeds, &laterite::ID)
+}
+
+pub fn attestation_record_address(attestation: &Attestation) -> Pubkey {
+    find_attestation_record(attestation).0
+}
+
+/// What the attestor signs for `attestation` in the deployment of `program` on the cluster with `genesis_hash`.
+pub fn attestation_message(program: &Pubkey, genesis_hash: &[u8; 32], attestation: &Attestation) -> Vec<u8> {
+    let mut message = [ATTESTATION_DOMAIN, program.as_ref(), genesis_hash].concat();
+    attestation.serialize(&mut message).unwrap();
+    message
+}
+
+/// The ed25519 precompile instruction in its standard single-signature layout: `signer`'s signature over `message`.
+pub fn signature_ix(message: &[u8], signer: &Keypair) -> Instruction {
+    let signature = signer.sign_message(message).into();
+    new_ed25519_instruction_with_signature(message, &signature, &signer.pubkey().to_bytes())
+}
+
+pub fn attest_ix(payer: Pubkey, attestation: &Attestation) -> Instruction {
+    Instruction {
+        program_id: laterite::ID,
+        accounts: laterite::accounts::Attest {
+            payer,
+            config: config_address(),
+            user_config: user_config_address(&attestation.user),
+            record: attestation_record_address(attestation),
+            instructions: INSTRUCTIONS_SYSVAR,
+            system_program: system_program::ID,
+        }
+        .to_account_metas(None),
+        data: laterite::instruction::Attest { attestation: attestation.clone() }.data(),
+    }
+}
+
+/// `signer`'s signature over `attestation` for this deployment (`valid_params()`: mainnet), then `attest`.
+pub fn attest_ixs(payer: Pubkey, attestation: &Attestation, signer: &Keypair) -> [Instruction; 2] {
+    let message = attestation_message(&laterite::ID, &MAINNET_GENESIS_HASH, attestation);
+    [signature_ix(&message, signer), attest_ix(payer, attestation)]
+}
+
+/// Sends `attest_ixs` in one transaction; returns its compute units.
+pub fn submit_attestation(
+    env: &mut Env,
+    payer: &Keypair,
+    attestation: &Attestation,
+    signer: &Keypair,
+) -> Result<u64, FailedTransactionMetadata> {
+    let instructions = attest_ixs(payer.pubkey(), attestation, signer);
+    send_many(env, payer, &instructions, &[]).1.map(|metadata| metadata.compute_units_consumed)
+}
+
+pub fn close_attestation_ix(record: Pubkey, payer: Pubkey) -> Instruction {
+    Instruction {
+        program_id: laterite::ID,
+        accounts: laterite::accounts::CloseAttestation { record, payer }.to_account_metas(None),
+        data: laterite::instruction::CloseAttestation {}.data(),
+    }
 }

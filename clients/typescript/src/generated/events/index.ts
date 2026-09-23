@@ -8,6 +8,7 @@
 
 export * from './adminAccepted';
 export * from './adminProposed';
+export * from './attested';
 export * from './configInitialized';
 export * from './enrolled';
 export * from './marketCalendarSet';

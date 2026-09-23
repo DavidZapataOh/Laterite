@@ -73,4 +73,16 @@ pub mod laterite {
     pub fn enroll(ctx: Context<Enroll>, params: EnrollParams) -> Result<()> {
         ctx.accounts.enroll(params, &ctx.bumps, ctx.remaining_accounts)
     }
+
+    /// Adds what the user's rule derives from an attested transfer to their pending amount, once per transfer. The
+    /// previous instruction must be the ed25519 precompile verifying the attestor's signature over the attestation
+    /// for this deployment. Anyone can submit it; the payer funds the record and gets it back on close.
+    pub fn attest(ctx: Context<Attest>, attestation: Attestation) -> Result<()> {
+        ctx.accounts.attest(attestation)
+    }
+
+    /// Closes an expired attestation record, refunding its payer. Anyone can call it.
+    pub fn close_attestation(ctx: Context<CloseAttestation>) -> Result<()> {
+        ctx.accounts.close_attestation()
+    }
 }

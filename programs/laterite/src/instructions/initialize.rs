@@ -39,6 +39,7 @@ impl Initialize<'_> {
             bump: bumps.config,
             vault_bump,
             market_calendar: MarketCalendar::default(),
+            genesis_hash: params.genesis_hash,
         });
         emit!(ConfigInitialized { params });
         Ok(())

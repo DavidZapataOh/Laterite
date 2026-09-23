@@ -3,7 +3,7 @@ use anchor_spl::token_interface::Mint;
 
 use crate::{errors::LateriteError, ASSET_COUNT, CALENDAR_DAYS, PAYMENT_TOKEN_COUNT, TIERS, USD_DECIMALS};
 
-/// Global settings at `[CONFIG_SEED]`: 833 bytes with the discriminator.
+/// Global settings at `[CONFIG_SEED]`: 865 bytes with the discriminator.
 #[account]
 #[derive(InitSpace)]
 pub struct Config {
@@ -33,6 +33,9 @@ pub struct Config {
     /// NYSE closures, loaded by the admin as the exchange publishes them; empty until then, so the market counts
     /// as closed.
     pub market_calendar: MarketCalendar,
+    /// Genesis hash of the cluster this deployment runs on. Set once by `initialize`; attestations sign it, so they
+    /// count only on this cluster.
+    pub genesis_hash: [u8; 32],
 }
 
 /// A tokenized stock the sweep can buy.
@@ -91,6 +94,9 @@ pub struct ConfigParams {
     pub settings: Settings,
     pub assets: [Asset; ASSET_COUNT],
     pub payment_tokens: [PaymentToken; PAYMENT_TOKEN_COUNT],
+    /// Genesis hash of the cluster being deployed to, as `getGenesisHash` returns it: the program cannot read it, so
+    /// the deployment supplies it and checks it.
+    pub genesis_hash: [u8; 32],
 }
 
 impl Settings {
@@ -107,6 +113,7 @@ impl ConfigParams {
     /// `mints` are the tables' mint accounts in order: the assets, then the payment tokens.
     pub fn validate(&self, mints: &[AccountInfo]) -> Result<()> {
         self.settings.validate()?;
+        require!(self.genesis_hash != [0; 32], LateriteError::InvalidGenesisHash);
         require_gte!(
             mints.len(),
             ASSET_COUNT + PAYMENT_TOKEN_COUNT,
@@ -141,7 +148,7 @@ fn mint_matches(account: &AccountInfo, mint: &Pubkey, token_program: &Pubkey, de
 }
 
 impl Config {
-    /// Applies the settings; admin, pause state, tables, user count and bumps are left untouched.
+    /// Applies the settings; admin, pause state, tables, genesis hash, user count and bumps are left untouched.
     pub fn apply(&mut self, settings: &Settings) {
         self.router = settings.router;
         self.attestor = settings.attestor;
@@ -151,7 +158,7 @@ impl Config {
     }
 }
 
-/// A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 179 bytes with the discriminator.
+/// A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 188 bytes with the discriminator.
 #[account]
 #[derive(InitSpace, Debug)]
 pub struct UserConfig {
@@ -188,12 +195,63 @@ pub struct UserConfig {
     pub engine_ran_at: i64,
     /// Variable amounts attested but not yet pulled; carried over until the caps let them through.
     pub pending: u64,
+    /// Only an active user is pulled from or credited with attested transfers.
+    pub status: UserStatus,
+    /// Block time of the earliest transfer that can be attested: enrollment, raised to the clock by each return to
+    /// `Active` (resume, reactivation) and each enabling of a payment token or rule that was off. Never lowered.
+    pub attestable_from: i64,
+}
+
+/// Where a user stands. The account outlives an exit, so a returning user keeps their counters.
+#[derive(AnchorSerialize, AnchorDeserialize, InitSpace, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum UserStatus {
+    Active,
+    /// Paused by the user: nothing is pulled or credited until they resume.
+    Paused,
+    /// The user left; they can reactivate the same account.
+    Exited,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, InitSpace, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Engine {
     Daily,
     Weekly,
+}
+
+/// Which rule an attested transfer feeds.
+#[derive(AnchorSerialize, AnchorDeserialize, InitSpace, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EventKind {
+    /// A payment the user received: the income rule.
+    Income,
+    /// A payment the user made: change per payment.
+    Payment,
+}
+
+/// A transfer the attestor observed, in the payment token's raw units.
+#[derive(AnchorSerialize, AnchorDeserialize, InitSpace, Clone, Debug, PartialEq, Eq)]
+pub struct Attestation {
+    pub kind: EventKind,
+    pub user: Pubkey,
+    /// Index into `Config.payment_tokens`.
+    pub payment_token: u8,
+    pub amount: u64,
+    /// Block time of the transfer.
+    pub event_time: i64,
+    /// The transfer's transaction signature.
+    pub signature: [u8; 64],
+    /// Position of the transfer, from 0 in instruction order (each outer instruction followed by its inner ones),
+    /// among the transaction's transfers of either configured payment token to or from the user.
+    pub transfer_index: u16,
+}
+
+/// Marks an attested transfer as counted until it expires.
+#[account]
+#[derive(InitSpace)]
+pub struct AttestationRecord {
+    /// Paid the rent and gets it back when the record is closed.
+    pub payer: Pubkey,
+    /// After this, the transfer can no longer be attested and the record can be closed.
+    pub expires_at: i64,
 }
 
 /// What a user chooses when enrolling.

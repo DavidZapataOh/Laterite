@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{ConfigParams, Settings};
+use crate::{Attestation, ConfigParams, Settings};
 
 #[event]
 pub struct ConfigInitialized {
@@ -47,4 +47,12 @@ pub struct Enrolled {
     pub tier: u8,
     pub payment_tokens: u8,
     pub asset: u8,
+}
+
+#[event]
+pub struct Attested {
+    pub attestation: Attestation,
+    /// What the user's rule adds to `pending`.
+    pub invested: u64,
+    pub pending: u64,
 }

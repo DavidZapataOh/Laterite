@@ -3,7 +3,8 @@
 //! 1,000,000.
 
 use crate::{
-    us_market_open, Engine, MarketCalendar, UserConfig, DAY_SECONDS, TIERS, TRIAL_CAP, TRIAL_SECONDS, WEEK_SECONDS,
+    us_market_open, Engine, MarketCalendar, UserConfig, UserStatus, DAY_SECONDS, TIERS, TRIAL_CAP, TRIAL_SECONDS,
+    WEEK_SECONDS,
 };
 
 /// Income rule: the share of each incoming payment invested, in basis points (10%).
@@ -85,8 +86,12 @@ impl UserConfig {
     }
 
     /// What a sweep of `payment_token` may pull at `now` from a `balance` in that token: the engine if due, then
-    /// pending variable amounts, within the week's remaining cap and above the token's cushion.
+    /// pending variable amounts, within the week's remaining cap and above the token's cushion. Nothing unless the
+    /// user is active.
     pub fn pull(&self, payment_token: usize, balance: u64, beta_cap: u64, calendar: &MarketCalendar, now: i64) -> Pull {
+        if self.status != UserStatus::Active {
+            return Pull::default();
+        }
         let cushion = self.cushions.get(payment_token).copied().unwrap_or(u64::MAX);
         let room =
             self.weekly_cap(beta_cap, now).saturating_sub(self.spent_at(now)).min(balance.saturating_sub(cushion));

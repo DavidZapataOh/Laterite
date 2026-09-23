@@ -46,7 +46,16 @@ import {
     type MaybeEncodedAccount,
     type ReadonlyUint8Array,
 } from '@solana/kit';
-import { getEngineDecoder, getEngineEncoder, type Engine, type EngineArgs } from '../types';
+import {
+    getEngineDecoder,
+    getEngineEncoder,
+    getUserStatusDecoder,
+    getUserStatusEncoder,
+    type Engine,
+    type EngineArgs,
+    type UserStatus,
+    type UserStatusArgs,
+} from '../types';
 
 export const USER_CONFIG_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array([58, 201, 49, 59, 232, 236, 180, 75]);
 
@@ -89,6 +98,13 @@ export type UserConfig = {
     engineRanAt: bigint;
     /** Variable amounts attested but not yet pulled; carried over until the caps let them through. */
     pending: bigint;
+    /** Only an active user is pulled from or credited with attested transfers. */
+    status: UserStatus;
+    /**
+     * Block time of the earliest transfer that can be attested: enrollment, raised to the clock by each return to
+     * `Active` (resume, reactivation) and each enabling of a payment token or rule that was off. Never lowered.
+     */
+    attestableFrom: bigint;
 };
 
 export type UserConfigArgs = {
@@ -125,6 +141,13 @@ export type UserConfigArgs = {
     engineRanAt: number | bigint;
     /** Variable amounts attested but not yet pulled; carried over until the caps let them through. */
     pending: number | bigint;
+    /** Only an active user is pulled from or credited with attested transfers. */
+    status: UserStatusArgs;
+    /**
+     * Block time of the earliest transfer that can be attested: enrollment, raised to the clock by each return to
+     * `Active` (resume, reactivation) and each enabling of a payment token or rule that was off. Never lowered.
+     */
+    attestableFrom: number | bigint;
 };
 
 /** Gets the encoder for {@link UserConfigArgs} account data. */
@@ -150,6 +173,8 @@ export function getUserConfigEncoder(): FixedSizeEncoder<UserConfigArgs> {
             ['weekSpent', getU64Encoder()],
             ['engineRanAt', getI64Encoder()],
             ['pending', getU64Encoder()],
+            ['status', getUserStatusEncoder()],
+            ['attestableFrom', getI64Encoder()],
         ]),
         value => ({ ...value, discriminator: USER_CONFIG_DISCRIMINATOR }),
     );
@@ -177,6 +202,8 @@ export function getUserConfigDecoder(): FixedSizeDecoder<UserConfig> {
         ['weekSpent', getU64Decoder()],
         ['engineRanAt', getI64Decoder()],
         ['pending', getU64Decoder()],
+        ['status', getUserStatusDecoder()],
+        ['attestableFrom', getI64Decoder()],
     ]);
 }
 
@@ -236,5 +263,5 @@ export async function fetchAllMaybeUserConfig(
 }
 
 export function getUserConfigSize(): number {
-    return 179;
+    return 188;
 }

@@ -95,6 +95,11 @@ export type Config = {
      * as closed.
      */
     marketCalendar: MarketCalendar;
+    /**
+     * Genesis hash of the cluster this deployment runs on. Set once by `initialize`; attestations sign it, so they
+     * count only on this cluster.
+     */
+    genesisHash: ReadonlyUint8Array;
 };
 
 export type ConfigArgs = {
@@ -126,6 +131,11 @@ export type ConfigArgs = {
      * as closed.
      */
     marketCalendar: MarketCalendarArgs;
+    /**
+     * Genesis hash of the cluster this deployment runs on. Set once by `initialize`; attestations sign it, so they
+     * count only on this cluster.
+     */
+    genesisHash: ReadonlyUint8Array;
 };
 
 /** Gets the encoder for {@link ConfigArgs} account data. */
@@ -147,6 +157,7 @@ export function getConfigEncoder(): FixedSizeEncoder<ConfigArgs> {
             ['bump', getU8Encoder()],
             ['vaultBump', getU8Encoder()],
             ['marketCalendar', getMarketCalendarEncoder()],
+            ['genesisHash', fixEncoderSize(getBytesEncoder(), 32)],
         ]),
         value => ({ ...value, discriminator: CONFIG_DISCRIMINATOR }),
     );
@@ -170,6 +181,7 @@ export function getConfigDecoder(): FixedSizeDecoder<Config> {
         ['bump', getU8Decoder()],
         ['vaultBump', getU8Decoder()],
         ['marketCalendar', getMarketCalendarDecoder()],
+        ['genesisHash', fixDecoderSize(getBytesDecoder(), 32)],
     ]);
 }
 
@@ -229,5 +241,5 @@ export async function fetchAllMaybeConfig(
 }
 
 export function getConfigSize(): number {
-    return 833;
+    return 865;
 }

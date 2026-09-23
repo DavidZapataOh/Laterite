@@ -2,7 +2,7 @@ mod common;
 
 use {
     common::*,
-    laterite::{Engine, MarketCalendar, Pull, UserConfig, DAY_SECONDS, TIERS, TRIAL_CAP, WEEK_SECONDS},
+    laterite::{Engine, MarketCalendar, Pull, UserConfig, UserStatus, DAY_SECONDS, TIERS, TRIAL_CAP, WEEK_SECONDS},
     proptest::prelude::*,
 };
 
@@ -33,6 +33,8 @@ fn user(tier: u8, engine: Engine, engine_amount: u64) -> UserConfig {
         week_spent: 0,
         engine_ran_at: 0,
         pending: 0,
+        status: UserStatus::Active,
+        attestable_from: MONDAY,
     }
 }
 
@@ -126,6 +128,17 @@ fn the_cushion_is_never_pulled() {
 fn an_unknown_payment_token_pulls_nothing() {
     let config = veteran(0, Engine::Daily, DOLLAR);
     assert_eq!(config.pull(2, RICH, BETA_CAP, &nyse_market_calendar(), MONDAY), Pull::default());
+}
+
+#[test]
+fn only_an_active_user_is_pulled() {
+    let market = nyse_market_calendar();
+    let active = UserConfig { pending: 3 * DOLLAR, ..veteran(0, Engine::Daily, DOLLAR) };
+    assert_eq!(active.pull(0, RICH, BETA_CAP, &market, MONDAY), Pull { engine: DOLLAR, pending: 3 * DOLLAR });
+    for status in [UserStatus::Paused, UserStatus::Exited] {
+        let config = UserConfig { status, ..active.clone() };
+        assert_eq!(config.pull(0, RICH, BETA_CAP, &market, MONDAY), Pull::default());
+    }
 }
 
 #[test]

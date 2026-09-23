@@ -35,8 +35,11 @@ import {
     type SelfPlanAndSendFunctions,
 } from '@solana/program-client-core';
 import {
+    getAttestationRecordCodec,
     getConfigCodec,
     getUserConfigCodec,
+    type AttestationRecord,
+    type AttestationRecordArgs,
     type Config,
     type ConfigArgs,
     type UserConfig,
@@ -44,6 +47,8 @@ import {
 } from '../accounts';
 import {
     getAcceptAdminInstructionAsync,
+    getAttestInstructionAsync,
+    getCloseAttestationInstruction,
     getCreatePlanInstructionAsync,
     getEnrollInstructionAsync,
     getInitializeInstructionAsync,
@@ -52,6 +57,8 @@ import {
     getSetPausedInstructionAsync,
     getUpdateConfigInstructionAsync,
     parseAcceptAdminInstruction,
+    parseAttestInstruction,
+    parseCloseAttestationInstruction,
     parseCreatePlanInstruction,
     parseEnrollInstruction,
     parseInitializeInstruction,
@@ -60,10 +67,14 @@ import {
     parseSetPausedInstruction,
     parseUpdateConfigInstruction,
     type AcceptAdminAsyncInput,
+    type AttestAsyncInput,
+    type CloseAttestationInput,
     type CreatePlanAsyncInput,
     type EnrollAsyncInput,
     type InitializeAsyncInput,
     type ParsedAcceptAdminInstruction,
+    type ParsedAttestInstruction,
+    type ParsedCloseAttestationInstruction,
     type ParsedCreatePlanInstruction,
     type ParsedEnrollInstruction,
     type ParsedInitializeInstruction,
@@ -82,12 +93,22 @@ export const LATERITE_PROGRAM_ADDRESS =
     'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf' as Address<'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf'>;
 
 export enum LateriteAccount {
+    AttestationRecord,
     Config,
     UserConfig,
 }
 
 export function identifyLateriteAccount(account: { data: ReadonlyUint8Array } | ReadonlyUint8Array): LateriteAccount {
     const data = 'data' in account ? account.data : account;
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([33, 137, 13, 193, 39, 232, 216, 63])),
+            0,
+        )
+    ) {
+        return LateriteAccount.AttestationRecord;
+    }
     if (
         containsBytes(
             data,
@@ -115,6 +136,7 @@ export function identifyLateriteAccount(account: { data: ReadonlyUint8Array } | 
 export enum LateriteEvent {
     AdminAccepted,
     AdminProposed,
+    Attested,
     ConfigInitialized,
     Enrolled,
     MarketCalendarSet,
@@ -142,6 +164,15 @@ export function identifyLateriteEvent(event: { data: ReadonlyUint8Array } | Read
         )
     ) {
         return LateriteEvent.AdminProposed;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([184, 102, 113, 199, 220, 197, 96, 50])),
+            0,
+        )
+    ) {
+        return LateriteEvent.Attested;
     }
     if (
         containsBytes(
@@ -202,6 +233,8 @@ export function identifyLateriteEvent(event: { data: ReadonlyUint8Array } | Read
 
 export enum LateriteInstruction {
     AcceptAdmin,
+    Attest,
+    CloseAttestation,
     CreatePlan,
     Enroll,
     Initialize,
@@ -223,6 +256,24 @@ export function identifyLateriteInstruction(
         )
     ) {
         return LateriteInstruction.AcceptAdmin;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([83, 148, 120, 119, 144, 139, 117, 160])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.Attest;
+    }
+    if (
+        containsBytes(
+            data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([249, 84, 133, 23, 48, 175, 252, 221])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.CloseAttestation;
     }
     if (
         containsBytes(
@@ -295,6 +346,8 @@ export function identifyLateriteInstruction(
 
 export type ParsedLateriteInstruction<TProgram extends string = 'LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf'> =
     | ({ instructionType: LateriteInstruction.AcceptAdmin } & ParsedAcceptAdminInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.Attest } & ParsedAttestInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.CloseAttestation } & ParsedCloseAttestationInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.CreatePlan } & ParsedCreatePlanInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.Enroll } & ParsedEnrollInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.Initialize } & ParsedInitializeInstruction<TProgram>)
@@ -311,6 +364,17 @@ export function parseLateriteInstruction<TProgram extends string>(
         case LateriteInstruction.AcceptAdmin: {
             assertIsInstructionWithAccounts(instruction);
             return { instructionType: LateriteInstruction.AcceptAdmin, ...parseAcceptAdminInstruction(instruction) };
+        }
+        case LateriteInstruction.Attest: {
+            assertIsInstructionWithAccounts(instruction);
+            return { instructionType: LateriteInstruction.Attest, ...parseAttestInstruction(instruction) };
+        }
+        case LateriteInstruction.CloseAttestation: {
+            assertIsInstructionWithAccounts(instruction);
+            return {
+                instructionType: LateriteInstruction.CloseAttestation,
+                ...parseCloseAttestationInstruction(instruction),
+            };
         }
         case LateriteInstruction.CreatePlan: {
             assertIsInstructionWithAccounts(instruction);
@@ -361,6 +425,8 @@ export type LateritePlugin = {
 };
 
 export type LateritePluginAccounts = {
+    attestationRecord: ReturnType<typeof getAttestationRecordCodec> &
+        SelfFetchFunctions<AttestationRecordArgs, AttestationRecord>;
     config: ReturnType<typeof getConfigCodec> & SelfFetchFunctions<ConfigArgs, Config>;
     userConfig: ReturnType<typeof getUserConfigCodec> & SelfFetchFunctions<UserConfigArgs, UserConfig>;
 };
@@ -369,6 +435,12 @@ export type LateritePluginInstructions = {
     acceptAdmin: (
         input: AcceptAdminAsyncInput,
     ) => ReturnType<typeof getAcceptAdminInstructionAsync> & SelfPlanAndSendFunctions;
+    attest: (
+        input: MakeOptional<AttestAsyncInput, 'payer'>,
+    ) => ReturnType<typeof getAttestInstructionAsync> & SelfPlanAndSendFunctions;
+    closeAttestation: (
+        input: MakeOptional<CloseAttestationInput, 'payer'>,
+    ) => ReturnType<typeof getCloseAttestationInstruction> & SelfPlanAndSendFunctions;
     createPlan: (
         input: CreatePlanAsyncInput,
     ) => ReturnType<typeof getCreatePlanInstructionAsync> & SelfPlanAndSendFunctions;
@@ -408,11 +480,22 @@ export function lateriteProgram() {
         return extendClient(client, {
             laterite: <LateritePlugin>{
                 accounts: {
+                    attestationRecord: addSelfFetchFunctions(client, getAttestationRecordCodec()),
                     config: addSelfFetchFunctions(client, getConfigCodec()),
                     userConfig: addSelfFetchFunctions(client, getUserConfigCodec()),
                 },
                 instructions: {
                     acceptAdmin: input => addSelfPlanAndSendFunctions(client, getAcceptAdminInstructionAsync(input)),
+                    attest: input =>
+                        addSelfPlanAndSendFunctions(
+                            client,
+                            getAttestInstructionAsync({ ...input, payer: input.payer ?? client.payer }),
+                        ),
+                    closeAttestation: input =>
+                        addSelfPlanAndSendFunctions(
+                            client,
+                            getCloseAttestationInstruction({ ...input, payer: input.payer ?? client.payer.address }),
+                        ),
                     createPlan: input => addSelfPlanAndSendFunctions(client, getCreatePlanInstructionAsync(input)),
                     enroll: input =>
                         addSelfPlanAndSendFunctions(

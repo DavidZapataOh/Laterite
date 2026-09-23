@@ -8,6 +8,16 @@
 
 import type { ReadonlyUint8Array } from '@solana/kit';
 
+export const ATTESTATION_DOMAIN: ReadonlyUint8Array = new Uint8Array([
+    108, 97, 116, 101, 114, 105, 116, 101, 58, 97, 116, 116, 101, 115, 116, 97, 116, 105, 111, 110, 58, 118, 49,
+]);
+
+export const ATTESTATION_SEED: ReadonlyUint8Array = new Uint8Array([
+    97, 116, 116, 101, 115, 116, 97, 116, 105, 111, 110,
+]);
+
+export const ATTESTATION_TTL_SECONDS: bigint = 604800n;
+
 export const CONFIG_SEED: ReadonlyUint8Array = new Uint8Array([99, 111, 110, 102, 105, 103]);
 
 export const USER_CONFIG_SEED: ReadonlyUint8Array = new Uint8Array([117, 115, 101, 114]);

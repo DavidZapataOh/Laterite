@@ -34,6 +34,88 @@
             "args": []
         },
         {
+            "name": "attest",
+            "docs": [
+                "Adds what the user's rule derives from an attested transfer to their pending amount, once per transfer. The",
+                "previous instruction must be the ed25519 precompile verifying the attestor's signature over the attestation",
+                "for this deployment. Anyone can submit it; the payer funds the record and gets it back on close."
+            ],
+            "discriminator": [83, 148, 120, 119, 144, 139, 117, 160],
+            "accounts": [
+                {
+                    "name": "payer",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "config",
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [99, 111, 110, 102, 105, 103]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "user_config",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [117, 115, 101, 114]
+                            },
+                            {
+                                "kind": "arg",
+                                "path": "attestation.user"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "record",
+                    "writable": true
+                },
+                {
+                    "name": "instructions",
+                    "address": "Sysvar1nstructions1111111111111111111111111"
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": [
+                {
+                    "name": "attestation",
+                    "type": {
+                        "defined": {
+                            "name": "Attestation"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "close_attestation",
+            "docs": ["Closes an expired attestation record, refunding its payer. Anyone can call it."],
+            "discriminator": [249, 84, 133, 23, 48, 175, 252, 221],
+            "accounts": [
+                {
+                    "name": "record",
+                    "writable": true
+                },
+                {
+                    "name": "payer",
+                    "writable": true,
+                    "relations": ["record"]
+                }
+            ],
+            "args": []
+        },
+        {
             "name": "create_plan",
             "docs": [
                 "Publishes a payment token's weekly tier as a Subscriptions plan owned by the vault authority; the",
@@ -353,6 +435,10 @@
     ],
     "accounts": [
         {
+            "name": "AttestationRecord",
+            "discriminator": [33, 137, 13, 193, 39, 232, 216, 63]
+        },
+        {
             "name": "Config",
             "discriminator": [155, 12, 170, 224, 30, 250, 204, 130]
         },
@@ -369,6 +455,10 @@
         {
             "name": "AdminProposed",
             "discriminator": [129, 249, 226, 227, 199, 82, 110, 243]
+        },
+        {
+            "name": "Attested",
+            "discriminator": [184, 102, 113, 199, 220, 197, 96, 50]
         },
         {
             "name": "ConfigInitialized",
@@ -525,6 +615,41 @@
             "code": 6025,
             "name": "AmountTooSmall",
             "msg": "The amount buys less than one raw unit of the asset"
+        },
+        {
+            "code": 6026,
+            "name": "InvalidGenesisHash",
+            "msg": "The cluster's genesis hash is not set"
+        },
+        {
+            "code": 6027,
+            "name": "InvalidAttestationSignature",
+            "msg": "The previous instruction is not the attestor's signature over this attestation for this deployment"
+        },
+        {
+            "code": 6028,
+            "name": "InvalidAttestation",
+            "msg": "The attestation has no amount or its transfer is outside the user's window"
+        },
+        {
+            "code": 6029,
+            "name": "UserNotActive",
+            "msg": "The user is paused or has exited"
+        },
+        {
+            "code": 6030,
+            "name": "AttestationExpired",
+            "msg": "The attested transfer is too old"
+        },
+        {
+            "code": 6031,
+            "name": "NothingToInvest",
+            "msg": "The user's rules invest nothing for this transfer"
+        },
+        {
+            "code": 6032,
+            "name": "AttestationNotExpired",
+            "msg": "The attestation record has not expired yet"
         }
     ],
     "types": [
@@ -579,8 +704,102 @@
             }
         },
         {
+            "name": "Attestation",
+            "docs": ["A transfer the attestor observed, in the payment token's raw units."],
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "kind",
+                        "type": {
+                            "defined": {
+                                "name": "EventKind"
+                            }
+                        }
+                    },
+                    {
+                        "name": "user",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "payment_token",
+                        "docs": ["Index into `Config.payment_tokens`."],
+                        "type": "u8"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "event_time",
+                        "docs": ["Block time of the transfer."],
+                        "type": "i64"
+                    },
+                    {
+                        "name": "signature",
+                        "docs": ["The transfer's transaction signature."],
+                        "type": {
+                            "array": ["u8", 64]
+                        }
+                    },
+                    {
+                        "name": "transfer_index",
+                        "docs": [
+                            "Position of the transfer, from 0 in instruction order (each outer instruction followed by its inner ones),",
+                            "among the transaction's transfers of either configured payment token to or from the user."
+                        ],
+                        "type": "u16"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "AttestationRecord",
+            "docs": ["Marks an attested transfer as counted until it expires."],
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "payer",
+                        "docs": ["Paid the rent and gets it back when the record is closed."],
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "expires_at",
+                        "docs": ["After this, the transfer can no longer be attested and the record can be closed."],
+                        "type": "i64"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Attested",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "attestation",
+                        "type": {
+                            "defined": {
+                                "name": "Attestation"
+                            }
+                        }
+                    },
+                    {
+                        "name": "invested",
+                        "docs": ["What the user's rule adds to `pending`."],
+                        "type": "u64"
+                    },
+                    {
+                        "name": "pending",
+                        "type": "u64"
+                    }
+                ]
+            }
+        },
+        {
             "name": "Config",
-            "docs": ["Global settings at `[CONFIG_SEED]`: 833 bytes with the discriminator."],
+            "docs": ["Global settings at `[CONFIG_SEED]`: 865 bytes with the discriminator."],
             "type": {
                 "kind": "struct",
                 "fields": [
@@ -675,6 +894,16 @@
                                 "name": "MarketCalendar"
                             }
                         }
+                    },
+                    {
+                        "name": "genesis_hash",
+                        "docs": [
+                            "Genesis hash of the cluster this deployment runs on. Set once by `initialize`; attestations sign it, so they",
+                            "count only on this cluster."
+                        ],
+                        "type": {
+                            "array": ["u8", 32]
+                        }
                     }
                 ]
             }
@@ -735,6 +964,16 @@
                                 },
                                 2
                             ]
+                        }
+                    },
+                    {
+                        "name": "genesis_hash",
+                        "docs": [
+                            "Genesis hash of the cluster being deployed to, as `getGenesisHash` returns it: the program cannot read it, so",
+                            "the deployment supplies it and checks it."
+                        ],
+                        "type": {
+                            "array": ["u8", 32]
                         }
                     }
                 ]
@@ -831,6 +1070,21 @@
                     {
                         "name": "asset",
                         "type": "u8"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "EventKind",
+            "docs": ["Which rule an attested transfer feeds."],
+            "type": {
+                "kind": "enum",
+                "variants": [
+                    {
+                        "name": "Income"
+                    },
+                    {
+                        "name": "Payment"
                     }
                 ]
             }
@@ -1003,7 +1257,7 @@
         {
             "name": "UserConfig",
             "docs": [
-                "A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 179 bytes with the discriminator."
+                "A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 188 bytes with the discriminator."
             ],
             "type": {
                 "kind": "struct",
@@ -1106,12 +1360,71 @@
                             "Variable amounts attested but not yet pulled; carried over until the caps let them through."
                         ],
                         "type": "u64"
+                    },
+                    {
+                        "name": "status",
+                        "docs": ["Only an active user is pulled from or credited with attested transfers."],
+                        "type": {
+                            "defined": {
+                                "name": "UserStatus"
+                            }
+                        }
+                    },
+                    {
+                        "name": "attestable_from",
+                        "docs": [
+                            "Block time of the earliest transfer that can be attested: enrollment, raised to the clock by each return to",
+                            "`Active` (resume, reactivation) and each enabling of a payment token or rule that was off. Never lowered."
+                        ],
+                        "type": "i64"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "UserStatus",
+            "docs": ["Where a user stands. The account outlives an exit, so a returning user keeps their counters."],
+            "type": {
+                "kind": "enum",
+                "variants": [
+                    {
+                        "name": "Active"
+                    },
+                    {
+                        "name": "Paused"
+                    },
+                    {
+                        "name": "Exited"
                     }
                 ]
             }
         }
     ],
     "constants": [
+        {
+            "name": "ATTESTATION_DOMAIN",
+            "docs": [
+                "Prefix of every attested message. The attestor signs it, then the program's address, `Config.genesis_hash` and the",
+                "[`Attestation`](crate::Attestation)'s Borsh encoding, so a signature counts only in this deployment."
+            ],
+            "type": "bytes",
+            "value": "[108, 97, 116, 101, 114, 105, 116, 101, 58, 97, 116, 116, 101, 115, 116, 97, 116, 105, 111, 110, 58, 118, 49]"
+        },
+        {
+            "name": "ATTESTATION_SEED",
+            "docs": [
+                "Seed of an [`AttestationRecord`](crate::AttestationRecord), followed by the user's address, the two halves of the",
+                "transfer's transaction signature and its transfer index."
+            ],
+            "type": "bytes",
+            "value": "[97, 116, 116, 101, 115, 116, 97, 116, 105, 111, 110]"
+        },
+        {
+            "name": "ATTESTATION_TTL_SECONDS",
+            "docs": ["How long a transfer can be attested after it happened; its record can be closed afterwards."],
+            "type": "i64",
+            "value": "604800"
+        },
         {
             "name": "CONFIG_SEED",
             "docs": ["Seed of the [`Config`](crate::Config) account."],

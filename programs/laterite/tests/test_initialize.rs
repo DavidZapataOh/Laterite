@@ -8,8 +8,8 @@ use {
 };
 
 #[test]
-fn config_is_833_bytes() {
-    assert_eq!(8 + Config::INIT_SPACE, 833);
+fn config_is_865_bytes() {
+    assert_eq!(8 + Config::INIT_SPACE, 865);
 }
 
 #[test]
@@ -32,6 +32,7 @@ fn upgrade_authority_initializes_the_config() {
     assert_eq!(config.assets, params.assets);
     assert_eq!(config.payment_tokens, params.payment_tokens);
     assert_eq!(config.vault_bump, Pubkey::find_program_address(&[VAULT_SEED], &laterite::ID).1);
+    assert_eq!(config.genesis_hash, MAINNET_GENESIS_HASH);
 }
 
 #[test]
@@ -103,7 +104,7 @@ type Mutation = fn(&mut ConfigParams);
 
 #[test]
 fn invalid_params_are_rejected() {
-    let cases: [(Mutation, LateriteError); 10] = [
+    let cases: [(Mutation, LateriteError); 11] = [
         (|p| p.settings.router = Pubkey::default(), LateriteError::InvalidRouter),
         (|p| p.settings.attestor = Pubkey::default(), LateriteError::InvalidAttestor),
         (|p| p.settings.sponsor = Pubkey::default(), LateriteError::InvalidSponsor),
@@ -114,6 +115,7 @@ fn invalid_params_are_rejected() {
         (|p| p.assets[0].decimals = 6, LateriteError::InvalidAsset),
         (|p| p.payment_tokens[0].mint = Pubkey::default(), LateriteError::InvalidPaymentToken),
         (|p| p.payment_tokens[1].decimals = 8, LateriteError::InvalidPaymentToken),
+        (|p| p.genesis_hash = [0; 32], LateriteError::InvalidGenesisHash),
     ];
     for (mutate, expected) in cases {
         let mut env = setup();

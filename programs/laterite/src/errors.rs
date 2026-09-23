@@ -54,4 +54,18 @@ pub enum LateriteError {
     PriceUncertain,
     #[msg("The amount buys less than one raw unit of the asset")]
     AmountTooSmall,
+    #[msg("The cluster's genesis hash is not set")]
+    InvalidGenesisHash,
+    #[msg("The previous instruction is not the attestor's signature over this attestation for this deployment")]
+    InvalidAttestationSignature,
+    #[msg("The attestation has no amount or its transfer is outside the user's window")]
+    InvalidAttestation,
+    #[msg("The user is paused or has exited")]
+    UserNotActive,
+    #[msg("The attested transfer is too old")]
+    AttestationExpired,
+    #[msg("The user's rules invest nothing for this transfer")]
+    NothingToInvest,
+    #[msg("The attestation record has not expired yet")]
+    AttestationNotExpired,
 }

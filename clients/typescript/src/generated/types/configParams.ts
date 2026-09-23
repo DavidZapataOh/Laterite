@@ -8,13 +8,18 @@
 
 import {
     combineCodec,
+    fixDecoderSize,
+    fixEncoderSize,
     getArrayDecoder,
     getArrayEncoder,
+    getBytesDecoder,
+    getBytesEncoder,
     getStructDecoder,
     getStructEncoder,
     type FixedSizeCodec,
     type FixedSizeDecoder,
     type FixedSizeEncoder,
+    type ReadonlyUint8Array,
 } from '@solana/kit';
 import {
     getAssetDecoder,
@@ -32,12 +37,26 @@ import {
 } from '.';
 
 /** Everything `initialize` sets. The tables never change afterwards, because users refer to entries by index. */
-export type ConfigParams = { settings: Settings; assets: Array<Asset>; paymentTokens: Array<PaymentToken> };
+export type ConfigParams = {
+    settings: Settings;
+    assets: Array<Asset>;
+    paymentTokens: Array<PaymentToken>;
+    /**
+     * Genesis hash of the cluster being deployed to, as `getGenesisHash` returns it: the program cannot read it, so
+     * the deployment supplies it and checks it.
+     */
+    genesisHash: ReadonlyUint8Array;
+};
 
 export type ConfigParamsArgs = {
     settings: SettingsArgs;
     assets: Array<AssetArgs>;
     paymentTokens: Array<PaymentTokenArgs>;
+    /**
+     * Genesis hash of the cluster being deployed to, as `getGenesisHash` returns it: the program cannot read it, so
+     * the deployment supplies it and checks it.
+     */
+    genesisHash: ReadonlyUint8Array;
 };
 
 export function getConfigParamsEncoder(): FixedSizeEncoder<ConfigParamsArgs> {
@@ -45,6 +64,7 @@ export function getConfigParamsEncoder(): FixedSizeEncoder<ConfigParamsArgs> {
         ['settings', getSettingsEncoder()],
         ['assets', getArrayEncoder(getAssetEncoder(), { size: 2 })],
         ['paymentTokens', getArrayEncoder(getPaymentTokenEncoder(), { size: 2 })],
+        ['genesisHash', fixEncoderSize(getBytesEncoder(), 32)],
     ]);
 }
 
@@ -53,6 +73,7 @@ export function getConfigParamsDecoder(): FixedSizeDecoder<ConfigParams> {
         ['settings', getSettingsDecoder()],
         ['assets', getArrayDecoder(getAssetDecoder(), { size: 2 })],
         ['paymentTokens', getArrayDecoder(getPaymentTokenDecoder(), { size: 2 })],
+        ['genesisHash', fixDecoderSize(getBytesDecoder(), 32)],
     ]);
 }
 

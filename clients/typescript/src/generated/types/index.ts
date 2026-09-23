@@ -7,8 +7,11 @@
  */
 
 export * from './asset';
+export * from './attestation';
 export * from './configParams';
 export * from './engine';
+export * from './eventKind';
 export * from './marketCalendar';
 export * from './paymentToken';
 export * from './settings';
+export * from './userStatus';
