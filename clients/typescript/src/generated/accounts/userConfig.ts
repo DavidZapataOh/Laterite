@@ -27,6 +27,8 @@ import {
     getI64Encoder,
     getStructDecoder,
     getStructEncoder,
+    getU32Decoder,
+    getU32Encoder,
     getU64Decoder,
     getU64Encoder,
     getU8Decoder,
@@ -79,6 +81,14 @@ export type UserConfig = {
     /** UTF-8, zero-padded. */
     goalLabel: ReadonlyUint8Array;
     bump: number;
+    /** The week `week_spent` counts, from enrollment (see `week_at`). */
+    week: number;
+    /** Pulled in `week` across both payment tokens. */
+    weekSpent: bigint;
+    /** When the engine last bought; before `enrolled_at` when it never has. */
+    engineRanAt: bigint;
+    /** Variable amounts attested but not yet pulled; carried over until the caps let them through. */
+    pending: bigint;
 };
 
 export type UserConfigArgs = {
@@ -107,6 +117,14 @@ export type UserConfigArgs = {
     /** UTF-8, zero-padded. */
     goalLabel: ReadonlyUint8Array;
     bump: number;
+    /** The week `week_spent` counts, from enrollment (see `week_at`). */
+    week: number;
+    /** Pulled in `week` across both payment tokens. */
+    weekSpent: number | bigint;
+    /** When the engine last bought; before `enrolled_at` when it never has. */
+    engineRanAt: number | bigint;
+    /** Variable amounts attested but not yet pulled; carried over until the caps let them through. */
+    pending: number | bigint;
 };
 
 /** Gets the encoder for {@link UserConfigArgs} account data. */
@@ -128,6 +146,10 @@ export function getUserConfigEncoder(): FixedSizeEncoder<UserConfigArgs> {
             ['goalAmount', getU64Encoder()],
             ['goalLabel', fixEncoderSize(getBytesEncoder(), 32)],
             ['bump', getU8Encoder()],
+            ['week', getU32Encoder()],
+            ['weekSpent', getU64Encoder()],
+            ['engineRanAt', getI64Encoder()],
+            ['pending', getU64Encoder()],
         ]),
         value => ({ ...value, discriminator: USER_CONFIG_DISCRIMINATOR }),
     );
@@ -151,6 +173,10 @@ export function getUserConfigDecoder(): FixedSizeDecoder<UserConfig> {
         ['goalAmount', getU64Decoder()],
         ['goalLabel', fixDecoderSize(getBytesDecoder(), 32)],
         ['bump', getU8Decoder()],
+        ['week', getU32Decoder()],
+        ['weekSpent', getU64Decoder()],
+        ['engineRanAt', getI64Decoder()],
+        ['pending', getU64Decoder()],
     ]);
 }
 
@@ -210,5 +236,5 @@ export async function fetchAllMaybeUserConfig(
 }
 
 export function getUserConfigSize(): number {
-    return 151;
+    return 179;
 }

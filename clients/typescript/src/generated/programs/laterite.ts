@@ -48,6 +48,7 @@ import {
     getEnrollInstructionAsync,
     getInitializeInstructionAsync,
     getProposeAdminInstructionAsync,
+    getSetMarketCalendarInstructionAsync,
     getSetPausedInstructionAsync,
     getUpdateConfigInstructionAsync,
     parseAcceptAdminInstruction,
@@ -55,6 +56,7 @@ import {
     parseEnrollInstruction,
     parseInitializeInstruction,
     parseProposeAdminInstruction,
+    parseSetMarketCalendarInstruction,
     parseSetPausedInstruction,
     parseUpdateConfigInstruction,
     type AcceptAdminAsyncInput,
@@ -66,9 +68,11 @@ import {
     type ParsedEnrollInstruction,
     type ParsedInitializeInstruction,
     type ParsedProposeAdminInstruction,
+    type ParsedSetMarketCalendarInstruction,
     type ParsedSetPausedInstruction,
     type ParsedUpdateConfigInstruction,
     type ProposeAdminAsyncInput,
+    type SetMarketCalendarAsyncInput,
     type SetPausedAsyncInput,
     type UpdateConfigAsyncInput,
 } from '../instructions';
@@ -113,6 +117,7 @@ export enum LateriteEvent {
     AdminProposed,
     ConfigInitialized,
     Enrolled,
+    MarketCalendarSet,
     PausedSet,
     PlanCreated,
     SettingsUpdated,
@@ -159,6 +164,15 @@ export function identifyLateriteEvent(event: { data: ReadonlyUint8Array } | Read
     if (
         containsBytes(
             data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([183, 175, 211, 109, 206, 123, 152, 123])),
+            0,
+        )
+    ) {
+        return LateriteEvent.MarketCalendarSet;
+    }
+    if (
+        containsBytes(
+            data,
             fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([171, 125, 127, 156, 233, 81, 68, 66])),
             0,
         )
@@ -192,6 +206,7 @@ export enum LateriteInstruction {
     Enroll,
     Initialize,
     ProposeAdmin,
+    SetMarketCalendar,
     SetPaused,
     UpdateConfig,
 }
@@ -248,6 +263,15 @@ export function identifyLateriteInstruction(
     if (
         containsBytes(
             data,
+            fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([232, 50, 197, 217, 121, 11, 11, 88])),
+            0,
+        )
+    ) {
+        return LateriteInstruction.SetMarketCalendar;
+    }
+    if (
+        containsBytes(
+            data,
             fixEncoderSize(getBytesEncoder(), 8).encode(new Uint8Array([91, 60, 125, 192, 176, 225, 166, 218])),
             0,
         )
@@ -275,6 +299,7 @@ export type ParsedLateriteInstruction<TProgram extends string = 'LatBPQotoZgdg8r
     | ({ instructionType: LateriteInstruction.Enroll } & ParsedEnrollInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.Initialize } & ParsedInitializeInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.ProposeAdmin } & ParsedProposeAdminInstruction<TProgram>)
+    | ({ instructionType: LateriteInstruction.SetMarketCalendar } & ParsedSetMarketCalendarInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.SetPaused } & ParsedSetPausedInstruction<TProgram>)
     | ({ instructionType: LateriteInstruction.UpdateConfig } & ParsedUpdateConfigInstruction<TProgram>);
 
@@ -302,6 +327,13 @@ export function parseLateriteInstruction<TProgram extends string>(
         case LateriteInstruction.ProposeAdmin: {
             assertIsInstructionWithAccounts(instruction);
             return { instructionType: LateriteInstruction.ProposeAdmin, ...parseProposeAdminInstruction(instruction) };
+        }
+        case LateriteInstruction.SetMarketCalendar: {
+            assertIsInstructionWithAccounts(instruction);
+            return {
+                instructionType: LateriteInstruction.SetMarketCalendar,
+                ...parseSetMarketCalendarInstruction(instruction),
+            };
         }
         case LateriteInstruction.SetPaused: {
             assertIsInstructionWithAccounts(instruction);
@@ -349,6 +381,9 @@ export type LateritePluginInstructions = {
     proposeAdmin: (
         input: ProposeAdminAsyncInput,
     ) => ReturnType<typeof getProposeAdminInstructionAsync> & SelfPlanAndSendFunctions;
+    setMarketCalendar: (
+        input: SetMarketCalendarAsyncInput,
+    ) => ReturnType<typeof getSetMarketCalendarInstructionAsync> & SelfPlanAndSendFunctions;
     setPaused: (
         input: SetPausedAsyncInput,
     ) => ReturnType<typeof getSetPausedInstructionAsync> & SelfPlanAndSendFunctions;
@@ -386,6 +421,8 @@ export function lateriteProgram() {
                         ),
                     initialize: input => addSelfPlanAndSendFunctions(client, getInitializeInstructionAsync(input)),
                     proposeAdmin: input => addSelfPlanAndSendFunctions(client, getProposeAdminInstructionAsync(input)),
+                    setMarketCalendar: input =>
+                        addSelfPlanAndSendFunctions(client, getSetMarketCalendarInstructionAsync(input)),
                     setPaused: input => addSelfPlanAndSendFunctions(client, getSetPausedInstructionAsync(input)),
                     updateConfig: input => addSelfPlanAndSendFunctions(client, getUpdateConfigInstructionAsync(input)),
                 },

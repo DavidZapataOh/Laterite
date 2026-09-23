@@ -52,10 +52,16 @@ export const LATERITE_ERROR__INVALID_RULES = 0x1780; // 6016
 export const LATERITE_ERROR__SUBSCRIPTION_MISMATCH = 0x1781; // 6017
 /** NotSponsor: Only the configured sponsor can pay for enrollment */
 export const LATERITE_ERROR__NOT_SPONSOR = 0x1782; // 6018
+/** CalendarNotAscending: Market closures must be strictly ascending */
+export const LATERITE_ERROR__CALENDAR_NOT_ASCENDING = 0x1783; // 6019
+/** ImplausibleMarketDay: A market closure falls on a weekend, on both lists or outside the calendar's window */
+export const LATERITE_ERROR__IMPLAUSIBLE_MARKET_DAY = 0x1784; // 6020
 
 export type LateriteError =
     | typeof LATERITE_ERROR__BETA_FULL
+    | typeof LATERITE_ERROR__CALENDAR_NOT_ASCENDING
     | typeof LATERITE_ERROR__CAP_ABOVE_BETA_LIMIT
+    | typeof LATERITE_ERROR__IMPLAUSIBLE_MARKET_DAY
     | typeof LATERITE_ERROR__INVALID_ASSET
     | typeof LATERITE_ERROR__INVALID_ATTESTOR
     | typeof LATERITE_ERROR__INVALID_CAP
@@ -78,7 +84,9 @@ let lateriteErrorMessages: Record<LateriteError, string> | undefined;
 if (process.env['NODE_ENV'] !== 'production') {
     lateriteErrorMessages = {
         [LATERITE_ERROR__BETA_FULL]: `The beta is full`,
+        [LATERITE_ERROR__CALENDAR_NOT_ASCENDING]: `Market closures must be strictly ascending`,
         [LATERITE_ERROR__CAP_ABOVE_BETA_LIMIT]: `The tier is above the beta's weekly cap`,
+        [LATERITE_ERROR__IMPLAUSIBLE_MARKET_DAY]: `A market closure falls on a weekend, on both lists or outside the calendar's window`,
         [LATERITE_ERROR__INVALID_ASSET]: `An asset entry does not match its mint account or has no price feed`,
         [LATERITE_ERROR__INVALID_ATTESTOR]: `The attestor key is not set`,
         [LATERITE_ERROR__INVALID_CAP]: `Caps must be greater than zero`,

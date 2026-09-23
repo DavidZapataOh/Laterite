@@ -8,8 +8,8 @@ use {
 };
 
 #[test]
-fn config_is_463_bytes() {
-    assert_eq!(8 + Config::INIT_SPACE, 463);
+fn config_is_833_bytes() {
+    assert_eq!(8 + Config::INIT_SPACE, 833);
 }
 
 #[test]
@@ -123,4 +123,19 @@ fn invalid_params_are_rejected() {
         let failure = send(&mut env.svm, &authority, initialize_ix(authority.pubkey(), params), &[]).unwrap_err();
         assert_eq!(custom_code(&failure), Some(expected.into()), "{expected:?}");
     }
+}
+
+#[test]
+fn payment_tokens_must_have_six_decimals() {
+    let mut env = setup();
+    let authority = env.authority.insecure_clone();
+    let mut params = valid_params();
+    params.payment_tokens[1].decimals = 9;
+    let usdt = params.payment_tokens[1].mint;
+    let mut account = env.svm.get_account(&usdt).unwrap();
+    // Mint layout: the decimals byte follows the authority (36) and the supply (8).
+    account.data[44] = 9;
+    env.svm.set_account(usdt, account).unwrap();
+    let failure = send(&mut env.svm, &authority, initialize_ix(authority.pubkey(), params), &[]).unwrap_err();
+    assert_eq!(custom_code(&failure), Some(LateriteError::InvalidPaymentToken.into()));
 }

@@ -1,7 +1,8 @@
 use anchor_lang::prelude::*;
 
 use crate::{
-    errors::LateriteError, events::ConfigInitialized, program::Laterite, Config, ConfigParams, CONFIG_SEED, VAULT_SEED,
+    errors::LateriteError, events::ConfigInitialized, program::Laterite, Config, ConfigParams, MarketCalendar,
+    CONFIG_SEED, VAULT_SEED,
 };
 
 #[derive(Accounts)]
@@ -37,6 +38,7 @@ impl Initialize<'_> {
             payment_tokens: params.payment_tokens,
             bump: bumps.config,
             vault_bump,
+            market_calendar: MarketCalendar::default(),
         });
         emit!(ConfigInitialized { params });
         Ok(())

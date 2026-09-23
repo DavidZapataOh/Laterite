@@ -15,18 +15,33 @@ pub const ASSET_COUNT: usize = 2;
 /// Entries in the payment-token table: USDC and USDT.
 pub const PAYMENT_TOKEN_COUNT: usize = 2;
 
+/// Decimals of every payment token: amounts, caps and cushions count one dollar as 1,000,000 raw units.
+pub const USD_DECIMALS: u8 = 6;
+
 /// Seed of a user's [`UserConfig`](crate::UserConfig), followed by the user's address.
 #[constant]
 pub const USER_CONFIG_SEED: &[u8] = b"user";
 
+/// Days a market calendar spans from the day it is loaded: four years, rounded up to whole bytes of its bitmaps.
+pub const CALENDAR_DAYS: usize = 1_464;
+
+/// How old a closure the admin loads may be, in days, so a whole published year stays loadable during that year.
+pub const CALENDAR_MAX_AGE_DAYS: i64 = 366;
+
 /// Weekly tiers in USD with 6 decimals: $10 and $25. A user's tier is their combined weekly cap.
 pub const TIERS: [u64; 2] = [10_000_000, 25_000_000];
+
+/// Seconds in a day; days are counted in UTC from 1970-01-01.
+pub const DAY_SECONDS: i64 = 24 * 60 * 60;
+
+/// A user's weeks start at `enrolled_at`, as their subscriptions' periods do.
+pub const WEEK_SECONDS: i64 = 7 * DAY_SECONDS;
 
 /// Weekly cap during a user's first week: $5.
 pub const TRIAL_CAP: u64 = 5_000_000;
 
-/// Length of the trial: one week from enrollment.
-pub const TRIAL_SECONDS: i64 = 7 * 24 * 60 * 60;
+/// Length of the trial: the user's first week.
+pub const TRIAL_SECONDS: i64 = WEEK_SECONDS;
 
 /// Every plan's period: one week.
 pub const PLAN_PERIOD_HOURS: u64 = 168;

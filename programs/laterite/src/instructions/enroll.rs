@@ -57,6 +57,10 @@ impl Enroll<'_> {
             goal_amount: params.goal_amount,
             goal_label: params.goal_label,
             bump: bumps.user_config,
+            week: 0,
+            week_spent: 0,
+            engine_ran_at: 0,
+            pending: 0,
         });
         self.config.user_count += 1;
 

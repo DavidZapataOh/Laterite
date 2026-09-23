@@ -2,15 +2,19 @@
 
 use anchor_lang::prelude::*;
 
+pub mod amount;
 pub mod constants;
 pub mod errors;
 pub mod events;
 pub mod instructions;
+pub mod market;
 pub mod state;
 
+pub use amount::*;
 pub use constants::*;
 pub use errors::LateriteError;
 pub use instructions::*;
+pub use market::*;
 pub use state::*;
 
 declare_id!("LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf");
@@ -33,6 +37,17 @@ pub mod laterite {
     /// Kill switch: stops enrollment and sweeps while set.
     pub fn set_paused(ctx: Context<AdminOnly>, paused: bool) -> Result<()> {
         ctx.accounts.set_paused(paused)
+    }
+
+    /// Replaces the NYSE calendar the weekly engine follows: full-day holidays and 13:00 early closes, each
+    /// ascending, as days since 1970-01-01, and the last day the calendar covers.
+    pub fn set_market_calendar(
+        ctx: Context<AdminOnly>,
+        holidays: Vec<u16>,
+        early_closes: Vec<u16>,
+        valid_through: u16,
+    ) -> Result<()> {
+        ctx.accounts.set_market_calendar(holidays, early_closes, valid_through)
     }
 
     /// First step of an admin handover; `Pubkey::default()` cancels a pending one.

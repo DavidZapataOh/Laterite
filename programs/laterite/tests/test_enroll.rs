@@ -5,6 +5,7 @@ use {
     common::*,
     laterite::{LateriteError, UserConfig},
     solana_compute_budget_interface::ComputeBudgetInstruction,
+    solana_keypair::Keypair,
     solana_signer::Signer,
     subscriptions::{SubscriptionAuthority, SubscriptionDelegation},
 };
@@ -15,15 +16,16 @@ fn fetch_user_config(env: &Env, user: &anchor_lang::solana_program::pubkey::Pubk
 }
 
 #[test]
-fn user_config_is_151_bytes() {
-    assert_eq!(8 + UserConfig::INIT_SPACE, 151);
+fn user_config_is_179_bytes() {
+    assert_eq!(8 + UserConfig::INIT_SPACE, 179);
 }
 
 #[test]
 fn onboarding_is_one_sponsored_transaction() {
     let mut env = with_plans();
     let sponsor = sponsor();
-    let user = user_with_balances(&mut env.svm);
+    // A fixed user key, so the bump searches for the user's accounts, and the compute units, repeat on every run.
+    let user = fund_user(&mut env.svm, Keypair::new_from_array([9; 32]));
     let params = default_enroll_params();
     let mut instructions = vec![
         ComputeBudgetInstruction::set_compute_unit_limit(200_000),
@@ -33,17 +35,24 @@ fn onboarding_is_one_sponsored_transaction() {
 
     let (size, result) = send_many(&mut env, &sponsor, &instructions, &[&user]);
     let metadata = result.unwrap();
+    let prefix = format!("Program {} consumed ", laterite::ID);
+    let enroll =
+        metadata.logs.iter().rev().find_map(|log| log.strip_prefix(&prefix)?.split(' ').next()?.parse::<u64>().ok());
     println!(
-        "onboarding, both tokens, with a compute budget: {size} bytes, {} compute units",
-        metadata.compute_units_consumed
+        "onboarding, both tokens, with a compute budget: {size} bytes, {} compute units, {} in enroll",
+        metadata.compute_units_consumed,
+        enroll.unwrap()
     );
     assert!(size <= 1232, "{size} bytes");
+    // The range docs/003-onboarding-transaction.md measured over random users.
+    assert!((60_150..=93_150).contains(&metadata.compute_units_consumed));
 
     let config = fetch_user_config(&env, &user.pubkey());
     assert_eq!(config.user, user.pubkey());
     assert_eq!(config.payer, sponsor.pubkey());
     assert_eq!(config.payment_tokens, 0b11);
     assert_eq!(config.enrolled_at, NOW);
+    assert_eq!((config.week, config.week_spent, config.engine_ran_at, config.pending), (0, 0, 0, 0));
     assert_eq!(&config.goal_label[..5], b"House");
     assert_eq!(fetch_config(&env.svm).user_count, 1);
     assert!(env.svm.get_account(&user.pubkey()).is_none_or(|account| account.lamports == 0));

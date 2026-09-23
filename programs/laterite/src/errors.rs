@@ -40,4 +40,8 @@ pub enum LateriteError {
     SubscriptionMismatch,
     #[msg("Only the configured sponsor can pay for enrollment")]
     NotSponsor,
+    #[msg("Market closures must be strictly ascending")]
+    CalendarNotAscending,
+    #[msg("A market closure falls on a weekend, on both lists or outside the calendar's window")]
+    ImplausibleMarketDay,
 }

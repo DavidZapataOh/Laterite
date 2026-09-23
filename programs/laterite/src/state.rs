@@ -1,9 +1,9 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token_interface::Mint;
 
-use crate::{errors::LateriteError, ASSET_COUNT, PAYMENT_TOKEN_COUNT, TIERS};
+use crate::{errors::LateriteError, ASSET_COUNT, CALENDAR_DAYS, PAYMENT_TOKEN_COUNT, TIERS, USD_DECIMALS};
 
-/// Global settings at `[CONFIG_SEED]`: 463 bytes with the discriminator.
+/// Global settings at `[CONFIG_SEED]`: 833 bytes with the discriminator.
 #[account]
 #[derive(InitSpace)]
 pub struct Config {
@@ -30,6 +30,9 @@ pub struct Config {
     pub bump: u8,
     /// Bump of the vault authority at `[VAULT_SEED]`.
     pub vault_bump: u8,
+    /// NYSE closures, loaded by the admin as the exchange publishes them; empty until then, so the market counts
+    /// as closed.
+    pub market_calendar: MarketCalendar,
 }
 
 /// A tokenized stock the sweep can buy.
@@ -50,6 +53,26 @@ pub struct PaymentToken {
     pub decimals: u8,
     /// Pyth Pro feed id of the token's USD price; 0 when it is priced at one dollar.
     pub usd_feed_id: u32,
+}
+
+/// The NYSE closures the weekly engine respects, one bit per day: bit `i` of a bitmap (byte `i / 8`, bit `i % 8`)
+/// stands for day `first_day + i`, counted from 1970-01-01.
+#[derive(AnchorSerialize, AnchorDeserialize, InitSpace, Clone, Copy, Debug, PartialEq, Eq)]
+pub struct MarketCalendar {
+    /// The day the calendar was loaded.
+    pub first_day: u16,
+    /// The last day the calendar covers; outside `first_day..=valid_through` the market counts as closed.
+    pub valid_through: u16,
+    /// Full-day closures.
+    pub holidays: [u8; CALENDAR_DAYS / 8],
+    /// Days the market closes at 13:00 New York time.
+    pub early_closes: [u8; CALENDAR_DAYS / 8],
+}
+
+impl Default for MarketCalendar {
+    fn default() -> Self {
+        Self { first_day: 0, valid_through: 0, holidays: [0; CALENDAR_DAYS / 8], early_closes: [0; CALENDAR_DAYS / 8] }
+    }
 }
 
 /// What the admin can change after initialization.
@@ -97,7 +120,7 @@ impl ConfigParams {
         }
         for (token, mint) in self.payment_tokens.iter().zip(&mints[ASSET_COUNT..]) {
             require!(
-                mint_matches(mint, &token.mint, &token.token_program, token.decimals),
+                token.decimals == USD_DECIMALS && mint_matches(mint, &token.mint, &token.token_program, token.decimals),
                 LateriteError::InvalidPaymentToken
             );
         }
@@ -128,9 +151,9 @@ impl Config {
     }
 }
 
-/// A user's signed settings at `[USER_CONFIG_SEED, user]`: 151 bytes with the discriminator.
+/// A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 179 bytes with the discriminator.
 #[account]
-#[derive(InitSpace)]
+#[derive(InitSpace, Debug)]
 pub struct UserConfig {
     pub user: Pubkey,
     /// Who paid this account's rent: the sponsor at enrollment, recorded because the admin can rotate the sponsor.
@@ -157,6 +180,14 @@ pub struct UserConfig {
     /// UTF-8, zero-padded.
     pub goal_label: [u8; 32],
     pub bump: u8,
+    /// The week `week_spent` counts, from enrollment (see `week_at`).
+    pub week: u32,
+    /// Pulled in `week` across both payment tokens.
+    pub week_spent: u64,
+    /// When the engine last bought; before `enrolled_at` when it never has.
+    pub engine_ran_at: i64,
+    /// Variable amounts attested but not yet pulled; carried over until the caps let them through.
+    pub pending: u64,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, InitSpace, Clone, Copy, Debug, PartialEq, Eq)]

@@ -54,6 +54,7 @@ fn only_the_admin_changes_the_config() {
         update_config_ix(intruder.pubkey(), valid_params().settings),
         set_paused_ix(intruder.pubkey(), true),
         propose_admin_ix(intruder.pubkey(), intruder.pubkey()),
+        set_market_calendar_ix(intruder.pubkey(), vec![], vec![], day((2026, 12, 31))),
     ];
     for instruction in attempts {
         let failure = send(&mut env.svm, &intruder, instruction, &[]).unwrap_err();

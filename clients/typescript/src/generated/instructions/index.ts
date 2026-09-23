@@ -11,5 +11,6 @@ export * from './createPlan';
 export * from './enroll';
 export * from './initialize';
 export * from './proposeAdmin';
+export * from './setMarketCalendar';
 export * from './setPaused';
 export * from './updateConfig';

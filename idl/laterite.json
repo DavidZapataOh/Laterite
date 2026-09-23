@@ -240,6 +240,51 @@
             ]
         },
         {
+            "name": "set_market_calendar",
+            "docs": [
+                "Replaces the NYSE calendar the weekly engine follows: full-day holidays and 13:00 early closes, each",
+                "ascending, as days since 1970-01-01, and the last day the calendar covers."
+            ],
+            "discriminator": [232, 50, 197, 217, 121, 11, 11, 88],
+            "accounts": [
+                {
+                    "name": "admin",
+                    "signer": true,
+                    "relations": ["config"]
+                },
+                {
+                    "name": "config",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [99, 111, 110, 102, 105, 103]
+                            }
+                        ]
+                    }
+                }
+            ],
+            "args": [
+                {
+                    "name": "holidays",
+                    "type": {
+                        "vec": "u16"
+                    }
+                },
+                {
+                    "name": "early_closes",
+                    "type": {
+                        "vec": "u16"
+                    }
+                },
+                {
+                    "name": "valid_through",
+                    "type": "u16"
+                }
+            ]
+        },
+        {
             "name": "set_paused",
             "docs": ["Kill switch: stops enrollment and sweeps while set."],
             "discriminator": [91, 60, 125, 192, 176, 225, 166, 218],
@@ -332,6 +377,10 @@
         {
             "name": "Enrolled",
             "discriminator": [129, 156, 102, 214, 94, 196, 220, 127]
+        },
+        {
+            "name": "MarketCalendarSet",
+            "discriminator": [183, 175, 211, 109, 206, 123, 152, 123]
         },
         {
             "name": "PausedSet",
@@ -441,6 +490,16 @@
             "code": 6018,
             "name": "NotSponsor",
             "msg": "Only the configured sponsor can pay for enrollment"
+        },
+        {
+            "code": 6019,
+            "name": "CalendarNotAscending",
+            "msg": "Market closures must be strictly ascending"
+        },
+        {
+            "code": 6020,
+            "name": "ImplausibleMarketDay",
+            "msg": "A market closure falls on a weekend, on both lists or outside the calendar's window"
         }
     ],
     "types": [
@@ -496,7 +555,7 @@
         },
         {
             "name": "Config",
-            "docs": ["Global settings at `[CONFIG_SEED]`: 463 bytes with the discriminator."],
+            "docs": ["Global settings at `[CONFIG_SEED]`: 833 bytes with the discriminator."],
             "type": {
                 "kind": "struct",
                 "fields": [
@@ -579,6 +638,18 @@
                         "name": "vault_bump",
                         "docs": ["Bump of the vault authority at `[VAULT_SEED]`."],
                         "type": "u8"
+                    },
+                    {
+                        "name": "market_calendar",
+                        "docs": [
+                            "NYSE closures, loaded by the admin as the exchange publishes them; empty until then, so the market counts",
+                            "as closed."
+                        ],
+                        "type": {
+                            "defined": {
+                                "name": "MarketCalendar"
+                            }
+                        }
                     }
                 ]
             }
@@ -740,6 +811,68 @@
             }
         },
         {
+            "name": "MarketCalendar",
+            "docs": [
+                "The NYSE closures the weekly engine respects, one bit per day: bit `i` of a bitmap (byte `i / 8`, bit `i % 8`)",
+                "stands for day `first_day + i`, counted from 1970-01-01."
+            ],
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "first_day",
+                        "docs": ["The day the calendar was loaded."],
+                        "type": "u16"
+                    },
+                    {
+                        "name": "valid_through",
+                        "docs": [
+                            "The last day the calendar covers; outside `first_day..=valid_through` the market counts as closed."
+                        ],
+                        "type": "u16"
+                    },
+                    {
+                        "name": "holidays",
+                        "docs": ["Full-day closures."],
+                        "type": {
+                            "array": ["u8", 183]
+                        }
+                    },
+                    {
+                        "name": "early_closes",
+                        "docs": ["Days the market closes at 13:00 New York time."],
+                        "type": {
+                            "array": ["u8", 183]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "MarketCalendarSet",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "holidays",
+                        "type": {
+                            "vec": "u16"
+                        }
+                    },
+                    {
+                        "name": "early_closes",
+                        "type": {
+                            "vec": "u16"
+                        }
+                    },
+                    {
+                        "name": "valid_through",
+                        "type": "u16"
+                    }
+                ]
+            }
+        },
+        {
             "name": "PausedSet",
             "type": {
                 "kind": "struct",
@@ -844,7 +977,9 @@
         },
         {
             "name": "UserConfig",
-            "docs": ["A user's signed settings at `[USER_CONFIG_SEED, user]`: 151 bytes with the discriminator."],
+            "docs": [
+                "A user's signed settings and sweep state at `[USER_CONFIG_SEED, user]`: 179 bytes with the discriminator."
+            ],
             "type": {
                 "kind": "struct",
                 "fields": [
@@ -924,6 +1059,28 @@
                     {
                         "name": "bump",
                         "type": "u8"
+                    },
+                    {
+                        "name": "week",
+                        "docs": ["The week `week_spent` counts, from enrollment (see `week_at`)."],
+                        "type": "u32"
+                    },
+                    {
+                        "name": "week_spent",
+                        "docs": ["Pulled in `week` across both payment tokens."],
+                        "type": "u64"
+                    },
+                    {
+                        "name": "engine_ran_at",
+                        "docs": ["When the engine last bought; before `enrolled_at` when it never has."],
+                        "type": "i64"
+                    },
+                    {
+                        "name": "pending",
+                        "docs": [
+                            "Variable amounts attested but not yet pulled; carried over until the caps let them through."
+                        ],
+                        "type": "u64"
                     }
                 ]
             }

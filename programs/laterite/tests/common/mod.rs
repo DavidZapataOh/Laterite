@@ -11,8 +11,8 @@ use {
         system_program, AccountDeserialize, InstructionData, ToAccountMetas,
     },
     laterite::{
-        plan_id, Asset, Config, ConfigParams, Engine, EnrollParams, PaymentToken, Settings, CONFIG_SEED, TIERS,
-        USER_CONFIG_SEED, VAULT_SEED,
+        plan_id, Asset, Config, ConfigParams, Engine, EnrollParams, MarketCalendar, PaymentToken, Settings,
+        CONFIG_SEED, TIERS, USER_CONFIG_SEED, VAULT_SEED,
     },
     litesvm::{
         types::{FailedTransactionMetadata, TransactionMetadata},
@@ -179,11 +179,14 @@ pub fn initialize_ix(authority: Pubkey, params: ConfigParams) -> Instruction {
     Instruction { program_id: laterite::ID, accounts, data: laterite::instruction::Initialize { params }.data() }
 }
 
-/// `setup()` plus an initialized config.
+/// `setup()` plus an initialized config with the NYSE 2026 to 2028 calendar loaded.
 pub fn initialized() -> Env {
     let mut env = setup();
     let authority = env.authority.insecure_clone();
     send(&mut env.svm, &authority, initialize_ix(authority.pubkey(), valid_params()), &[]).unwrap();
+    let (holidays, early_closes, valid_through) = nyse_calendar();
+    let load = set_market_calendar_ix(authority.pubkey(), holidays, early_closes, valid_through);
+    send(&mut env.svm, &authority, load, &[]).unwrap();
     env
 }
 
@@ -224,6 +227,19 @@ pub fn propose_admin_ix(admin: Pubkey, new_admin: Pubkey) -> Instruction {
         program_id: laterite::ID,
         accounts: admin_accounts(admin),
         data: laterite::instruction::ProposeAdmin { new_admin }.data(),
+    }
+}
+
+pub fn set_market_calendar_ix(
+    admin: Pubkey,
+    holidays: Vec<u16>,
+    early_closes: Vec<u16>,
+    valid_through: u16,
+) -> Instruction {
+    Instruction {
+        program_id: laterite::ID,
+        accounts: admin_accounts(admin),
+        data: laterite::instruction::SetMarketCalendar { holidays, early_closes, valid_through }.data(),
     }
 }
 
@@ -337,7 +353,11 @@ pub fn write_token_account(
 
 /// A user with no SOL and 100 USDC and 100 USDT in canonical accounts.
 pub fn user_with_balances(svm: &mut LiteSVM) -> Keypair {
-    let user = Keypair::new();
+    fund_user(svm, Keypair::new())
+}
+
+/// Gives `user` 100 USDC and 100 USDT in canonical accounts.
+pub fn fund_user(svm: &mut LiteSVM, user: Keypair) -> Keypair {
     for token in valid_params().payment_tokens {
         let address = ata(&user.pubkey(), &token.mint, &token.token_program);
         write_token_account(svm, address, token.mint, user.pubkey(), token.token_program, 100_000_000);
@@ -479,4 +499,51 @@ pub fn send_many(
     let result = env.svm.send_transaction(transaction);
     env.svm.expire_blockhash();
     (size, result)
+}
+
+/// The NYSE calendar the deployment loads.
+fn nyse_calendar_file() -> serde_json::Value {
+    serde_json::from_str(include_str!("../../data/nyse-calendar.json")).unwrap()
+}
+
+/// A `YYYY-MM-DD` date as (year, month, day).
+fn date(value: &serde_json::Value) -> (i64, i64, i64) {
+    let parts: Vec<i64> = value.as_str().unwrap().split('-').map(|part| part.parse().unwrap()).collect();
+    (parts[0], parts[1], parts[2])
+}
+
+/// NYSE full-day closures.
+pub fn nyse_holidays() -> Vec<(i64, i64, i64)> {
+    nyse_calendar_file()["holidays"].as_array().unwrap().iter().map(date).collect()
+}
+
+/// NYSE early closes, at 13:00 New York time.
+pub fn nyse_early_closes() -> Vec<(i64, i64, i64)> {
+    nyse_calendar_file()["earlyCloses"].as_array().unwrap().iter().map(date).collect()
+}
+
+/// The last day the NYSE calendar covers.
+pub fn nyse_valid_through() -> (i64, i64, i64) {
+    date(&nyse_calendar_file()["validThrough"])
+}
+
+/// Days from 1970-01-01 to a date, counted month by month.
+pub fn day((year, month, day): (i64, i64, i64)) -> u16 {
+    let leap = |y: i64| y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
+    let years: i64 = (1970..year).map(|y| if leap(y) { 366 } else { 365 }).sum();
+    let lengths = [31, if leap(year) { 29 } else { 28 }, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    let months: i64 = lengths[..month as usize - 1].iter().sum();
+    (years + months + day - 1) as u16
+}
+
+/// The NYSE calendar as days since 1970-01-01: holidays, early closes and the last day covered.
+pub fn nyse_calendar() -> (Vec<u16>, Vec<u16>, u16) {
+    let days = |dates: Vec<(i64, i64, i64)>| dates.into_iter().map(day).collect();
+    (days(nyse_holidays()), days(nyse_early_closes()), day(nyse_valid_through()))
+}
+
+/// The NYSE calendar as the program keeps it, loaded on 2026-01-01.
+pub fn nyse_market_calendar() -> MarketCalendar {
+    let (holidays, early_closes, valid_through) = nyse_calendar();
+    MarketCalendar::new(&holidays, &early_closes, valid_through, day((2026, 1, 1)).into()).unwrap()
 }

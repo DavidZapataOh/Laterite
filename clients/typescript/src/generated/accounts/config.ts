@@ -47,10 +47,14 @@ import {
 import {
     getAssetDecoder,
     getAssetEncoder,
+    getMarketCalendarDecoder,
+    getMarketCalendarEncoder,
     getPaymentTokenDecoder,
     getPaymentTokenEncoder,
     type Asset,
     type AssetArgs,
+    type MarketCalendar,
+    type MarketCalendarArgs,
     type PaymentToken,
     type PaymentTokenArgs,
 } from '../types';
@@ -86,6 +90,11 @@ export type Config = {
     bump: number;
     /** Bump of the vault authority at `[VAULT_SEED]`. */
     vaultBump: number;
+    /**
+     * NYSE closures, loaded by the admin as the exchange publishes them; empty until then, so the market counts
+     * as closed.
+     */
+    marketCalendar: MarketCalendar;
 };
 
 export type ConfigArgs = {
@@ -112,6 +121,11 @@ export type ConfigArgs = {
     bump: number;
     /** Bump of the vault authority at `[VAULT_SEED]`. */
     vaultBump: number;
+    /**
+     * NYSE closures, loaded by the admin as the exchange publishes them; empty until then, so the market counts
+     * as closed.
+     */
+    marketCalendar: MarketCalendarArgs;
 };
 
 /** Gets the encoder for {@link ConfigArgs} account data. */
@@ -132,6 +146,7 @@ export function getConfigEncoder(): FixedSizeEncoder<ConfigArgs> {
             ['paymentTokens', getArrayEncoder(getPaymentTokenEncoder(), { size: 2 })],
             ['bump', getU8Encoder()],
             ['vaultBump', getU8Encoder()],
+            ['marketCalendar', getMarketCalendarEncoder()],
         ]),
         value => ({ ...value, discriminator: CONFIG_DISCRIMINATOR }),
     );
@@ -154,6 +169,7 @@ export function getConfigDecoder(): FixedSizeDecoder<Config> {
         ['paymentTokens', getArrayDecoder(getPaymentTokenDecoder(), { size: 2 })],
         ['bump', getU8Decoder()],
         ['vaultBump', getU8Decoder()],
+        ['marketCalendar', getMarketCalendarDecoder()],
     ]);
 }
 
@@ -213,5 +229,5 @@ export async function fetchAllMaybeConfig(
 }
 
 export function getConfigSize(): number {
-    return 463;
+    return 833;
 }

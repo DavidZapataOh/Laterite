@@ -18,6 +18,13 @@ pub struct PausedSet {
 }
 
 #[event]
+pub struct MarketCalendarSet {
+    pub holidays: Vec<u16>,
+    pub early_closes: Vec<u16>,
+    pub valid_through: u16,
+}
+
+#[event]
 pub struct AdminProposed {
     pub pending_admin: Pubkey,
 }
