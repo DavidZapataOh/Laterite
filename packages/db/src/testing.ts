@@ -20,7 +20,7 @@ export async function createTestDatabase(): Promise<{ db: Database; drop: () => 
         db,
         async drop() {
             await db.$client.end();
-            await admin.query(`drop database ${name} with (force)`);
+            await admin.query(`drop database ${name}`);
             await admin.end();
         },
         url: url.toString(),

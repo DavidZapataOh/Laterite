@@ -15,6 +15,10 @@ minimumReleaseAgeExclude:
   - '@solana-program/token-2022@0.19.0'
   - '@solana-program/token@0.17.0'
 
+overrides:
+  # drizzle-kit's @esbuild-kit loader pins esbuild 0.18, below the fix for GHSA-67mh-4wv8-2f99
+  '@esbuild-kit/core-utils>esbuild': 0.25.12
+
 peerDependencyRules:
   allowedVersions:
     '@solana/kit': '8'
