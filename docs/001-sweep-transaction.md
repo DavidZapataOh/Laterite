@@ -56,8 +56,8 @@ Measured through our devnet CPMM (sizes as the wire carries them: a version 1 tr
 
 | Payment token | Updates     | Size    | Accounts | CU (total) | Pyth Pro        | Subscriptions | CPMM   | Event | Laterite | Fees (lamports) |
 | ------------- | ----------- | ------- | -------- | ---------- | --------------- | ------------- | ------ | ----- | -------- | --------------- |
-| USDC          | 548 B       | 1,793 B | 32       | 78,913     | 18,500          | 5,919         | 26,525 | 419   | 27,550   | 10,001          |
-| USDT          | 548 + 152 B | 1,959 B | 32       | 101,777    | 18,557 + 18,579 | 7,419         | 26,525 | 419   | 30,278   | 15,002          |
+| USDC          | 548 B       | 1,793 B | 32       | 78,918     | 18,500          | 5,919         | 26,525 | 419   | 27,555   | 10,001          |
+| USDT          | 548 + 152 B | 1,959 B | 32       | 101,787    | 18,557 + 18,579 | 7,419         | 26,525 | 419   | 30,288   | 15,002          |
 
 - A USDT sweep costs 166 bytes (its update and a 14-byte signature entry), about 23,000 compute units (a second Pyth Pro call and USDT's own price) and 5,001 lamports (a second precompile signature and Pyth Pro's fee) more than a USDC sweep.
 - The asset update's size is set by Kamino Scope's feed list (eight feeds today), a third party's choice; a single-feed update would be 152 bytes. Even a USDC sweep through the shortest route is past v0's 1,232 bytes without a lookup table.

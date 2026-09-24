@@ -144,8 +144,8 @@ const refusal = async (promise: Promise<unknown> | (() => unknown)) => {
 describe('sweep builder', () => {
     it('lands the ADR-001 shape at the CU Benchmark baseline', async () => {
         for (const [paymentToken, size, units] of [
-            [0, 1_793, 78_913n],
-            [1, 1_959, 101_777n],
+            [0, 1_793, 78_918n],
+            [1, 1_959, 101_787n],
         ] as const) {
             const swept = await sweepEnv();
             const built = await build(swept, paymentToken);

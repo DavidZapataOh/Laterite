@@ -25,5 +25,6 @@ jobs:
           enable-rust-cache: 'false'
           install-solana: 'false'
           install-anchor: 'false'
+          install-solana-verify: 'false'
       - name: Check formatting
         run: just fmt-check

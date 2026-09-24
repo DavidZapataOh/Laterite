@@ -14,8 +14,8 @@
 | set_user_paused (pause) | 4680 | 310 |
 | set_user_paused (resume) | 4852 | 310 |
 | lower_pending | 4681 | 317 |
-| sweep (USDC, CPMM) | 78913 | 1793 |
-| sweep (USDT, CPMM) | 101777 | 1959 |
+| sweep (USDC, CPMM) | 78918 | 1793 |
+| sweep (USDT, CPMM) | 101787 | 1959 |
 | change_tier | 23981 | 774 |
 | change_payment_tokens (drop USDT) | 12170 | 500 |
 | change_payment_tokens (add USDT) | 7853 | 579 |

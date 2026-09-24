@@ -4,6 +4,9 @@
 set shell := ["bash", "-uc"]
 set dotenv-load
 
+# The verifiable-build image is amd64 only; Apple Silicon runs it under Rosetta
+export DOCKER_DEFAULT_PLATFORM := "linux/amd64"
+
 program_dir := "programs/laterite"
 
 # List available recipes
@@ -18,7 +21,7 @@ default:
 setup: setup-hooks
     #!/usr/bin/env bash
     set -euo pipefail
-    for cmd in pnpm cargo solana anchor surfpool; do
+    for cmd in pnpm cargo solana anchor surfpool docker solana-verify; do
         if ! command -v "$cmd" &>/dev/null; then
             echo "Error: $cmd is required but not installed"
             exit 1
@@ -43,11 +46,16 @@ program-id:
 # Build everything
 build: build-program build-landing
 
-# Compile the router the program tests route through, then the program, to SBF (the tests embed both binaries)
+# Build the program, then the router its tests route through, in the pinned verifiable-build image: every machine builds the bytes a deployment verifies
 build-program:
-    cargo build-sbf --manifest-path {{program_dir}}/tests/router/Cargo.toml
-    anchor build --ignore-keys
-    @echo "✓ Program built"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # The container builds as root; creating target/ first keeps it writable for the host's own builds
+    mkdir -p target
+    # One library per build: a workspace build unifies the router's dependency features into the program's
+    solana-verify build --library-name laterite --arch v3
+    solana-verify build --library-name test_router --arch v3
+    echo "✓ Program built: $(shasum -a 256 target/deploy/laterite.so | cut -d' ' -f1)"
 
 # Build the landing page
 build-landing:
@@ -147,10 +155,9 @@ test-visual: build-landing
 
 generated_paths := "idl clients/typescript/src/generated"
 
-# Copy the IDL `anchor build` emits into idl/
+# Generate the IDL into idl/ (its build compiles the tests, which embed the program binary)
 generate-idl: build-program
-    @mkdir -p idl
-    @cp target/idl/laterite.json idl/laterite.json
+    @anchor idl build -p laterite -o idl/laterite.json >/dev/null
     @pnpm exec prettier --write idl/laterite.json >/dev/null
     @echo "✓ IDL generated"
 

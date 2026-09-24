@@ -24,12 +24,13 @@ tests/fork/          Mainnet-fork tests (Surfpool)
 ## Prerequisites
 
 1. Rust (rustup); the toolchain in `rust-toolchain.toml` installs itself.
-2. Solana CLI 4.1.2: `sh -c "$(curl -sSfL https://release.anza.xyz/v4.1.2/install)"`
+2. Solana CLI 4.3.0: `sh -c "$(curl -sSfL https://release.anza.xyz/v4.3.0/install)"`
 3. Anchor 1.2.0: `cargo install --git https://github.com/otter-sec/anchor avm --locked --force && avm install 1.2.0 && avm use 1.2.0`
-4. Node 24.14.0 (`.nvmrc`) and pnpm (the version in `package.json` is fetched automatically).
-5. just: `brew install just`
-6. Surfpool 1.6.0 (fork tests): `curl -sL https://run.surfpool.run/ | VERSION=v1.6.0 bash`, and a mainnet RPC URL in `.env` (see `.env.example`).
-7. Devnet assets: Anchor 1.0.2 through `avm` and Agave installed with `agave-install` (the DEX source pins Agave 3.1.10; `just build-cpmm` switches to it for the build and back), plus Surfpool (above).
+4. Docker and solana-verify 0.5.2: `cargo install solana-verify --version 0.5.2 --locked`. The program is always built in the verifiable-build image for Solana 4.3.0 (pinned by digest), so a local build, CI and the deployed program are byte-identical, and so are their compute units. On Apple Silicon, enable Docker's Rosetta emulation for amd64 images.
+5. Node 24.14.0 (`.nvmrc`) and pnpm (the version in `package.json` is fetched automatically).
+6. just: `brew install just`
+7. Surfpool 1.6.0 (fork tests): `curl -sL https://run.surfpool.run/ | VERSION=v1.6.0 bash`, and a mainnet RPC URL in `.env` (see `.env.example`).
+8. Devnet assets: Anchor 1.0.2 through `avm` and Agave installed with `agave-install` (the DEX source pins Agave 3.1.10; `just build-cpmm` switches to it for the build and back), plus Surfpool (above).
 
 ## Quick Start
 
