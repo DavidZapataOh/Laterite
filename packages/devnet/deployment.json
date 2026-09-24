@@ -1,0 +1,15 @@
+{
+    "admin": "6VP6vzbGCFhmRBsvWuocUL3L2rCUxbh6bJ7Brc8Pa7NQ",
+    "attestor": "H1cCgrfgzXbRBuYRcNCbfNbvTJw2xJJppg6MjZsVv68n",
+    "config": "58g622en8DoEgWarYgZZWgzAQhZQhVqUx3YYg2H8mEF5",
+    "genesisHash": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+    "lookupTable": "C3uC1bWcSfLVLPDUfK8gETP5Px1d85vTgE82zbikPeWY",
+    "marketCalendarSet": "4BMMJqEFHti295As5FenL4sxHSe5vwDdRe1X6gy76s7MvmKmB3KmfH2strfVZqeLm33PpTt3F5NyEkkfw1UutVm",
+    "program": "LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf",
+    "sponsor": "HaN3j6TaGhjG3SdxJzPkG3dEYXQExssA5WFsfsr7Pije",
+    "swapAccounts": {
+        "USDC": "H78Jq3KYgth6zwzk7D369p7xRL6o17mpAhyAdnpiaiP1",
+        "USDT": "13o2QbEJ4g9AVzB51TqtDbP31dnXsdTowEQ7ZNfqWXDN"
+    },
+    "upgradeAuthority": "6VP6vzbGCFhmRBsvWuocUL3L2rCUxbh6bJ7Brc8Pa7NQ"
+}
