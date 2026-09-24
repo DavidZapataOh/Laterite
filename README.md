@@ -16,9 +16,11 @@ clients/typescript/  Generated TypeScript client (Codama)
 docs/                Architecture decision records and the threat model
 fuzz/laterite/       Invariant fuzz harness (Crucible, `anchor fuzz`)
 idl/                 Program IDL
+packages/db/         Postgres schema and migrations (Drizzle), shared by the services and the app
 packages/deployment/ Deployment runbooks, their checks and the devnet smoke
 packages/devnet/     Devnet stand-in assets, pools and re-peg
 programs/laterite/   On-chain program (Anchor)
+services/operator/   The always-on service on Railway: history indexer and operations alarms
 tests/fork/          Mainnet-fork tests (Surfpool)
 ```
 
@@ -31,7 +33,8 @@ tests/fork/          Mainnet-fork tests (Surfpool)
 5. Node 24.14.0 (`.nvmrc`) and pnpm (the version in `package.json` is fetched automatically).
 6. just: `brew install just`
 7. Surfpool 1.6.0 (fork tests): `curl -sL https://run.surfpool.run/ | VERSION=v1.6.0 bash`, and a mainnet RPC URL in `.env` (see `.env.example`).
-8. Devnet assets: nothing more. `just build-cpmm` builds the DEX in the verifiable-build image of the Solana version its source pins (3.1.10), and the Solana CLI's `solana-test-validator` runs the local devnet.
+8. Services: Docker, for a disposable Postgres (`just db-up`) and the service's image.
+9. Devnet assets: nothing more. `just build-cpmm` builds the DEX in the verifiable-build image of the Solana version its source pins (3.1.10), and the Solana CLI's `solana-test-validator` runs the local devnet.
 
 ## Quick Start
 
@@ -149,9 +152,41 @@ All keys live in `keys/` (git-ignored). The shared keys also live in the team pa
 | `devnet-authority`                                         | Laterite's upgrade authority and admin on devnet; pays the deployment                               | `keys/` and password manager; never on a server |
 | `devnet-attestor`                                          | `Config.attestor` on devnet, never reused on another cluster                                        | `keys/`, password manager, service host secret  |
 | `devnet-sponsor`                                           | `Config.sponsor` on devnet: pays and co-signs onboarding and returns                                | `keys/`, password manager, app host secret      |
+| `devnet-crank`                                             | The service's fee and rent payer: sweeps, attestations and their records                            | `keys/`, password manager, service host secret  |
 | `devnet-laterite-buffer`, `devnet-cpmm-buffer`             | Program upload buffers, kept so an interrupted upload resumes                                       | `keys/`                                         |
 
 The faucet and treasury keys never share a host, nor do the sponsor and the attestor; the issuer and the authority keys are never deployed.
+
+## Services
+
+`services/operator` is one always-on process on Railway, next to its Postgres. It stores Laterite's history from finalized devnet transactions, whoever sent them, and watches what keeps sweeps running:
+
+- **History:** every sweep from its `Swept` event (read from Laterite's self-CPI among the inner instructions, never from logs) with the asset's ScaledUiAmount multiplier in force at its block time, which the program does not read; every attestation from `Attested` with its record, payer and expiry, and the record's closing; and each user's controls (enrollment, settings, pause and resume, lowering what waits to invest, tier and payment-token changes, exit, return) from the events Laterite logs. Instructions are told apart by their discriminator. The indexer resumes after the last transaction it stored and stores nothing twice.
+- **Alarms:** the crank's and the sponsor's SOL and the treasury's SOL and inventory; the market calendar 90 days before `validThrough`, and at once when it does not cover today; Kamino Scope's SPYX/USD and QQQX/USD posts older than 120 s, missing, or larger than a sweep has room for; Pyth Pro answering 401, 403 or 429 to the USDT/USD request; the crank's latest sweep landing less than 20 bps above `min_out`; more swap-authority accounts created in a day than the bound; the indexer stalling. Each alarm is logged and posted to `ALERT_WEBHOOK_URL`, a Slack incoming webhook or a Discord one followed by `/slack`, when it starts, every six hours while it lasts and when it resolves. The Fork workflow's weekday run posts there when it fails.
+
+Only one process operates at a time (a Postgres advisory lock), so a deploy's new process waits as a healthy standby until the old one exits. `GET /health` answers 200 when the database answers and the indexer is current.
+
+The schema lives in `packages/db/src/schema.ts`; `pnpm --filter @laterite/db generate` writes a migration for a change, `just db-check` fails when the committed migrations differ from the schema, and `just db-migrate` applies them. Railway applies them before each deploy (`node migrate.js` in the image).
+
+```bash
+eval "$(just db-up)"   # a disposable Postgres 18; `just db-down` removes it
+just services-test     # the schema, the service and the indexer against real transactions on a local validator (port 28899)
+just operator-image    # the image Railway builds
+```
+
+### Railway
+
+`.railway/railway.ts` declares the project: the Postgres and the `operator` service, built from `services/operator/Dockerfile` at the repository's `main`, migrated before each deploy, gated on `/health`, one replica. Apply it with the Railway CLI (`railway config plan`, then `railway config apply`). Secrets never enter the repository: set each with `railway variable set <NAME> --stdin --service operator`, reading the value from its file or `.env` so it never appears on a command line:
+
+| Variable                                      | Value                                                                 |
+| --------------------------------------------- | --------------------------------------------------------------------- |
+| `CRANK_KEYPAIR`                               | `keys/devnet-crank.json`: the service's fee and rent payer            |
+| `SOLANA_RPC_URL`                              | A devnet RPC                                                          |
+| `MAINNET_RPC_URL`, `MAINNET_FALLBACK_RPC_URL` | Two mainnet RPCs from different providers, for the Kamino Scope relay |
+| `PYTH_PRO_ACCESS_TOKEN`                       | The Pyth Pro token (never logged, never sent to the app or a browser) |
+| `ALERT_WEBHOOK_URL`                           | The operations channel's incoming webhook                             |
+
+`DATABASE_URL` references the Postgres, and Railway sets `PORT`. The service refuses to start when a variable is missing or malformed, naming it, and when its RPC's genesis hash is not the one Laterite's config holds.
 
 ## License
 

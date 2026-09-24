@@ -1,0 +1,14 @@
+{
+    "200": {
+        "body": "{\"parsed\":{\"timestampUs\":\"1790284896400000\",\"priceFeeds\":[{\"priceFeedId\":8,\"price\":\"99973501\",\"exponent\":-8,\"confidence\":6957,\"feedUpdateTimestamp\":1790284896400000}]},\"solana\":{\"encoding\":\"hex\",\"data\":\"b9011a8296aba1d37a97c14673156556f762dd77e86616c94f9c8cde8ef2fc0569b1fdd684a6df7f44fe7e00ba4aea071caee61ae1afd74a2bb69da00001de3f7883890a80efc1f480c5615af3fb673d42287e993da9fbc3506b6e41dfa32950820c2e6c320075d3c79380f24b2f415c060003010800000004007d79f5050000000004f8ff052d1b0000000000000c0180f24b2f415c0600\"}}",
+        "contentType": "application/json"
+    },
+    "401": {
+        "body": "invalid API key",
+        "contentType": "text/plain; charset=utf-8"
+    },
+    "403": {
+        "body": "Not entitled: feed 1843 (no grant accepts this feed (asset type 'crypto', instrument type 'spot'))",
+        "contentType": "text/plain; charset=utf-8"
+    }
+}

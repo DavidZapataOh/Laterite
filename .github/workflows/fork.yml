@@ -46,6 +46,15 @@ jobs:
           JUPITER_API_KEY: ${{ secrets.JUPITER_API_KEY }}
           PYTH_PRO_ACCESS_TOKEN: ${{ secrets.PYTH_PRO_ACCESS_TOKEN }}
         run: just test-fork
+      - name: Alert the operator that the weekday run failed
+        # A scheduled run fails when mainnet changes under the suite: Kamino Scope's feed list, a venue, Jupiter's API.
+        if: failure() && github.event_name == 'schedule'
+        env:
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          text="[laterite] FIRING fork-suite: the weekday mainnet-fork run failed; mainnet may have changed under the sweep (Kamino Scope's feeds, a venue, Jupiter's API): $RUN_URL"
+          curl -sSf --json "$(jq -cn --arg text "$text" '{text: $text}')" "$ALERT_WEBHOOK_URL"
       - name: Upload the measurements and the trace
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

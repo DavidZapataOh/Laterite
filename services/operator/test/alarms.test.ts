@@ -1,0 +1,134 @@
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
+
+import { alarms as alarmRows, type Database, swapAccountCreations, sweeps } from '@laterite/db';
+import { createTestDatabase } from '@laterite/db/testing';
+import type { Address } from '@solana/kit';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+
+import { Alarms, REPEAT_MS, webhookNotifier } from '../src/alarms/alarms';
+import { headroomAlarm, swapAccountAlarm } from '../src/alarms/checks';
+import { createLogger } from '../src/log';
+
+const log = createLogger('silent');
+let db: Database;
+let drop: () => Promise<void>;
+
+beforeAll(async () => {
+    ({ db, drop } = await createTestDatabase());
+});
+afterAll(() => drop());
+
+describe('alarms', () => {
+    const sent: string[] = [];
+    let failing = false;
+    const alarms = () =>
+        new Alarms(
+            db,
+            async text => {
+                if (failing) throw new Error('webhook down');
+                sent.push(text);
+            },
+            log,
+            '[laterite devnet]',
+        );
+    beforeEach(async () => {
+        sent.length = 0;
+        failing = false;
+        await db.delete(alarmRows);
+    });
+
+    it('notifies when an alarm starts, again every six hours while it fires, and once when it resolves', async () => {
+        const start = new Date('2026-09-24T12:00:00Z');
+        const later = (ms: number) => new Date(start.getTime() + ms);
+        await alarms().set({ 'balance-crank': 'low', indexer: null }, start);
+        await alarms().set({ 'balance-crank': 'lower' }, later(60_000));
+        await alarms().set({ 'balance-crank': 'lowest' }, later(REPEAT_MS));
+        expect(await alarms().firing()).toEqual([{ key: 'balance-crank', message: 'lowest', since: start }]);
+        await alarms().set({ 'balance-crank': null }, later(REPEAT_MS + 1));
+        await alarms().set({ 'balance-crank': null }, later(REPEAT_MS + 2));
+        expect(sent).toEqual([
+            '[laterite devnet] FIRING balance-crank: low',
+            '[laterite devnet] STILL FIRING balance-crank: lowest',
+            '[laterite devnet] RESOLVED balance-crank: lowest',
+        ]);
+        expect(await alarms().firing()).toEqual([]);
+    });
+
+    it('delivers a notification the webhook missed on the next run, across restarts', async () => {
+        failing = true;
+        await alarms().set({ 'market-calendar': 'expired' });
+        failing = false;
+        await alarms().set({ 'market-calendar': 'expired' });
+        await alarms().set({ 'market-calendar': 'expired' });
+        expect(sent).toEqual(['[laterite devnet] FIRING market-calendar: expired']);
+    });
+
+    it("posts each notification to the webhook in Slack's format", async () => {
+        const bodies: unknown[] = [];
+        const server = createServer((request, response) => {
+            let body = '';
+            request.on('data', chunk => (body += chunk));
+            request.on('end', () => {
+                bodies.push({ body: JSON.parse(body), type: request.headers['content-type'] });
+                response.writeHead(200).end('ok');
+            });
+        });
+        await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+        const url = `http://127.0.0.1:${(server.address() as AddressInfo).port}/hook`;
+        await webhookNotifier(url)('[laterite devnet] FIRING indexer: stalled');
+        server.close();
+        expect(bodies).toEqual([
+            { body: { text: '[laterite devnet] FIRING indexer: stalled' }, type: 'application/json' },
+        ]);
+        await expect(webhookNotifier(url)('x')).rejects.toThrow();
+    });
+});
+
+describe('alarms on the indexed history', () => {
+    const crank = 'Crank11111111111111111111111111111111111111' as Address;
+    const sweep = (slot: bigint, feePayer: Address, received: bigint) => ({
+        asset: 0,
+        assetExponent: -8,
+        assetPrice: 77_847_155_496n,
+        blockTime: new Date(),
+        engine: 1_000_000n,
+        eventIndex: 0,
+        feePayer,
+        minOut: 1_000_000n,
+        multiplier: 1,
+        paymentToken: 0,
+        pending: 0n,
+        received,
+        signature: `sweep-${slot}`,
+        slot,
+        user: 'user',
+    });
+
+    it("fires when the crank's latest sweep landed less than 20 bps above min_out", async () => {
+        expect(await headroomAlarm(db, crank)).toEqual({ 'sweep-headroom': null });
+        await db.insert(sweeps).values([sweep(1n, crank, 1_001_900n), sweep(2n, 'Other' as Address, 1_000_000n)]);
+        expect((await headroomAlarm(db, crank))['sweep-headroom']).toBe(
+            "the crank's latest sweep sweep-1 landed 19 bps above min_out, below 20: SLIPPAGE_BPS is getting tight for real routes",
+        );
+        await db.insert(sweeps).values(sweep(3n, crank, 1_002_000n));
+        expect(await headroomAlarm(db, crank)).toEqual({ 'sweep-headroom': null });
+    });
+
+    it('fires when the crank created more than five swap-authority accounts in a day', async () => {
+        const now = new Date('2026-09-24T12:00:00Z');
+        const created = (index: number, hoursAgo: number) => ({
+            address: `account-${index}`,
+            createdAt: new Date(now.getTime() - hoursAgo * 3_600_000),
+            mint: `mint-${index}`,
+            signature: `creation-${index}`,
+            tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        });
+        await db.insert(swapAccountCreations).values([0, 1, 2, 3, 4].map(i => created(i, i)).concat(created(5, 25)));
+        expect(await swapAccountAlarm(db, now)).toEqual({ 'swap-account-creations': null });
+        await db.insert(swapAccountCreations).values(created(6, 23));
+        expect((await swapAccountAlarm(db, now))['swap-account-creations']).toBe(
+            'the crank created 6 swap-authority accounts in 24 hours, above 5: review the routes that need them',
+        );
+    });
+});

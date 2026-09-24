@@ -2,6 +2,7 @@ packages:
   - 'apps/*'
   - 'clients/*'
   - 'packages/*'
+  - 'services/*'
   - 'tests/*'
 
 allowBuilds:

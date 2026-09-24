@@ -1,0 +1,28 @@
+{
+    "name": "@laterite/db",
+    "private": true,
+    "type": "module",
+    "sideEffects": false,
+    "exports": {
+        ".": "./src/index.ts",
+        "./testing": "./src/testing.ts"
+    },
+    "scripts": {
+        "generate": "drizzle-kit generate",
+        "migrate": "tsx scripts/migrate.ts",
+        "test": "vitest run",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "drizzle-orm": "0.45.3",
+        "pg": "8.23.0"
+    },
+    "devDependencies": {
+        "@types/node": "^24",
+        "@types/pg": "8.23.1",
+        "drizzle-kit": "0.31.11",
+        "tsx": "4.23.15",
+        "typescript": "5.9.3",
+        "vitest": "5.0.1"
+    }
+}

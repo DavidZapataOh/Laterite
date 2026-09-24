@@ -1,0 +1,16 @@
+# Docker builds read only what the service image needs from the workspace.
+*
+!package.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+!clients/typescript/package.json
+!clients/typescript/src
+!packages/db/package.json
+!packages/db/src
+!packages/db/migrations
+!packages/devnet/package.json
+!packages/devnet/addresses.json
+!packages/devnet/src
+!services/operator/package.json
+!services/operator/scripts
+!services/operator/src

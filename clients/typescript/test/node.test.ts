@@ -27,6 +27,7 @@ import {
 import {
     buildJupiterSweepRoute,
     fetchLatestKaminoUpdate,
+    fetchLatestKaminoUpdates,
     fetchPythProUpdate,
     getJupiterSweepRoute,
     getPythUpdateFromTransaction,
@@ -81,6 +82,9 @@ describe('the Kamino Scope relay', () => {
             'transaction d5LT v1',
         ]);
         await expect(fetchLatestKaminoUpdate(rpc, 9_999)).rejects.toThrow('feed 9999');
+        const byFeed = await fetchLatestKaminoUpdates(rpc, [1843, 1837, 9_999]);
+        expect([...byFeed.keys()]).toEqual([1843, 1837]);
+        expect(byFeed.get(1837)).toBe(byFeed.get(1843));
     });
 });
 
@@ -156,7 +160,7 @@ describe('Pyth Pro updates checked as Pyth Pro will check them', () => {
             new Response('Not entitled', { status: 403 })) as unknown as typeof globalThis.fetch;
         await expect(
             fetchPythProUpdate({ accessToken: 'token', fetch: refused, priceFeedIds: [1843] }),
-        ).rejects.toThrow('403');
+        ).rejects.toMatchObject({ message: 'Pyth Pro latest_price 403: Not entitled', status: 403 });
     });
 });
 

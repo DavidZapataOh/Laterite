@@ -6,6 +6,17 @@ export const PYTH_PRO_PRICE_SERVICE_URL = 'https://pyth-lazer.dourolabs.app';
 /** Pyth Pro's USDT/USD feed. */
 export const PYTH_USDT_FEED_ID = 8;
 
+/** A request the price service refused: 401 or 403 for a token it does not accept, 429 above its rate limit. */
+export class PythProRequestError extends Error {
+    constructor(
+        readonly status: number,
+        body: string,
+    ) {
+        super(`Pyth Pro latest_price ${status}: ${body}`);
+        this.name = 'PythProRequestError';
+    }
+}
+
 /**
  * The latest Solana-format update of `priceFeedIds` from Pyth Pro's `/v1/latest_price`, with the properties the
  * program reads (price, exponent, confidence, feed update time) on the `fixed_rate@200ms` channel. Server-only: the
@@ -31,7 +42,7 @@ export async function fetchPythProUpdate(input: {
             method: 'POST',
         },
     );
-    if (!response.ok) throw new Error(`Pyth Pro latest_price ${response.status}: ${await response.text()}`);
+    if (!response.ok) throw new PythProRequestError(response.status, await response.text());
     const body = (await response.json()) as { solana?: { data: string; encoding: string } };
     if (body.solana?.encoding !== 'hex') throw new Error('Pyth Pro returned no Solana-format update');
     return getBase16Encoder().encode(body.solana.data);

@@ -12,7 +12,9 @@
         "@solana/prettier-config-solana": "^0.0.7",
         "codama": "1.11.0",
         "prettier": "^3.9.8",
-        "tsx": "4.23.15"
+        "railway": "3.11.0",
+        "tsx": "4.23.15",
+        "typescript": "5.9.3"
     },
     "scripts": {
         "format": "prettier --write .",

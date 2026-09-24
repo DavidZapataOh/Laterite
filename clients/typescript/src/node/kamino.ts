@@ -83,22 +83,38 @@ export async function fetchKaminoUpdate(
 }
 
 /**
- * Finds Kamino Scope's latest Pyth Pro post carrying `feedId` from a mainnet RPC. Scope refreshes many oracles and
- * Pyth Pro verifies updates for many programs, so its posts are the transactions both lists name. Check the update
- * with `verifyPythUpdate` and `quote` (with the sender's own freshness margin) before a sweep carries it.
+ * Finds Kamino Scope's latest Pyth Pro post carrying each of `feedIds` from a mainnet RPC, leaving out a feed no recent
+ * post carries. Scope refreshes many oracles and Pyth Pro verifies updates for many programs, so its posts are the
+ * transactions both lists name. Check an update with `verifyPythUpdate` and `quote` (with the sender's own freshness
+ * margin) before a sweep carries it.
  */
-export async function fetchLatestKaminoUpdate(
+export async function fetchLatestKaminoUpdates(
     rpc: Rpc<GetSignaturesForAddressApi & GetTransactionApi>,
-    feedId: number,
-): Promise<KaminoUpdate> {
+    feedIds: readonly number[],
+): Promise<Map<number, KaminoUpdate>> {
     const recent = (address: Address) =>
         rpc.getSignaturesForAddress(address, { commitment: 'confirmed', limit: 1_000 }).send();
     const [scope, pyth] = await Promise.all([recent(KAMINO_SCOPE_PROGRAM_ADDRESS), recent(PYTH_STORAGE_ADDRESS)]);
     const verified = new Set(pyth.filter(({ err }) => !err).map(({ signature }) => signature));
+    const latest = new Map<number, KaminoUpdate>();
     for (const { signature } of scope) {
+        if (latest.size === feedIds.length) break;
         if (!verified.has(signature)) continue;
         const update = await fetchKaminoUpdate(rpc, signature);
-        if (update && hasFeed(update.message, feedId)) return update;
+        if (!update) continue;
+        for (const feedId of feedIds) {
+            if (!latest.has(feedId) && hasFeed(update.message, feedId)) latest.set(feedId, update);
+        }
     }
-    throw new Error(`No Pyth Pro update with feed ${feedId} among Kamino Scope latest transactions`);
+    return latest;
+}
+
+/** Kamino Scope's latest Pyth Pro post carrying `feedId`, as {@link fetchLatestKaminoUpdates} finds it. */
+export async function fetchLatestKaminoUpdate(
+    rpc: Rpc<GetSignaturesForAddressApi & GetTransactionApi>,
+    feedId: number,
+): Promise<KaminoUpdate> {
+    const update = (await fetchLatestKaminoUpdates(rpc, [feedId])).get(feedId);
+    if (!update) throw new Error(`No Pyth Pro update with feed ${feedId} among Kamino Scope latest transactions`);
+    return update;
 }

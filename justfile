@@ -275,7 +275,7 @@ devnet-keys:
     #!/usr/bin/env bash
     set -euo pipefail
     mkdir -p keys
-    for name in issuer faucet treasury cpmm usdc usdt spyx qqqx authority attestor sponsor; do
+    for name in issuer faucet treasury cpmm usdc usdt spyx qqqx authority attestor sponsor crank; do
         file="keys/devnet-$name.json"
         [[ -f "$file" ]] || solana-keygen new --no-bip39-passphrase --silent --outfile "$file"
         echo "$name $(solana-keygen pubkey "$file")"
@@ -614,6 +614,53 @@ devnet-repeg cluster="local":
     set -euo pipefail
     read -r rpc ws < <(just _devnet-urls {{cluster}})
     DEVNET_RPC_URL=$rpc DEVNET_WS_URL=$ws pnpm --filter @laterite/devnet repeg
+
+# ============================================
+# Services
+# ============================================
+
+# The Postgres Railway runs (major version 18), pinned by digest
+postgres_image := "postgres:18.6-alpine3.24@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873"
+
+# Start a disposable Postgres on 127.0.0.1:<port> and print the DATABASE_URL to export for the services' recipes and tests
+db-up name="laterite-postgres" port="54320":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    docker run -d --rm --name {{name}} -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:{{port}}:5432 {{postgres_image}} >/dev/null
+    until docker exec {{name}} pg_isready -U postgres -h 127.0.0.1 >/dev/null 2>&1; do sleep 0.5; done
+    echo "export DATABASE_URL=postgres://postgres:postgres@127.0.0.1:{{port}}/postgres"
+
+# Stop a Postgres started by db-up, which removes it
+db-down name="laterite-postgres":
+    @docker stop {{name}} >/dev/null && echo "✓ {{name}} removed"
+
+# Apply the committed migrations to DATABASE_URL
+db-migrate:
+    pnpm --filter @laterite/db migrate
+
+# Fail when the committed migrations differ from packages/db/src/schema.ts
+db-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    pnpm --silent --filter @laterite/db exec drizzle-kit generate >/dev/null
+    if ! git diff --quiet -- packages/db/migrations || [[ -n "$(git ls-files --others --exclude-standard -- packages/db/migrations)" ]]; then
+        git status --short -- packages/db/migrations
+        echo "Error: the migrations are out of date. Run 'pnpm --filter @laterite/db generate' and commit the result."
+        exit 1
+    fi
+    echo "✓ Migrations match the schema"
+
+# Type-check the services and run their tests against DATABASE_URL and a local validator on port 28899
+services-test: build-program
+    pnpm --filter @laterite/db typecheck
+    pnpm --filter @laterite/operator typecheck
+    pnpm exec tsc -p .railway
+    pnpm --filter @laterite/db test
+    pnpm --filter @laterite/operator test
+
+# Build the operator's container image from the repository root, as Railway builds it
+operator-image tag="laterite-operator":
+    docker build -f services/operator/Dockerfile -t {{tag}} .
 
 # ============================================
 # Format and lint
