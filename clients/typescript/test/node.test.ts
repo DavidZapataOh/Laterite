@@ -11,6 +11,8 @@ import {
     type Rpc,
 } from '@solana/kit';
 import { createRpcFromSvm } from '@solana/kit-plugin-litesvm';
+import { findAssociatedTokenPda, TOKEN_PROGRAM_ADDRESS } from '@solana-program/token';
+import { TOKEN_2022_PROGRAM_ADDRESS } from '@solana-program/token-2022';
 import { LiteSVM } from 'litesvm';
 import { describe, expect, it } from 'vitest';
 
@@ -159,14 +161,56 @@ describe('Pyth Pro updates checked as Pyth Pro will check them', () => {
 });
 
 describe('Jupiter routes for the sweep', () => {
+    // USDT into SPYx through USDC (Raydium CLMM, then Whirlpool), the swap authority as taker; Jupiter's setup
+    // creates the swap authority's USDC and SPYx accounts, which mainnet does not hold.
     const recorded = local('jupiter-build.json') as JupiterBuildResponse;
+    const USDC = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' as Address;
+    const USDT = 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB' as Address;
+    const SPYX = 'XsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W' as Address;
+    const USER_SPYX = '9YcwsVTffFnAXUQAvPiNQNhYGi5AwsDt8hrTngtD2YsD' as Address;
+    const CRANK = '9gKEEcFzSd1PDYBKWAKZi4Sq4ZCUaVX5oTr8kEjdwsfR' as Address;
 
-    it('takes route_v2 with the swap authority as its only signer, when every account it names exists', async () => {
+    /** A cluster where every account exists but those in `missing`. */
+    const cluster = (missing: Set<Address>) =>
+        ({
+            getMultipleAccounts: (addresses: Address[]) => ({
+                send: async () => ({
+                    context: { slot: 0n },
+                    value: addresses.map(address =>
+                        missing.has(address)
+                            ? null
+                            : { data: ['', 'base64'], executable: false, lamports: 1n, owner: address, space: 0n },
+                    ),
+                }),
+            }),
+        }) as unknown as Rpc<GetMultipleAccountsApi>;
+
+    const sweepRoute = async (response: JupiterBuildResponse, missing: Address[] = []) => {
+        const [swapAuthority] = await findSwapAuthorityPda();
+        const urls: URL[] = [];
+        const fetch = (async (url: string) => {
+            urls.push(new URL(url));
+            return new Response(JSON.stringify(response));
+        }) as typeof globalThis.fetch;
+        const built = await buildJupiterSweepRoute({
+            amount: BigInt(recorded.inAmount),
+            assetMint: SPYX,
+            crank: CRANK,
+            dexes: ['Whirlpool', 'Raydium CLMM'],
+            excludeDexes: ['HumidiFi'],
+            fetch,
+            paymentMint: USDT,
+            rpc: cluster(new Set(missing)),
+            swapAuthority,
+            userAssetAccount: USER_SPYX,
+        });
+        return { ...built, url: urls[0]! };
+    };
+
+    it('takes route_v2 with the swap authority as its only signer, spending exactly the pull with no fee', async () => {
         const [swapAuthority] = await findSwapAuthorityPda();
         const amount = BigInt(recorded.inAmount);
-        // The recorded route still creates the swap authority's SPYx account; the deployment creates it once.
-        expect(() => getJupiterSweepRoute(toJupiterSwap(recorded), { amount, swapAuthority })).toThrow('lacks');
-        const ready = toJupiterSwap({ ...recorded, setupInstructions: [] });
+        const ready = toJupiterSwap(recorded);
         const route = getJupiterSweepRoute(ready, { amount, swapAuthority });
         expect(route.accounts!.filter(meta => meta.role >= 2).map(meta => meta.address)).toEqual([swapAuthority]);
         expect(() => getJupiterSweepRoute(ready, { amount: amount + 1n, swapAuthority })).toThrow('exactly');
@@ -179,50 +223,57 @@ describe('Jupiter routes for the sweep', () => {
 
     it("requests the sweep's route with ADR-001's parameters", async () => {
         const [swapAuthority] = await findSwapAuthorityPda();
-        const urls: URL[] = [];
-        const fetch = (async (url: string) => {
-            urls.push(new URL(url));
-            return new Response(JSON.stringify({ ...recorded, setupInstructions: [] }));
-        }) as typeof globalThis.fetch;
-        // A cluster where every account exists but, when named, one.
-        let missing: Address | undefined;
-        const rpc = {
-            getMultipleAccounts: (addresses: Address[]) => ({
-                send: async () => ({
-                    context: { slot: 0n },
-                    value: addresses.map(address =>
-                        address === missing
-                            ? null
-                            : { data: ['', 'base64'], executable: false, lamports: 1n, owner: address, space: 0n },
-                    ),
-                }),
-            }),
-        } as unknown as Rpc<GetMultipleAccountsApi>;
-        const input = {
-            amount: BigInt(recorded.inAmount),
-            assetMint: 'XsoCS1TfEyfFhfvj8EtZ528L3CaKBDBRqRapnBbDF2W' as Address,
-            crank: '9gKEEcFzSd1PDYBKWAKZi4Sq4ZCUaVX5oTr8kEjdwsfR' as Address,
-            fetch,
-            paymentMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' as Address,
-            rpc,
-            swapAuthority,
-            userAssetAccount: 'A3TC96dqXjDdjbMJLsXvDBReye2G5tLVBmUdqTyewgHU' as Address,
-        };
-        const { outAmount, route } = await buildJupiterSweepRoute(input);
+        const { outAmount, route, url } = await sweepRoute(recorded);
         expect(outAmount).toBe(BigInt(recorded.outAmount));
         expect(route.programAddress).toBe('JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4');
-        expect(Object.fromEntries(urls[0]!.searchParams)).toEqual({
+        expect(Object.fromEntries(url.searchParams)).toEqual({
             amount: recorded.inAmount,
-            destinationTokenAccount: input.userAssetAccount,
-            inputMint: input.paymentMint,
+            destinationTokenAccount: USER_SPYX,
+            dexes: 'Whirlpool,Raydium CLMM',
+            excludeDexes: 'HumidiFi',
+            inputMint: USDT,
             maxAccounts: '40',
-            outputMint: input.assetMint,
-            payer: input.crank,
+            outputMint: SPYX,
             slippageBps: '100',
             taker: swapAuthority,
             wrapAndUnwrapSol: 'false',
         });
-        missing = route.accounts!.find(meta => isWritableRole(meta.role))!.address;
-        await expect(buildJupiterSweepRoute(input)).rejects.toThrow(`do not exist: ${missing}`);
+    });
+
+    it("needs every swap-authority account the route writes, not a venue's", async () => {
+        const [swapAuthority] = await findSwapAuthorityPda();
+        const [[usdc], [usdt], [spyx]] = await Promise.all([
+            findAssociatedTokenPda({ mint: USDC, owner: swapAuthority, tokenProgram: TOKEN_PROGRAM_ADDRESS }),
+            findAssociatedTokenPda({ mint: USDT, owner: swapAuthority, tokenProgram: TOKEN_PROGRAM_ADDRESS }),
+            findAssociatedTokenPda({ mint: SPYX, owner: swapAuthority, tokenProgram: TOKEN_2022_PROGRAM_ADDRESS }),
+        ]);
+        expect(recorded.setupInstructions.map(({ accounts }) => accounts[1]!.pubkey)).toEqual([usdc, spyx]);
+        const { route } = await sweepRoute(recorded);
+        const written = route.accounts!.filter(meta => isWritableRole(meta.role)).map(meta => meta.address);
+        // The payment account the pull fills, the USDC hop and the SPYx account the route passes its output through.
+        expect(written).toEqual(expect.arrayContaining([usdt, usdc, spyx]));
+        // Each is named with its mint and token program, for the caller to create before building again.
+        for (const [missing, mint, tokenProgram] of [
+            [usdt, USDT, TOKEN_PROGRAM_ADDRESS],
+            [usdc, USDC, TOKEN_PROGRAM_ADDRESS],
+            [spyx, SPYX, TOKEN_2022_PROGRAM_ADDRESS],
+        ] as const) {
+            await expect(sweepRoute(recorded, [missing])).rejects.toThrow(`do not exist: ${missing}`);
+            await expect(sweepRoute(recorded, [missing])).rejects.toMatchObject({
+                accounts: [{ address: missing, mint, tokenProgram }],
+            });
+        }
+        // A venue may name an account it has not created, such as a tick array no swap has reached.
+        const venue = written.find(address => ![usdt, usdc, spyx, USER_SPYX].includes(address))!;
+        await expect(sweepRoute(recorded, [venue])).resolves.toMatchObject({ outAmount: BigInt(recorded.outAmount) });
+        // A venue takes Jupiter's payer as a signer (HumidiFi): named the crank, it would need the crank's signature.
+        const withCrank = structuredClone(recorded);
+        withCrank.swapInstruction.accounts.push({ isSigner: false, isWritable: true, pubkey: CRANK });
+        await expect(sweepRoute(withCrank)).rejects.toThrow('names the crank');
+        // Anything but an idempotent associated-account creation (here the non-idempotent one) is refused.
+        const [setup] = recorded.setupInstructions;
+        await expect(sweepRoute({ ...recorded, setupInstructions: [{ ...setup!, data: 'AA==' }] })).rejects.toThrow(
+            'another setup',
+        );
     });
 });

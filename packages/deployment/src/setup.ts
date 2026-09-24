@@ -61,9 +61,12 @@ export type Deployment = {
     lookupTable?: Address;
     /** The transaction whose `MarketCalendarSet` loaded the calendar the config holds. */
     marketCalendarSet?: Signature;
-    /** The swap authority's account in each payment token, in table order. */
+    /** The swap authority's account in each payment token, in table order, then in each of the router's mints. */
     swapAccounts: Address[];
 };
+
+/** A mint and the token program that owns it. */
+export type TokenMint = { mint: Address; tokenProgram: Address };
 
 /** The settings keys only a deliberate rotation changes. */
 export type SettingsKey = 'attestor' | 'sponsor';
@@ -284,22 +287,25 @@ export async function ensurePlans(cluster: Cluster, admin: TransactionSigner, co
 
 /**
  * Creates the swap authority's account in each payment token, which the plans pay into and the route spends from,
- * all in one transaction, unless they exist; returns them in table order.
+ * and in each of `routeMints`, the other mints the router's routes pass through the taker's own accounts, all in one
+ * transaction, unless they exist; returns them in that order.
  */
 export async function ensureSwapAuthorityAccounts(
     cluster: Cluster,
     payer: TransactionSigner,
     config: Config,
+    routeMints: readonly TokenMint[] = [],
 ): Promise<Address[]> {
     const [swapAuthority] = await findSwapAuthorityPda();
+    const mints = [...config.paymentTokens, ...routeMints];
     const accounts = await Promise.all(
-        config.paymentTokens.map(
+        mints.map(
             async ({ mint, tokenProgram }) =>
                 (await findAssociatedTokenPda({ mint, owner: swapAuthority, tokenProgram }))[0],
         ),
     );
     const existing = await fetchEncodedAccounts(cluster.rpc, accounts);
-    const missing = config.paymentTokens.filter((_, index) => !existing[index]!.exists);
+    const missing = mints.filter((_, index) => !existing[index]!.exists);
     if (missing.length > 0) {
         await cluster.send(
             payer,
@@ -355,7 +361,8 @@ export async function ensureOnboardingLookupTable(
 
 /**
  * Brings a cluster's deployment of the program to `params`: the config (initialized as the upgrade authority), the
- * four plans, the swap authority's accounts, the market calendar and the onboarding lookup table. `recorded` is what
+ * four plans, the swap authority's accounts (the payment tokens' and `routeMints`', which a router such as Jupiter
+ * needs), the market calendar and the onboarding lookup table. `recorded` is what
  * an earlier run recorded; `record` receives the deployment whenever that changes (the calendar's signature once it
  * is loaded, a new table's address before it is created). Each step sends only what is missing, so a second run
  * sends nothing.
@@ -368,6 +375,7 @@ export async function ensureDeployment(
         params: ConfigParamsArgs;
         record?: (deployment: Deployment) => Promise<void>;
         recorded?: Pick<Deployment, 'lookupTable' | 'marketCalendarSet'>;
+        routeMints?: readonly TokenMint[];
     },
 ): Promise<Deployment> {
     const { authority, calendar, params } = input;
@@ -378,7 +386,7 @@ export async function ensureDeployment(
         config,
         lookupTable: input.recorded?.lookupTable,
         marketCalendarSet: input.recorded?.marketCalendarSet,
-        swapAccounts: await ensureSwapAuthorityAccounts(cluster, authority, config),
+        swapAccounts: await ensureSwapAuthorityAccounts(cluster, authority, config, input.routeMints),
     };
     const marketCalendarSet = await ensureMarketCalendar(cluster, authority, config, calendar);
     if (marketCalendarSet) {

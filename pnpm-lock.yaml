@@ -133,6 +133,9 @@ importers:
       '@solana-program/token':
         specifier: 0.17.0
         version: 0.17.0(@solana/kit@8.3.0(typescript@5.9.3))
+      '@solana-program/token-2022':
+        specifier: 0.19.0
+        version: 0.19.0(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@8.3.0(typescript@5.9.3))
       '@solana/kit':
         specifier: 8.3.0
         version: 8.3.0(typescript@5.9.3)
@@ -143,9 +146,6 @@ importers:
         specifier: 8.3.0
         version: 8.3.0(typescript@5.9.3)
     devDependencies:
-      '@solana-program/token-2022':
-        specifier: 0.19.0
-        version: 0.19.0(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@8.3.0(typescript@5.9.3))
       '@solana/kit-plugin-litesvm':
         specifier: 0.19.0
         version: 0.19.0(@solana/kit@8.3.0(typescript@5.9.3))(typescript@5.9.3)
@@ -243,6 +243,15 @@ importers:
       '@laterite/client':
         specifier: workspace:*
         version: link:../../clients/typescript
+      '@laterite/deployment':
+        specifier: workspace:*
+        version: link:../../packages/deployment
+      '@laterite/devnet':
+        specifier: workspace:*
+        version: link:../../packages/devnet
+      '@solana-program/address-lookup-table':
+        specifier: 0.15.0
+        version: 0.15.0(@solana/kit@8.3.0(typescript@5.9.3))
       '@solana-program/token':
         specifier: 0.17.0
         version: 0.17.0(@solana/kit@8.3.0(typescript@5.9.3))
@@ -255,15 +264,18 @@ importers:
       '@solana/kit-plugin-rpc':
         specifier: 0.19.0
         version: 0.19.0(@solana/kit@8.3.0(typescript@5.9.3))
-      '@solana/subscriptions':
-        specifier: 0.5.0
-        version: 0.5.0(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@8.3.0(typescript@5.9.3))(typescript@5.9.3)
       '@solana/surfpool':
         specifier: 1.5.0
         version: 1.5.0(@solana/kit-plugin-rpc@0.19.0(@solana/kit@8.3.0(typescript@5.9.3)))(@solana/kit-plugin-signer@0.13.0(@solana/kit@8.3.0(typescript@5.9.3)))(@solana/kit@8.3.0(typescript@5.9.3))
+      '@solana/sysvars':
+        specifier: 8.3.0
+        version: 8.3.0(typescript@5.9.3)
       '@types/node':
         specifier: ^24
         version: 24.13.6
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
       typescript:
         specifier: 5.9.3
         version: 5.9.3

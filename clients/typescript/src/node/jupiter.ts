@@ -12,6 +12,13 @@ import {
     isWritableRole,
     type Rpc,
 } from '@solana/kit';
+import {
+    ASSOCIATED_TOKEN_PROGRAM_ADDRESS,
+    CREATE_ASSOCIATED_TOKEN_IDEMPOTENT_DISCRIMINATOR,
+    findAssociatedTokenPda,
+    TOKEN_PROGRAM_ADDRESS,
+} from '@solana-program/token';
+import { TOKEN_2022_PROGRAM_ADDRESS } from '@solana-program/token-2022';
 
 import { SLIPPAGE_BPS } from '../constants';
 
@@ -38,21 +45,24 @@ export type JupiterBuildResponse = {
     otherAmountThreshold: string;
     outAmount: string;
     platformFee?: { amount: string } | null;
+    /** Each hop's input and output mint. */
+    routePlan: { swapInfo: { inputMint: string; outputMint: string } }[];
     setupInstructions: ApiInstruction[];
     swapInstruction: ApiInstruction;
 };
 
-/** A `/swap/v2/build` request; `wrapAndUnwrapSol` is always false. */
+/** A `/swap/v2/build` request; `wrapAndUnwrapSol` is always false, and without `payer` Jupiter names the taker. */
 export type JupiterBuildParams = {
     amount: bigint;
     apiKey?: string;
     fetch?: typeof globalThis.fetch;
     destinationTokenAccount?: Address;
     dexes?: string[];
+    excludeDexes?: string[];
     inputMint: Address;
     maxAccounts?: number;
     outputMint: Address;
-    payer: Address;
+    payer?: Address;
     slippageBps?: number;
     taker: Address;
 };
@@ -111,7 +121,6 @@ export async function buildJupiterSwap(params: JupiterBuildParams): Promise<Jupi
         amount: params.amount.toString(),
         inputMint: params.inputMint,
         outputMint: params.outputMint,
-        payer: params.payer,
         slippageBps: String(params.slippageBps ?? Number(SLIPPAGE_BPS)),
         taker: params.taker,
         wrapAndUnwrapSol: 'false',
@@ -119,6 +128,8 @@ export async function buildJupiterSwap(params: JupiterBuildParams): Promise<Jupi
     if (params.maxAccounts) query.set('maxAccounts', String(params.maxAccounts));
     if (params.destinationTokenAccount) query.set('destinationTokenAccount', params.destinationTokenAccount);
     if (params.dexes) query.set('dexes', params.dexes.join(','));
+    if (params.excludeDexes) query.set('excludeDexes', params.excludeDexes.join(','));
+    if (params.payer) query.set('payer', params.payer);
     const headers: Record<string, string> = params.apiKey ? { 'x-api-key': params.apiKey } : {};
     const response = await (params.fetch ?? globalThis.fetch)(`${JUPITER_API_URL}/build?${query}`, { headers });
     if (!response.ok) throw new Error(`Jupiter build ${response.status}: ${await response.text()}`);
@@ -126,10 +137,10 @@ export async function buildJupiterSwap(params: JupiterBuildParams): Promise<Jupi
 }
 
 /**
- * Checks a Jupiter swap as a sweep's route and returns its `route_v2` instruction: it spends exactly `amount`, needs
- * no setup (every account it names, the swap authority's intermediate accounts included, already exists), charges
- * no platform or positive-slippage fee, and is signed only by the swap authority. The compute-budget instructions
- * and lookup tables are dropped: the sweep is a version 1 transaction with its own limits.
+ * Checks a Jupiter swap as a sweep's route and returns its `route_v2` instruction: it spends exactly `amount`,
+ * charges no platform or positive-slippage fee, and is signed only by the swap authority. The setup, compute-budget
+ * instructions and lookup tables are dropped: the sweep is a version 1 transaction with its own limits, and
+ * {@link buildJupiterSweepRoute} checks on the cluster that the swap authority's accounts the route writes exist.
  */
 export function getJupiterSweepRoute(
     swap: JupiterSwap,
@@ -152,24 +163,54 @@ export function getJupiterSweepRoute(
     ) {
         throw new Error('The route charges a fee');
     }
-    if (response.setupInstructions.length > 0) throw new Error('The route needs accounts the swap authority lacks');
     const signers = (route.accounts ?? []).filter(meta => isSignerRole(meta.role));
     if (signers.some(meta => meta.address !== expected.swapAuthority)) throw new Error('The route has another signer');
     return route;
 }
 
+/** Whether an instruction is the Associated Token program's idempotent creation, Jupiter's setup for a taker's account. */
+const isAssociatedTokenAccountCreation = ({ data, programAddress }: Instruction) =>
+    programAddress === ASSOCIATED_TOKEN_PROGRAM_ADDRESS &&
+    data?.length === 1 &&
+    data[0] === CREATE_ASSOCIATED_TOKEN_IDEMPOTENT_DISCRIMINATOR;
+
+/** A swap-authority token account: its address, mint and token program. */
+export type SwapAuthorityAccount = { address: Address; mint: Address; tokenProgram: Address };
+
+/**
+ * Thrown for a route that writes swap-authority accounts the cluster lacks, typically in an intermediate mint: anyone
+ * may create them (the Associated Token program's idempotent creation, in a transaction of their own), and the route
+ * then builds.
+ */
+export class SwapAuthorityAccountsRequiredError extends Error {
+    constructor(readonly accounts: SwapAuthorityAccount[]) {
+        super(
+            `The route needs swap-authority accounts that do not exist: ${accounts.map(({ address }) => address).join(', ')}`,
+        );
+        this.name = 'SwapAuthorityAccountsRequiredError';
+    }
+}
+
 /**
  * A sweep's route from Jupiter (ADR-001): `amount` of the payment token into the user's asset account, the swap
- * authority as taker, the crank as payer, at most 40 accounts, Jupiter's own slippage bound no tighter than the
- * program's (which enforces `min_out`), checked by {@link getJupiterSweepRoute}, and every account it writes
- * existing on the cluster (one `getMultipleAccounts`). Also returns the quote, so the crank can skip a route whose
- * output would fall below the sweep's minimum.
+ * authority as taker and as the payer Jupiter names (so a venue that takes its payer as a signer gets the swap
+ * authority, which the program signs for, never the crank), at most 40 accounts, Jupiter's own slippage bound no
+ * tighter than the program's (which enforces `min_out`), optionally only through `dexes` or without `excludeDexes`
+ * (a crank retrying without a venue that failed), checked by {@link getJupiterSweepRoute}.
+ * Every swap-authority account the route writes, its associated account in a mint of the route plan, must exist on
+ * the cluster (one `getMultipleAccounts`), else {@link SwapAuthorityAccountsRequiredError} names them; a venue's
+ * account need not, since a venue may name one it has not created yet. A route that names the crank is refused, as a
+ * defense in depth: the sweep never lends the crank's signature to a route. Jupiter reads mainnet,
+ * so its setup, which only creates the taker's accounts, is dropped, and any other setup is refused. Also returns the
+ * quote, so the crank can skip a route whose output would fall below the sweep's minimum.
  */
 export async function buildJupiterSweepRoute(input: {
     amount: bigint;
     apiKey?: string;
     assetMint: Address;
     crank: Address;
+    dexes?: string[];
+    excludeDexes?: string[];
     fetch?: typeof globalThis.fetch;
     paymentMint: Address;
     rpc: Rpc<GetMultipleAccountsApi>;
@@ -180,23 +221,39 @@ export async function buildJupiterSweepRoute(input: {
         amount: input.amount,
         apiKey: input.apiKey,
         destinationTokenAccount: input.userAssetAccount,
+        dexes: input.dexes,
+        excludeDexes: input.excludeDexes,
         fetch: input.fetch,
         inputMint: input.paymentMint,
         maxAccounts: 40,
         outputMint: input.assetMint,
-        payer: input.crank,
         slippageBps: Number(SLIPPAGE_BPS),
         taker: input.swapAuthority,
     });
     const route = getJupiterSweepRoute(swap, { amount: input.amount, swapAuthority: input.swapAuthority });
+    if ((route.accounts ?? []).some(meta => meta.address === input.crank)) {
+        throw new Error('The route names the crank, whose signature it would need');
+    }
+    if (swap.instructions.slice(0, -1).some(setup => !isAssociatedTokenAccountCreation(setup))) {
+        throw new Error('The route needs another setup than accounts');
+    }
+    const mints = new Set(swap.response.routePlan.flatMap(({ swapInfo }) => [swapInfo.inputMint, swapInfo.outputMint]));
+    const swapAccounts = new Map<Address, SwapAuthorityAccount>();
+    for (const mint of mints) {
+        for (const tokenProgram of [TOKEN_PROGRAM_ADDRESS, TOKEN_2022_PROGRAM_ADDRESS]) {
+            const owner = input.swapAuthority;
+            const [account] = await findAssociatedTokenPda({ mint: address(mint), owner, tokenProgram });
+            swapAccounts.set(account, { address: account, mint: address(mint), tokenProgram });
+        }
+    }
     const written = [
         ...new Set((route.accounts ?? []).filter(meta => isWritableRole(meta.role)).map(meta => meta.address)),
-    ];
-    const missing = (await fetchEncodedAccounts(input.rpc, written)).filter(account => !account.exists);
-    if (missing.length > 0) {
-        throw new Error(
-            `The route writes accounts that do not exist: ${missing.map(({ address }) => address).join(', ')}`,
-        );
-    }
+    ].flatMap(account => swapAccounts.get(account) ?? []);
+    const existing = await fetchEncodedAccounts(
+        input.rpc,
+        written.map(({ address }) => address),
+    );
+    const missing = written.filter((_, index) => !existing[index]!.exists);
+    if (missing.length > 0) throw new SwapAuthorityAccountsRequiredError(missing);
     return { outAmount: swap.outAmount, route };
 }

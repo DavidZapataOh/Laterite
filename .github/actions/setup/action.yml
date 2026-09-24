@@ -38,6 +38,15 @@ inputs:
   anchor-version:
     description: Anchor CLI version
     default: '1.2.0'
+  install-surfpool:
+    description: Install Surfpool (mainnet-fork suite only)
+    default: 'false'
+  surfpool-version:
+    description: Surfpool version
+    default: '1.6.0'
+  surfpool-sha256:
+    description: SHA-256 of the Surfpool Linux release archive
+    default: 'cb471b00aa3b7d603338eb74ebfec1d23959ecba005b5f1be42ba8d174107fc2'
   install-just:
     description: Install just
     default: 'true'
@@ -112,6 +121,26 @@ runs:
             "https://github.com/solana-foundation/solana-verifiable-build/releases/download/v${{ inputs.solana-verify-version }}/solana-verify-${{ inputs.solana-verify-version }}-linux"
         echo "${{ inputs.solana-verify-sha256 }}  $HOME/.local/bin/solana-verify" | sha256sum -c --quiet
         chmod +x ~/.local/bin/solana-verify
+
+    - name: Cache Surfpool
+      if: inputs.install-surfpool == 'true'
+      id: surfpool-cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.local/bin/surfpool
+        key: ${{ runner.os }}-surfpool-${{ inputs.surfpool-version }}-${{ inputs.surfpool-sha256 }}
+
+    - name: Install Surfpool
+      if: inputs.install-surfpool == 'true' && steps.surfpool-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        mkdir -p ~/.local/bin
+        archive=$(mktemp)
+        curl -sSfL -o "$archive" \
+            "https://github.com/solana-foundation/surfpool/releases/download/v${{ inputs.surfpool-version }}/surfpool-linux-x64.tar.gz"
+        echo "${{ inputs.surfpool-sha256 }}  $archive" | sha256sum -c --quiet
+        tar -xzf "$archive" -C ~/.local/bin surfpool
+        chmod +x ~/.local/bin/surfpool
 
     - name: Add local bin to PATH
       shell: bash

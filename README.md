@@ -46,7 +46,23 @@ Run `just` to list every recipe.
 
 ## Fork Testing
 
-`just test-fork` boots a Surfpool mainnet fork (datasource from `SURFPOOL_DATASOURCE_RPC_URL` in `.env`), installs the program at its declared address and runs `tests/fork`. It needs network access and is not part of `just test`. Swap routes are restricted to classic pools on the fork because market-maker pools depend on quote accounts that go stale once cloned.
+`just test-fork` boots a Surfpool mainnet fork, installs the program at its declared address and runs `tests/fork` against mainnet's own Subscriptions, Pyth Pro, Jupiter and xStocks. It needs network access and is not part of `just test`; the Fork workflow runs it on changes to the program, the clients and the suite, and every weekday. The suite:
+
+- deploys Laterite as a cluster's runbook does (`ensureDeployment` with `mainnetConfigParams`: Jupiter as router, the mainnet mints and Pyth Pro feeds, the genesis hash the fork reports, which is mainnet's) with keys generated for the run, so only its own attestor key separates the fork's attestations from mainnet's;
+- enrolls wallets with the sponsored onboarding transaction and sweeps USDC and USDT into SPYx and QQQx through real Jupiter routes, with the latest Kamino-relayed SPYX/USD or QQQX/USD update and, for USDT, a USDT/USD update fetched with `PYTH_PRO_ACCESS_TOKEN`, checking every swap-authority token account before and after (as the crank does, it first creates the swap authority's account in an intermediate mint a route needs and the deployment did not create, after checking the mint's token program; the QQQx sweep removes the swap authority's QQQx account first to exercise it);
+- refuses a sweep through a pool a whale has moved (and sends it once, so the reverted transaction is on the fork's record), lands an attestation for the fork's genesis hash and refuses one signed for devnet's, and measures every route the builder accepts against the version 1 limits (4,096 bytes, 64 accounts, 10,000 log bytes).
+
+Routes go through classic pools (Raydium CLMM, Whirlpool) on the fork, because market makers' quotes depend on accounts their operators update every few slots, which go stale once cloned; the measurements also sample unrestricted routes. Before each sweep the fork reads the route's venue accounts from mainnet again (`surfnet_resetAccount`), so its pools match the quote Jupiter made from mainnet. Surfpool reads mainnet through a local relay (`tests/fork/scripts/datasource-relay.ts`, test infrastructure only) that keeps Surfpool's connections open and retries rate-limited requests, since Surfpool otherwise reuses a connection the upstream dropped while idle and waits 30 s on it; it passes on reads only, refusing any transaction or airdrop request, so nothing the fork does reaches mainnet. The public endpoint rate-limits bursts (the relay logs each retry to `.surfpool/relay.log`), and on rare runs a request exhausts Surfpool's 30 s window; a free keyed endpoint avoids it. The fork's clock follows wall time; the suite aligns it with Surfpool's time-travel cheatcode only if it trails by more than 10 s, since price updates are fresh for 60 s. Measurements and the transaction trace are written to `tests/fork/reports/` (the Fork workflow uploads them).
+
+Configure `.env` (see `.env.example`):
+
+- `SURFPOOL_DATASOURCE_RPC_URL`: a mainnet RPC, for example a free Helius or QuickNode endpoint. Empty, the public `https://api.mainnet-beta.solana.com` is used, which works within its rate limits. In CI it is the repository secret of the same name.
+- `PYTH_PRO_ACCESS_TOKEN`: the USDT sweep's USDT/USD update (repository secret of the same name).
+- `JUPITER_API_KEY` (optional): a free key doubles Jupiter's rate limit to one request a second.
+
+With a keyed RPC and a Jupiter key the suite takes about two minutes; with the public endpoint and keyless Jupiter it still passes, in two to four. An endpoint whose rate limit another process is using up slows it down: the suite waits and asks again, but a fork that cannot read mainnet for long fails its tests; `SURFPOOL_DATASOURCE_RPC_URL= just test-fork` falls back to the public endpoint.
+
+`just measure-slippage [minutes]` samples how far tier-sized ($10 and $25) Jupiter quotes fall below the program's price bound (the oracle's worth at the conservative side of both confidence intervals, before `SLIPPAGE_BPS`), writing `tests/fork/reports/slippage-*.json` and printing the worst and median per session (regular NYSE hours, weekend, closed).
 
 ## Fuzzing
 

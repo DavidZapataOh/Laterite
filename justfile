@@ -198,15 +198,24 @@ check-generated: generate-clients
 # Local validator
 # ============================================
 
-# Start Surfpool with the programs installed; mode is fork (mainnet datasource) or offline
+# Port of the relay between Surfpool and its mainnet datasource
+relay_port := "8897"
+
+# Start Surfpool with the programs installed; mode is fork (mainnet datasource, through the relay) or offline
 _start-surfpool mode="fork":
     #!/usr/bin/env bash
     set -euo pipefail
     program_id=$(just program-id)
-    offline=""
-    if [[ "{{mode}}" == "offline" ]]; then offline="--offline"; fi
     mkdir -p .surfpool
-    nohup surfpool start --ci --no-tui --block-production-mode transaction $offline \
+    datasource=(--offline)
+    if [[ "{{mode}}" == "fork" ]]; then
+        nohup pnpm --silent --filter @laterite/fork-tests relay {{relay_port}} > .surfpool/relay.log 2>&1 &
+        echo $! > .surfpool/relay.pid
+        for _ in {1..50}; do curl -s -o /dev/null http://127.0.0.1:{{relay_port}} && break || sleep 0.2; done
+        datasource=(--rpc-url http://127.0.0.1:{{relay_port}})
+    fi
+    # The relay reads the datasource's URL, so Surfpool never sees it
+    nohup env -u SURFPOOL_DATASOURCE_RPC_URL surfpool start --ci --no-tui "${datasource[@]}" \
         --runbook surfnet-setup --port 8899 > .surfpool/surfpool.log 2>&1 &
     echo $! > .surfpool/pid.txt
     for _ in {1..30}; do
@@ -237,18 +246,26 @@ ensure-surfpool mode="fork": build-program
 kill-validator:
     #!/usr/bin/env bash
     surfpool stop --port 8899 >/dev/null 2>&1 || true
-    if [[ -f .surfpool/pid.txt ]]; then kill "$(cat .surfpool/pid.txt)" 2>/dev/null || true; fi
-    rm -f .surfpool/pid.txt
+    for pid in .surfpool/pid.txt .surfpool/relay.pid; do
+        if [[ -f "$pid" ]]; then kill "$(cat "$pid")" 2>/dev/null || true; fi
+        rm -f "$pid"
+    done
     echo "✓ Surfpool stopped"
 
-# Run the mainnet-fork suite (needs network and a datasource RPC; not part of `just test`)
+# Run the mainnet-fork suite (needs network and PYTH_PRO_ACCESS_TOKEN; not part of `just test`)
 test-fork: build-program
     #!/usr/bin/env bash
     set -euo pipefail
+    pnpm --filter @laterite/fork-tests typecheck
     trap 'just kill-validator' EXIT
     just kill-validator
     just _start-surfpool fork
     pnpm --filter @laterite/fork-tests test
+
+# Sample how far tier-sized Jupiter quotes fall below the program's price bound, for the given minutes (needs PYTH_PRO_ACCESS_TOKEN)
+measure-slippage minutes="30":
+    pnpm --silent --filter @laterite/fork-tests slippage {{minutes}}
+
 # ============================================
 # Devnet assets
 # ============================================

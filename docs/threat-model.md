@@ -80,7 +80,10 @@ is about $0.25 a week per user, plus the confidence margin.
 
 The router is fixed at `initialize`: it receives the swap authority's signature, so only a new deployment can change
 it. A hostile route, or any venue a route calls, gets only that signature: it cannot pull another subscriber, update
-or delete a plan, or keep, approve, reassign, reallocate or reconfigure a swap-authority token account.
+or delete a plan, or keep, approve, reassign, reallocate or reconfigure a swap-authority token account. The crank's
+signature never reaches a route either: the program passes a route's accounts without it, the crank's route builder
+lets Jupiter name the swap authority as the route's payer (a venue that takes its payer as a signer gets the swap
+authority, which holds no SOL), and it refuses a route that names the crank.
 
 ### User controls, exit and return
 

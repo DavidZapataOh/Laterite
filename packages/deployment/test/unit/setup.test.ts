@@ -12,6 +12,8 @@ import {
     PLAN_PERIOD_HOURS,
     TIERS,
 } from '@laterite/client';
+import { JUPITER_PROGRAM_ADDRESS } from '@laterite/client/node';
+import { MAINNET_MINTS } from '@laterite/devnet';
 import { addresses as devnet } from '@laterite/devnet/addresses';
 import {
     type Address,
@@ -28,7 +30,8 @@ import {
     getCreateLookupTableInstruction,
     getExtendLookupTableInstruction,
 } from '@solana-program/address-lookup-table';
-import { fetchToken, findAssociatedTokenPda } from '@solana-program/token';
+import { fetchToken, findAssociatedTokenPda, TOKEN_PROGRAM_ADDRESS } from '@solana-program/token';
+import { TOKEN_2022_PROGRAM_ADDRESS } from '@solana-program/token-2022';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
@@ -41,15 +44,19 @@ import {
     ensureOnboardingLookupTable,
     ensurePlans,
     isMarketCalendarLoaded,
+    JUPITER_ROUTE_MINTS,
     KeyRotationRequiredError,
+    mainnetConfigParams,
     MARKET_CALENDAR_FILE,
     type MarketCalendarDays,
     readMarketCalendar,
     rotateSettingsKey,
+    WRAPPED_SOL_MINT,
 } from '../../src';
 import { TestCluster } from './env';
 
 const DEVNET_GENESIS_HASH = 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG';
+const MAINNET_GENESIS_HASH = '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d';
 const DAY_2026_09_21 = 20_717n;
 
 let cluster: TestCluster;
@@ -99,6 +106,29 @@ describe('devnet configuration', () => {
     });
 });
 
+describe('mainnet configuration', () => {
+    it('routes through Jupiter with the mainnet xStocks, stablecoins and Pyth Pro feeds', async () => {
+        const settings = { ...params.settings, maxUsers: 10, userWeeklyCap: TIERS[0] };
+        const mainnet = mainnetConfigParams({ genesisHash: MAINNET_GENESIS_HASH, settings });
+        expect(mainnet.router).toBe(JUPITER_PROGRAM_ADDRESS);
+        expect(mainnet.assets).toEqual([
+            { decimals: 8, mint: MAINNET_MINTS.SPYx, pythFeedId: 1843, tokenProgram: TOKEN_2022_PROGRAM_ADDRESS },
+            { decimals: 8, mint: MAINNET_MINTS.QQQx, pythFeedId: 1837, tokenProgram: TOKEN_2022_PROGRAM_ADDRESS },
+        ]);
+        expect(mainnet.paymentTokens).toEqual([
+            { decimals: 6, mint: MAINNET_MINTS.USDC, tokenProgram: TOKEN_PROGRAM_ADDRESS, usdFeedId: 0 },
+            { decimals: 6, mint: MAINNET_MINTS.USDT, tokenProgram: TOKEN_PROGRAM_ADDRESS, usdFeedId: 8 },
+        ]);
+        expect(mainnet.genesisHash).toEqual(getBase58Encoder().encode(MAINNET_GENESIS_HASH));
+        expect(mainnet.settings).toBe(settings);
+        expect(JUPITER_ROUTE_MINTS.map(({ mint }) => mint)).toEqual([
+            MAINNET_MINTS.SPYx,
+            MAINNET_MINTS.QQQx,
+            WRAPPED_SOL_MINT,
+        ]);
+    });
+});
+
 describe('ensureDeployment', () => {
     it('takes an empty program to a full deployment, and a second run sends nothing', async () => {
         const deployment = await deploy();
@@ -143,6 +173,36 @@ describe('ensureDeployment', () => {
         expect(isNone(table.data.authority)).toBe(true);
 
         expect(await deploy(deployment)).toEqual(deployment);
+        expect(cluster.sent).toBe(5);
+    });
+
+    it("creates the swap authority's accounts in a router's mints with the payment tokens' ones", async () => {
+        const routeMints = [devnet.tokens.SPYx, devnet.tokens.QQQx].map(({ mint, tokenProgram }) => ({
+            mint,
+            tokenProgram,
+        }));
+        const deployment = await ensureDeployment(cluster, {
+            authority: cluster.authority,
+            calendar,
+            params,
+            routeMints,
+        });
+        expect(cluster.sent).toBe(5);
+        const [swapAuthority] = await findSwapAuthorityPda();
+        const mints = [...params.paymentTokens, ...routeMints];
+        expect(deployment.swapAccounts).toHaveLength(4);
+        for (const [index, { mint, tokenProgram }] of mints.entries()) {
+            const [expected] = await findAssociatedTokenPda({ mint, owner: swapAuthority, tokenProgram });
+            expect(deployment.swapAccounts[index]).toBe(expected);
+            expect(cluster.svm.getAccount(expected)).toMatchObject({ exists: true, programAddress: tokenProgram });
+        }
+        await ensureDeployment(cluster, {
+            authority: cluster.authority,
+            calendar,
+            params,
+            recorded: deployment,
+            routeMints,
+        });
         expect(cluster.sent).toBe(5);
     });
 

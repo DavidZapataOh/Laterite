@@ -3,18 +3,24 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "relay": "tsx scripts/datasource-relay.ts",
+        "slippage": "tsx scripts/slippage.ts",
         "test": "vitest run",
         "typecheck": "tsc --noEmit"
     },
     "devDependencies": {
         "@laterite/client": "workspace:*",
+        "@laterite/deployment": "workspace:*",
+        "@laterite/devnet": "workspace:*",
+        "@solana-program/address-lookup-table": "0.15.0",
         "@solana-program/token": "0.17.0",
         "@solana-program/token-2022": "0.19.0",
         "@solana/kit": "8.3.0",
         "@solana/kit-plugin-rpc": "0.19.0",
-        "@solana/subscriptions": "0.5.0",
         "@solana/surfpool": "1.5.0",
+        "@solana/sysvars": "8.3.0",
         "@types/node": "^24",
+        "tsx": "4.23.15",
         "typescript": "5.9.3",
         "vitest": "5.0.1"
     }
