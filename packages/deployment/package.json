@@ -1,0 +1,38 @@
+{
+    "name": "@laterite/deployment",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "scripts": {
+        "configure": "tsx scripts/configure.ts",
+        "market-calendar": "tsx scripts/market-calendar.ts",
+        "preflight": "tsx scripts/preflight.ts",
+        "propose-admin": "tsx scripts/propose-admin.ts",
+        "rotate-key": "tsx scripts/rotate-key.ts",
+        "test:unit": "vitest run test/unit",
+        "test:deployment": "vitest run --reporter=verbose test/cluster/deployment.test.ts",
+        "test:smoke": "vitest run --reporter=verbose test/cluster/smoke.test.ts",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@laterite/client": "workspace:*",
+        "@laterite/devnet": "workspace:*",
+        "@solana-program/address-lookup-table": "0.15.0",
+        "@solana-program/system": "0.15.0",
+        "@solana-program/token": "0.17.0",
+        "@solana/kit": "8.3.0",
+        "@solana/subscriptions": "0.5.0",
+        "@solana/sysvars": "8.3.0"
+    },
+    "devDependencies": {
+        "@solana-program/token-2022": "0.19.0",
+        "@solana/kit-plugin-litesvm": "0.19.0",
+        "@types/node": "^24",
+        "litesvm": "1.4.1",
+        "tsx": "4.23.15",
+        "typescript": "5.9.3",
+        "vitest": "5.0.1"
+    }
+}

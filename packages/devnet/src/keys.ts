@@ -5,11 +5,14 @@ import { createKeyPairSignerFromBytes, type KeyPairSigner } from '@solana/kit';
 const KEYS_DIR = new URL('../../../keys/', import.meta.url);
 
 export type KeyName =
+    | 'devnet-attestor'
+    | 'devnet-authority'
     | 'devnet-cpmm'
     | 'devnet-faucet'
     | 'devnet-issuer'
     | 'devnet-qqqx'
     | 'devnet-spyx'
+    | 'devnet-sponsor'
     | 'devnet-treasury'
     | 'devnet-usdc'
     | 'devnet-usdt';

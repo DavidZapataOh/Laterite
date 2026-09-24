@@ -48,7 +48,7 @@ These pools are our deployment of open-source code, not a third-party venue.
 
 ## Consequences
 
-- Build: sha256 `6c6d893d4f43f6d747f18b2130482a7259d1ad27cc98cee36dd2451cdec00dc3`, 688,968 bytes, reproducible across clean builds. Deploy cost: 3.50 SOL of program rent on devnet, plus a buffer of the same size during the deploy.
+- Build: `just build-cpmm` builds in the verifiable-build image of Solana 3.1.10, the version the pinned source names, so every machine produces the same 688,960 bytes (sha256 `f7ab0a51f2a9d820c51dcc9bd7837ba7fe1ab76a90500c545ee9dcee5c8aa0b1`; executable hash `dfe2e72d378f811835f379d5b4bb74dc7c7c713c55fbcb38cf373fbf1cb60269`, which `solana-verify get-program-hash` reads from the cluster). It replaced the first deployment, a host build of the same source (688,968 bytes, sha256 `6c6d893d…`) that no other machine could reproduce; the swap's compute units did not change. An upgrade never shrinks a program account, so the cluster keeps eight bytes of zero padding after the build: `just deploy-cpmm` and `just dump-programs` compare executable hashes, and the program fixture is the local build. Deploy cost: 3.50 SOL of program rent on devnet, plus a buffer of the same size during the deploy.
 - The CPMM program id is the Laterite program's allowed router on devnet. The program calls it through the same generic CPI it uses for Jupiter; off-chain builders supply `swap_base_input`, which takes 13 fixed accounts and no remaining accounts.
 - PermanentDelegate and Pausable remain issuer powers. CPMM prices from vault balances, so a delegate transfer out of a vault moves the price, and pausing a mint halts its pools. On devnet the issuer is us.
 - A non-null TransferHook would break every candidate; mainnet SPYx has none.

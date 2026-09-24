@@ -16,6 +16,7 @@ clients/typescript/  Generated TypeScript client (Codama)
 docs/                Architecture decision records and the threat model
 fuzz/laterite/       Invariant fuzz harness (Crucible, `anchor fuzz`)
 idl/                 Program IDL
+packages/deployment/ Deployment runbooks, their checks and the devnet smoke
 packages/devnet/     Devnet stand-in assets, pools and re-peg
 programs/laterite/   On-chain program (Anchor)
 tests/fork/          Mainnet-fork tests (Surfpool)
@@ -30,7 +31,7 @@ tests/fork/          Mainnet-fork tests (Surfpool)
 5. Node 24.14.0 (`.nvmrc`) and pnpm (the version in `package.json` is fetched automatically).
 6. just: `brew install just`
 7. Surfpool 1.6.0 (fork tests): `curl -sL https://run.surfpool.run/ | VERSION=v1.6.0 bash`, and a mainnet RPC URL in `.env` (see `.env.example`).
-8. Devnet assets: Anchor 1.0.2 through `avm` and Agave installed with `agave-install` (the DEX source pins Agave 3.1.10; `just build-cpmm` switches to it for the build and back), plus Surfpool (above).
+8. Devnet assets: nothing more. `just build-cpmm` builds the DEX in the verifiable-build image of the Solana version its source pins (3.1.10), and Surfpool (above) runs the local devnet.
 
 ## Quick Start
 
@@ -83,7 +84,7 @@ Devnet has no USDC, USDT or xStocks that Laterite can mint, and no venue that tr
 - SPYx and QQQx stand-ins. Each copies its mainnet mint's Token-2022 configuration; only authorities differ.
 - Four pools (SPYx/USDC, SPYx/USDT, QQQx/USDC, QQQx/USDT) on our own deployment of [Raydium CPMM](https://github.com/raydium-io/raydium-cp-swap) (Apache-2.0), built from a pinned commit with only its devnet ids and admin keys replaced. See `docs/002-devnet-dex.md`.
 
-The public addresses live in `packages/devnet/addresses.json`.
+The public addresses live in `packages/devnet/addresses.json`, and Laterite's deployment in `packages/devnet/deployment.json`.
 
 ```bash
 just devnet-local          # local Surfpool forking devnet (port 18899)
@@ -91,6 +92,31 @@ just devnet-assets local   # create or verify everything; `devnet` targets devne
 just test-devnet local     # parity with mainnet mints, swaps, re-peg, idempotency
 just devnet-repeg local    # swap every pool back to the live mainnet price
 ```
+
+### Laterite on devnet
+
+`just devnet-deploy devnet` (or `local`, against the fork) takes the program from nothing to a configured deployment, and a second run sends nothing. On devnet it runs only with the keys the local rehearsal used: it refuses to start when a devnet key is missing or differs from the recorded deployment. Run `just devnet-preflight devnet` first: read-only, it prints what the upgrade authority and the issuer need at the cluster's current rent and checks the conditions below.
+
+1. `just devnet-assets` creates or verifies the stand-ins, the CPMM and the pools.
+2. `just deploy-program` writes the verifiable build of `laterite.so` into a buffer (`keys/devnet-laterite-buffer.json`), checks the buffer's executable hash, and deploys the program at `keys/laterite-program.json`, upgradeable by `devnet-authority`, unless the cluster already runs the same executable. The CPMM is deployed the same way. The upload holds about 4.2 SOL of the authority's balance while it runs, of which 2.09 SOL of program rent stays. An interrupted upload resumes from the same buffer on the next run; `solana program close <buffer> -u devnet --keypair keys/devnet-authority.json` returns an abandoned buffer's rent. Upgrading a program that runs another executable asks for its address first.
+3. `packages/deployment` initializes the config as the upgrade authority, with the CPMM as router, the stand-ins as the asset and payment-token tables, the recorded attestor and sponsor public keys and the genesis hash read from the cluster's RPC; creates the four plans and the swap authority's USDC and USDT accounts; loads the NYSE calendar from `programs/laterite/data/nyse-calendar.json`; creates and freezes the onboarding lookup table; funds the sponsor; and records the public addresses in `packages/devnet/deployment.json` as it goes, the lookup table's before it is created. To create another table, delete `lookupTable` from the record and run the deploy again.
+
+The router, the asset and payment-token tables and the genesis hash are fixed at `initialize`, so a run against a config that holds others stops: changing them takes a new program. The attestor and the sponsor change only with `just rotate-key devnet attestor|sponsor`, which generates the new key, sets it with `update_config`, records it and keeps the retired key in `keys/retired/`: a retired sponsor still signs the Restore of subscriptions it paid for. A changed cap is applied with `update_config` on the next deploy.
+
+```bash
+just verify-program devnet  # rebuild the pushed program from GitHub, compare it and record the verification on-chain
+just deploy-idl devnet      # publish the IDL with the Program Metadata program
+just test-deployment devnet # check the deployment against the build and the committed configuration, and Pyth Pro there
+just devnet-smoke devnet    # re-peg, then enroll and sweep a fresh wallet per payment token (PYTH_PRO_ACCESS_TOKEN in .env)
+```
+
+On the local fork, `just devnet-local` runs Surfpool in clock mode, as devnet runs. Its 1.6 release refuses a finalized blockhash there, which the Program Metadata CLI signs with, so `just deploy-idl local` needs a fork started with `just devnet-local transaction`.
+
+To hand the program to a Squads vault, run `just propose-admin devnet <vault>` and execute `accept_admin` from a vault proposal, then move the upgrade authority with `solana program set-upgrade-authority LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf --new-upgrade-authority <vault> --skip-new-upgrade-authority-signer-check --upgrade-authority keys/devnet-authority.json -u devnet`. From then on the recipes that need the admin print the instruction to propose instead of sending it, and upgrades, IDL updates (`program-metadata … --export`) and verification PDAs are Squads proposals.
+
+#### Market calendar
+
+`initialize` leaves the calendar empty, and until it is loaded the weekly engine buys nothing. When the NYSE publishes a new year or announces an unscheduled closure, and at the latest when the operations alarm fires 90 days before `validThrough`, update `programs/laterite/data/nyse-calendar.json` with the full current list and run `just market-calendar devnet`. It sends `set_market_calendar` only when the config does not hold the file and prints the `MarketCalendarSet` event. When the admin has been handed to a Squads vault, it prints the instruction for a vault proposal instead.
 
 ### Keys
 
@@ -103,8 +129,13 @@ All keys live in `keys/` (git-ignored). The shared keys also live in the team pa
 | `devnet-treasury`                                          | Pool creator and LP owner, re-peg trader, token inventory                                           | `keys/`, password manager, service host secret  |
 | `devnet-cpmm`                                              | CPMM program address                                                                                | `keys/`                                         |
 | `devnet-usdc`, `devnet-usdt`, `devnet-spyx`, `devnet-qqqx` | Mint addresses                                                                                      | `keys/`                                         |
+| `laterite-program`                                         | Laterite's program address                                                                          | `keys/` and password manager                    |
+| `devnet-authority`                                         | Laterite's upgrade authority and admin on devnet; pays the deployment                               | `keys/` and password manager; never on a server |
+| `devnet-attestor`                                          | `Config.attestor` on devnet, never reused on another cluster                                        | `keys/`, password manager, service host secret  |
+| `devnet-sponsor`                                           | `Config.sponsor` on devnet: pays and co-signs onboarding and returns                                | `keys/`, password manager, app host secret      |
+| `devnet-laterite-buffer`, `devnet-cpmm-buffer`             | Program upload buffers, kept so an interrupted upload resumes                                       | `keys/`                                         |
 
-The faucet and treasury keys never share a host, and the issuer key is never deployed.
+The faucet and treasury keys never share a host, nor do the sponsor and the attestor; the issuer and the authority keys are never deployed.
 
 ## License
 

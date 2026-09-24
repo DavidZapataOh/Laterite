@@ -37,12 +37,16 @@ function withRateLimitRetry(transport: RpcTransport): RpcTransport {
     } as RpcTransport;
 }
 
+/** An RPC client that retries the requests a public endpoint rejects with 429. */
+export const createRpc = (url: string) =>
+    createSolanaRpcFromTransport(withRateLimitRetry(createDefaultRpcTransport({ url })));
+
 /** RPC clients for the devnet target plus a confirmed `send` that counts what it sends. */
 export function createClient(
     rpcUrl = process.env.DEVNET_RPC_URL ?? 'https://api.devnet.solana.com',
     wsUrl = process.env.DEVNET_WS_URL ?? 'wss://api.devnet.solana.com',
 ) {
-    const rpc = createSolanaRpcFromTransport(withRateLimitRetry(createDefaultRpcTransport({ url: rpcUrl })));
+    const rpc = createRpc(rpcUrl);
     const rpcSubscriptions = createSolanaRpcSubscriptions(wsUrl);
     const sendAndConfirm = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions });
     let sent = 0;

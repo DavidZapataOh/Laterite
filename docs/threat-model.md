@@ -27,7 +27,8 @@ Two program addresses sign, and neither accepts a signature from outside:
 program's address and that hash, so a signature made for another cluster or another deployment is refused. The
 program cannot read the genesis hash, so the deployment supplies it and its runbook asserts the stored value; a wrong
 value makes every attestation fail, never succeed elsewhere. Each cluster also has its own attestor key, which is what
-separates a mainnet fork from mainnet.
+separates a mainnet fork from mainnet. The deployment creates, extends and freezes the onboarding lookup table in one
+transaction, so no key can change the addresses a sponsored transaction resolves through it.
 
 ### The attestor key
 

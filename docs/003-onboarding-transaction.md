@@ -36,7 +36,7 @@ A client may send version 1 only to a wallet that advertises it.
 
 ## Consequences
 
-- The deployment creates and extends the table, and onboarding can use it from the next slot. Clients are configured with its address. Its rent, 5,066,880 lamports for 600 bytes, is paid once.
+- The deployment creates, extends and freezes the table in one transaction, so no key can change it, and onboarding can use it from the next slot. Clients read its address from `packages/devnet/deployment.json`. Its rent, 3,698,240 lamports for 600 bytes on devnet, is paid once and never returned.
 - Clients add a compute-unit limit and price to every onboarding.
 - Only the configured sponsor can pay for `enroll`. It is recorded as payer of the Subscriptions authority and subscription, so closing them refunds it. Plan rent is paid once by the admin and is not refundable.
 - An account every onboarding shares goes into the table; one per user costs 32 bytes. The program tests assert the 1,232-byte limit.
