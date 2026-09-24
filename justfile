@@ -276,8 +276,13 @@ _devnet-urls cluster:
         *) echo "Error: unknown cluster {{cluster}} (local or devnet)" >&2; exit 1 ;;
     esac
 
-# Start a local Surfpool that forks devnet on port 18899 (block production mode clock or transaction) and fund the issuer and the program's upgrade authority
-devnet-local mode="clock": devnet-keys
+# The devnet programs a deployment runs besides the CPMM: SPL Token, Token-2022, Address Lookup Table, Subscriptions, Pyth Pro, Program Metadata and the verifier
+devnet_programs := "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb AddressLookupTab1e1111111111111111111111111 De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44 pytd2yyk641x7ak7mkaasSJVXh6YYZnC7wTmtgAyxPt ProgM6JCCvbYkfKqJYHePx4xxSUSqJp7rh8Lyv7nk7S verifycLy8mB96wd9wqq3WDXQwM4oU6r42Th37Db9fC"
+# Associated Token (a loader v2 program) and Pyth Pro's storage and treasury
+devnet_accounts := "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL 3rdJbqfnagQ4yx9HXJViD4zc4xpiSqmFsKpPuSCQVyQL opsLibxVY7Vz5eYMmSfX8cLFCFVYTtH6fr6MiifMpA7"
+
+# Start a local devnet on port 18899, a new chain on Agave's test validator with devnet's features and a copy of every devnet program and account the deployment uses, and fund the issuer and the program's upgrade authority
+devnet-local: devnet-keys
     #!/usr/bin/env bash
     set -euo pipefail
     health='{"jsonrpc":"2.0","id":1,"method":"getHealth"}'
@@ -285,14 +290,15 @@ devnet-local mode="clock": devnet-keys
         echo "✓ Local devnet already running"
         exit 0
     fi
-    mkdir -p .surfpool
-    # Clock mode, as devnet runs: slots and the clock advance while idle and transactions finalize. Surfpool 1.6
-    # refuses a finalized blockhash there, which the Program Metadata CLI signs with; transaction mode accepts it
-    nohup surfpool start --ci --no-tui --no-deploy --block-production-mode {{mode}} \
-        --rpc-url https://api.devnet.solana.com --port 18899 --ws-port 18900 \
-        > .surfpool/devnet.log 2>&1 &
-    echo $! > .surfpool/devnet-pid.txt
-    for _ in {1..30}; do
+    mkdir -p test-ledger
+    rm -f "$(just _devnet-deployment-file local)"
+    cpmm=$(node -p "require('./packages/devnet/addresses.json').cpmm.program")
+    nohup solana-test-validator --reset --quiet --ledger test-ledger/devnet --rpc-port 18899 \
+        --url devnet --clone-feature-set --clone-upgradeable-program "$cpmm" {{devnet_programs}} \
+        --clone {{devnet_accounts}} $(pnpm --silent --filter @laterite/devnet accounts) \
+        > test-ledger/devnet.log 2>&1 &
+    echo $! > test-ledger/devnet.pid
+    for _ in {1..60}; do
         if curl -sf http://127.0.0.1:18899 -H 'Content-Type: application/json' -d "$health" >/dev/null; then
             for key in issuer authority; do
                 solana airdrop 100 "$(solana-keygen pubkey "keys/devnet-$key.json")" -u http://127.0.0.1:18899 >/dev/null
@@ -302,16 +308,15 @@ devnet-local mode="clock": devnet-keys
         fi
         sleep 2
     done
-    cat .surfpool/devnet.log
+    cat test-ledger/devnet.log
     just devnet-local-stop
     exit 1
 
 # Stop the local devnet
 devnet-local-stop:
     #!/usr/bin/env bash
-    surfpool stop --port 18899 >/dev/null 2>&1 || true
-    if [[ -f .surfpool/devnet-pid.txt ]]; then kill "$(cat .surfpool/devnet-pid.txt)" 2>/dev/null || true; fi
-    rm -f .surfpool/devnet-pid.txt
+    if [[ -f test-ledger/devnet.pid ]]; then kill "$(cat test-ledger/devnet.pid)" 2>/dev/null || true; fi
+    rm -f test-ledger/devnet.pid
     echo "✓ Local devnet stopped"
 
 # Build Raydium CPMM from its pinned source with our devnet ids in the verifiable-build image of the Solana version it pins, then regenerate its IDL and client
@@ -377,14 +382,6 @@ devnet-assets cluster="local": (deploy-cpmm cluster)
 
 priority_fee := "100000"
 
-# An idle Surfpool 1.6 fork stalls the first transaction that fetches a remote account after a read fetched one, so a local run first sends it a throwaway transfer, which may be the one that stalls
-_wake-fork cluster payer:
-    #!/usr/bin/env bash
-    if [[ "{{cluster}}" != local ]]; then exit 0; fi
-    read -r url _ < <(just _devnet-urls local)
-    fresh=$(solana-keygen new --no-outfile --no-bip39-passphrase | sed -n 's/^pubkey: //p')
-    solana transfer "$fresh" 0.001 --allow-unfunded-recipient -u "$url" --keypair {{payer}} >/dev/null 2>&1 || true
-
 # Write a program's build into a buffer and deploy or upgrade from it as the upgrade authority, unless the cluster already runs the same executable. The buffer's keypair is kept, so a rerun resumes an interrupted upload; an upgrade to another executable asks for the program's address first
 _deploy-verified cluster binary program_key authority buffer_key:
     #!/usr/bin/env bash
@@ -407,15 +404,19 @@ _deploy-verified cluster binary program_key authority buffer_key:
             exit 1
         fi
     fi
+    # solana-verify reads finalized state, which trails what the CLI confirms by about 32 slots
+    finalized() {
+        local confirmed
+        confirmed=$(solana slot -u "$url" --commitment confirmed)
+        until (( $(solana slot -u "$url" --commitment finalized) >= confirmed )); do sleep 1; done
+    }
     signer=(-u "$url" --keypair {{authority}})
     options=("${signer[@]}" --with-compute-unit-price {{priority_fee}} --max-sign-attempts 50)
-    # Surfpool exposes no TPU, so program writes go through RPC
-    if [[ "{{cluster}}" == local ]]; then options+=(--use-rpc); fi
-    just _wake-fork {{cluster}} {{authority}}
     [[ -f {{buffer_key}} ]] || solana-keygen new --no-bip39-passphrase --silent --outfile {{buffer_key}}
     buffer=$(solana-keygen pubkey {{buffer_key}})
     # write-buffer writes only the chunks a buffer does not hold yet, so running it again resumes an upload
     solana program write-buffer {{binary}} --buffer {{buffer_key}} "${options[@]}" >/dev/null
+    finalized
     # solana-verify prints a missing CLI config's warning before the hash
     if [[ "$(solana-verify get-buffer-hash -u "$url" "$buffer" | tail -n1)" != "$build" ]]; then
         echo "Error: buffer $buffer does not hold the build"
@@ -426,17 +427,18 @@ _deploy-verified cluster binary program_key authority buffer_key:
     else
         solana program deploy --buffer "$buffer" --program-id {{program_key}} --upgrade-authority {{authority}} "${options[@]}"
     fi
+    finalized
     echo "✓ $id runs $(solana-verify get-program-hash -u "$url" "$id" | tail -n1) on {{cluster}}"
 
 # Deploy or upgrade the program to its verifiable build unless the cluster already runs the same executable
 deploy-program cluster="local": build-program
     just _deploy-verified {{cluster}} target/deploy/laterite.so keys/laterite-program.json keys/devnet-authority.json keys/devnet-laterite-buffer.json
 
-# Print where a devnet target's deployment is recorded: committed for devnet, beside the local fork for local
+# Print where a devnet target's deployment is recorded: committed for devnet, beside the local devnet's ledger for local
 _devnet-deployment-file cluster:
     #!/usr/bin/env bash
     case "{{cluster}}" in
-        local) echo "$PWD/.surfpool/devnet-deployment.json" ;;
+        local) echo "$PWD/test-ledger/devnet-deployment.json" ;;
         devnet) echo "$PWD/packages/devnet/deployment.json" ;;
         *) echo "Error: unknown cluster {{cluster}} (local or devnet)" >&2; exit 1 ;;
     esac
@@ -525,10 +527,7 @@ verify-program cluster="devnet" ref="origin/main":
     verify=(solana-verify -c "$config" verify-from-repo "$repository" --program-id "$(just program-id)"
         --commit-hash "$(git rev-parse {{ref}})" --library-name laterite --arch v3
         -u "$url" -k "$PWD/keys/devnet-authority.json")
-    # Build and compare first, declining the upload it offers, then write the PDA as a separate step
-    "${verify[@]}" <<< n
-    just _wake-fork {{cluster}} keys/devnet-authority.json
-    "${verify[@]}" --skip-build -y
+    "${verify[@]}" -y
 
 # Propose a new admin, such as a Squads vault, which takes over when it signs accept_admin (a vault proposal); the default key cancels a pending proposal
 propose-admin cluster new_admin:
@@ -558,7 +557,6 @@ deploy-idl cluster="local":
         echo "✓ {{cluster}} already holds this IDL for $id"
         exit 0
     fi
-    just _wake-fork {{cluster}} keys/devnet-authority.json
     pm write idl "$id" idl/laterite.json --priority-fees {{priority_fee}}
 
 # Check a devnet target's deployment against the built program and the committed configuration, and Pyth Pro there (read-only)
@@ -570,7 +568,7 @@ test-deployment cluster="local": build-program
         pnpm --filter @laterite/deployment test:deployment
 
 # Re-peg the pools, then enroll a fresh faucet-funded wallet per payment token and sweep it through the CPMM with live Pyth Pro updates (needs PYTH_PRO_ACCESS_TOKEN)
-devnet-smoke cluster="local": (_wake-fork cluster "keys/devnet-authority.json") (devnet-repeg cluster)
+devnet-smoke cluster="local": (devnet-repeg cluster)
     #!/usr/bin/env bash
     set -euo pipefail
     read -r rpc ws < <(just _devnet-urls {{cluster}})

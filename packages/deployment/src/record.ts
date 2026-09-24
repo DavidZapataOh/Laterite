@@ -23,8 +23,8 @@ export type DeploymentRecord = {
 };
 
 /**
- * Where a devnet target's deployment is recorded: `DEVNET_DEPLOYMENT_FILE` (the recipes point the local fork at
- * `.surfpool/`), else the committed devnet record.
+ * Where a devnet target's deployment is recorded: `DEVNET_DEPLOYMENT_FILE` (the recipes point the local devnet at
+ * `test-ledger/`), else the committed devnet record.
  */
 export const deploymentFile = () =>
     process.env.DEVNET_DEPLOYMENT_FILE

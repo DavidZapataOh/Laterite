@@ -7,6 +7,7 @@
         "./addresses": "./src/addresses.ts"
     },
     "scripts": {
+        "accounts": "tsx scripts/accounts.ts",
         "cpmm-constants": "tsx scripts/cpmm-constants.ts",
         "generate-client": "tsx scripts/generate-client.ts",
         "create-assets": "tsx scripts/create-assets.ts",

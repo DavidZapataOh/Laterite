@@ -31,7 +31,7 @@ tests/fork/          Mainnet-fork tests (Surfpool)
 5. Node 24.14.0 (`.nvmrc`) and pnpm (the version in `package.json` is fetched automatically).
 6. just: `brew install just`
 7. Surfpool 1.6.0 (fork tests): `curl -sL https://run.surfpool.run/ | VERSION=v1.6.0 bash`, and a mainnet RPC URL in `.env` (see `.env.example`).
-8. Devnet assets: nothing more. `just build-cpmm` builds the DEX in the verifiable-build image of the Solana version its source pins (3.1.10), and Surfpool (above) runs the local devnet.
+8. Devnet assets: nothing more. `just build-cpmm` builds the DEX in the verifiable-build image of the Solana version its source pins (3.1.10), and the Solana CLI's `solana-test-validator` runs the local devnet.
 
 ## Quick Start
 
@@ -87,7 +87,7 @@ Devnet has no USDC, USDT or xStocks that Laterite can mint, and no venue that tr
 The public addresses live in `packages/devnet/addresses.json`, and Laterite's deployment in `packages/devnet/deployment.json`.
 
 ```bash
-just devnet-local          # local Surfpool forking devnet (port 18899)
+just devnet-local          # a new local chain with devnet's programs, accounts and features (port 18899)
 just devnet-assets local   # create or verify everything; `devnet` targets devnet itself
 just test-devnet local     # parity with mainnet mints, swaps, re-peg, idempotency
 just devnet-repeg local    # swap every pool back to the live mainnet price
@@ -110,7 +110,7 @@ just test-deployment devnet # check the deployment against the build and the com
 just devnet-smoke devnet    # re-peg, then enroll and sweep a fresh wallet per payment token (PYTH_PRO_ACCESS_TOKEN in .env)
 ```
 
-On the local fork, `just devnet-local` runs Surfpool in clock mode, as devnet runs. Its 1.6 release refuses a finalized blockhash there, which the Program Metadata CLI signs with, so `just deploy-idl local` needs a fork started with `just devnet-local transaction`.
+`local` runs every command above against `just devnet-local`: a new chain on Agave's test validator, the client devnet runs, with devnet's feature set and a copy of every devnet program and account the deployment uses, so a rehearsal sends the transactions devnet will. Its rent is the validator's genesis rate (6,960 lamports a byte, above devnet's), which the preflight reads like any cluster's.
 
 To hand the program to a Squads vault, run `just propose-admin devnet <vault>` and execute `accept_admin` from a vault proposal, then move the upgrade authority with `solana program set-upgrade-authority LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf --new-upgrade-authority <vault> --skip-new-upgrade-authority-signer-check --upgrade-authority keys/devnet-authority.json -u devnet`. From then on the recipes that need the admin print the instruction to propose instead of sending it, and upgrades, IDL updates (`program-metadata … --export`) and verification PDAs are Squads proposals.
 
