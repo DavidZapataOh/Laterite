@@ -14,6 +14,7 @@ The sweep pulls a subscriber's stablecoins through Subscriptions & Allowances an
 - **Subscriptions binding:** the Foundation's `subscriptions` crate (`=0.5.0`) CPI builders.
 - **Router binding:** one raw `invoke_signed` with caller-built data and accounts (Jupiter's `route_v2` on mainnet and the fork, the devnet CPMM's `swap_base_input` on devnet). The program checks only the router's address against its config, which `initialize` fixes, signs only as the swap authority, and enforces the outcome: every swap-authority token account the route can write, and the payment account the pull fills, ends the sweep exactly as it started (data and length), the route leaves no new account under the swap authority, and the user's asset balance rises by at least the minimum output.
 - **Minimum output:** derived on-chain from a verified Pyth price. A caller-supplied minimum, as used while measuring, is never acceptable in a permissionless sweep: its caller could sandwich it.
+- **Slippage bound:** the minimum output is the payment's worth at the payment token's lowest and the asset's highest price within confidence, less `SLIPPAGE_BPS` = 55 basis points: the smallest whole number of basis points that clears the worst tier-sized fill measured below by 25. Jupiter routes are requested with the same slippage.
 
 ## Measurements
 
@@ -89,7 +90,7 @@ Every route the builder accepted, simulated for both payment tokens and both ass
 - **Loaded account data** (SIMD-0186's count: each account's data and 64 bytes, and each upgradeable program's data): 4.7 to 18.0 MB, within the 64 MiB a version 1 transaction may declare; every landed sweep declared at least that count.
 - **Logs:** at most 6.9 KB of the 10,000-byte truncation limit.
 - **Swap-authority accounts:** every sweep left each swap-authority token account byte-identical and created none; no real route tripped `SwapAccountChanged`, the USDC hop account of USDT routes included.
-- **Fill:** a landed sweep received its quote to within 1 basis point, about 1% more than `min_out`. With the venues read from mainnet again before each sweep, every classic-pool route executed; unrestricted routes through market makers still fail on the fork one time in three (their quotes rely on accounts their operators update every few slots), so the suite lands its sweeps through classic pools.
+- **Fill:** a landed sweep received its quote to within 1 basis point, about 1% more than `min_out` (at the 100 bps bound then in force). With the venues read from mainnet again before each sweep, every classic-pool route executed; unrestricted routes through market makers still fail on the fork one time in three (their quotes rely on accounts their operators update every few slots), so the suite lands its sweeps through classic pools.
 
 Routes also taught what the swap authority must hold and what the builder must refuse:
 
@@ -100,10 +101,27 @@ Routes also taught what the swap authority must hold and what the builder must r
 - **`route_v2`'s data:** the slippage, platform fee and positive-slippage fee sit at offsets 24, 26 and 28, confirmed on real routes; a platform fee shows only there, not in the response's `platformFee`.
 - **A manipulated pool:** after a whale's trades ($10,000 to $30,000) through the route's main Whirlpool pool on the fork, a route quoted before them, with Jupiter's own bound at 50%, is refused by the program's Pyth-derived minimum (`SlippageExceeded`); sent anyway, the sweep fails on the fork's record without spending the user's day.
 
+### The slippage bound (mainnet, 2026-09-19 to 2026-09-24)
+
+How far below the program's bound before slippage (the oracle's worth at the conservative side of both confidence intervals) real tier-sized buys fill, in basis points; negative values fill above it:
+
+| Sample                                                                                          | Buys | Median | Worst |
+| ----------------------------------------------------------------------------------------------- | ---- | ------ | ----- |
+| `just measure-slippage`, Thursday 2026-09-24: $10 and $25 Jupiter quotes, pre-market            | 80   | −0.5   | 4.8   |
+| the same, regular NYSE session                                                                  | 680  | −6.4   | 5.3   |
+| the same, after the close                                                                       | 8    | −6.7   | −3.5  |
+| the weekend of 2026-09-19 to 21, replayed from mainnet: $1–$100 USDC or USDT buys of SPYx, QQQx | 63   | −4.1   | 29.5  |
+| the same weekend, every $1–$100 pool fill into SPYx or QQQx                                     | 919  | −2.8   | 19.6  |
+
+- Each buy is priced against the Kamino Scope-posted SPYX/USD or QQQX/USD update in force when it landed (and a USDT/USD update for USDT buys). Kamino Scope posted every 42 s or so (at most 52 s apart, never more than the 60 s an update stays usable); confidence reached 22.8 bps at most, inside the 50 bps limit.
+- The worst weekend buy, 29.5 bps, is an $11 USDC→QQQx trade through another aggregator ([`5FC1a7dL…`](https://explorer.solana.com/tx/5FC1a7dLQxAuXWwV7Bwth2TcSbuBhyAt6cfjPUCxqeabs6LdAKebxn56y1JGA3M4uG1E9D2EjbtHLunwbidPJ1Av)). 55 bps clears it by 25.5; 50 would leave 20.5, and 25 fails it. A wider bound buys nothing: 75 and 100 clear no more of these buys than 55 does.
+- A sweep's minimum sits 55 bps plus the confidence interval below the oracle's worth, so a route, sandwiched or not, can take at most that from a sweep.
+
 ## Consequences
 
 - One instruction does the whole sweep: no intermediate balance survives a transaction, so there is no second step, no invariant between steps and no partial state for the crank to reconcile. The program enforces it on every swap-authority token account the route can write (its SPYx account, the USDC account of USDT routes) and on the payment account: each ends as it started, data and length, and the route leaves no new account under the swap authority, so a route cannot keep or take a unit, approve a delegate, change an authority, reallocate or reconfigure an account's extensions. The vault authority holds no token account and never signs a route, so a route cannot pull a subscriber or change a plan.
 - No address lookup table to create or maintain for the sweep. The crank builds v1 transactions with a loaded-accounts data limit set explicitly (v1 budgets zero otherwise) and a compute limit from simulation with a 10% margin, never above 490,000 (about 20% above the measured maximum, 407,143).
+- `just measure-slippage` re-measures the fill against the bound; a tier-sized worst case above 30 bps (less than 25 bps of room) calls for revisiting `SLIPPAGE_BPS`, a program upgrade.
 - Routes are requested with `maxAccounts` = 40. Adding accounts to the sweep beyond the 8 reserved lowers that value; the CU benchmark in CI catches it.
 - Transaction builders and wallets must support v1 messages. Onboarding is measured separately and may still use v0 with a lookup table.
 - The swap authority is Jupiter's taker: it needs a payment-token account per token, an account per asset and a wrapped SOL account before the first sweep; the deployment runbook creates them (`JUPITER_ROUTE_MINTS`). The crank creates the account of any other intermediate a route needs, before the sweep, once per mint.

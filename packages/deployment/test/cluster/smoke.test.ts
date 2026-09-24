@@ -217,14 +217,18 @@ describe('devnet smoke', () => {
                 })),
             );
             const swept = findSweptEvent(executed);
+            // The program derives the same minimum as the client's mirror, which carries this build's SLIPPAGE_BPS.
+            expect(swept?.minOut).toBe(sweep.minOut);
             expect(swept?.received).toBeGreaterThanOrEqual(sweep.minOut);
+            const headroom = (Number(swept!.received - sweep.minOut) * 10_000) / Number(sweep.minOut);
             const treasury = keys.indexOf(storage.treasury);
             const fee = confirmed.meta!.postBalances[treasury]! - confirmed.meta!.preBalances[treasury]!;
             expect(fee).toBe(paymentUpdate ? 2n : 1n);
             console.log(
                 `${symbol} sweep ${signature}: ${size} B (built ${sweep.size}), ` +
                     `${confirmed.meta!.computeUnitsConsumed} CU, fee ${confirmed.meta!.fee} lamports, ` +
-                    `pulled ${pullTotal(pull)}, received ${swept!.received} (min ${sweep.minOut}), treasury +${fee}`,
+                    `pulled ${pullTotal(pull)}, received ${swept!.received} (min ${sweep.minOut}, ` +
+                    `headroom ${headroom.toFixed(1)} bps), treasury +${fee}`,
             );
         });
     }

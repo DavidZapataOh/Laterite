@@ -7,6 +7,12 @@ import { POOL_FEES, poolReserves, swapInstruction } from './cpmm';
 
 const FEE_RATE_DENOMINATOR = 1_000_000;
 
+/**
+ * How far a pool may drift from its target before a re-peg, in basis points: with the pool's 25 bps fee, a $25 buy
+ * at the band's dear edge costs under 40 bps, inside the sweep's 55 bps bound.
+ */
+export const REPEG_TOLERANCE_BPS = 10;
+
 export type Reserves = { base: bigint; quote: bigint };
 export type Decimals = { base: number; quote: number };
 export type PoolFees = { tradeFeeRate: bigint; protocolFeeRate: bigint; fundFeeRate: bigint };
@@ -45,7 +51,7 @@ export function repegOrder(
     targetPrice: number,
     decimals: Decimals,
     fees: PoolFees,
-    toleranceBps = 25,
+    toleranceBps = REPEG_TOLERANCE_BPS,
 ): RepegOrder | null {
     const price = poolPrice(reserves, decimals);
     if (Math.abs(price / targetPrice - 1) * 10_000 <= toleranceBps) return null;

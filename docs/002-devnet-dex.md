@@ -54,6 +54,7 @@ These pools are our deployment of open-source code, not a third-party venue.
 - A non-null TransferHook would break every candidate; mainnet SPYx has none.
 - Direct USDT pools exist only on devnet. On mainnet USDT reaches SPYx through Jupiter, and the program never assumes a direct route.
 - Pools are re-pegged to the raw-unit price, the unit Pyth quotes xStocks in, never multiplied by the ScaledUiAmount multiplier.
+- A pool is re-pegged once it drifts more than 10 bps from the live price (`REPEG_TOLERANCE_BPS`). The pools' 0.25% fee already takes 25 of the sweep's 55 bps slippage bound, so a $25 buy at the band's dear edge costs about 38 bps over the price, leaving about 17 bps and the oracle's confidence for the gap between Jupiter's price, which the pools follow, and Pyth's, which bounds the sweep. The crank re-pegs before each sweep.
 
 ## Evidence
 

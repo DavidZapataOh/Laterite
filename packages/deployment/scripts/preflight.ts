@@ -28,8 +28,8 @@ import { findAssociatedTokenPda } from '@solana-program/token';
 
 import { deploymentFile, readDeploymentRecord } from '../src';
 
-// Read-only: what a deployment run needs from the upgrade authority and the issuer at the cluster's current rent,
-// and the conditions it relies on. Exits non-zero when anything is missing.
+// Read-only: what a deployment run, or an upgrade to a new build, needs from the upgrade authority and the issuer at
+// the cluster's current rent, and the conditions it relies on. Exits non-zero when anything is missing.
 
 const LOADER = address('BPFLoaderUpgradeab1e11111111111111111111111');
 const PROGRAM_METADATA = address('ProgM6JCCvbYkfKqJYHePx4xxSUSqJp7rh8Lyv7nk7S');
@@ -69,11 +69,13 @@ function executableHash(bytes: ReadonlyUint8Array) {
     return createHash('sha256').update(bytes.subarray(0, end)).digest('hex');
 }
 
-/** The executable hash the cluster runs at `program`, or `null` when it has no such program. */
-async function runningHash(program: Address) {
+/** The executable hash the cluster runs at `program` and the bytes its program data holds, or `null` without one. */
+async function running(program: Address) {
     const [programData] = await getProgramDerivedAddress({ programAddress: LOADER, seeds: [encoder.encode(program)] });
     const account = await fetchEncodedAccount(rpc, programData);
-    return account.exists ? executableHash(account.data.subarray(PROGRAM_DATA_HEADER)) : null;
+    if (!account.exists) return null;
+    const bytes = account.data.subarray(PROGRAM_DATA_HEADER);
+    return { capacity: bytes.length, hash: executableHash(bytes) };
 }
 
 /** The loader buffers `authority` holds other than `kept`, the one a rerun resumes. */
@@ -121,12 +123,13 @@ if (feature.exists && feature.data[0] === 1) {
 const root = new URL('../../../', import.meta.url);
 const program = new Uint8Array(await readFile(new URL('target/deploy/laterite.so', root)));
 const cpmm = new Uint8Array(await readFile(new URL('target/cp-swap/target/deploy/raydium_cp_swap.so', root)));
+const build = executableHash(program);
 const [programRunning, cpmmRunning] = await Promise.all([
-    runningHash(LATERITE_PROGRAM_ADDRESS),
-    runningHash(devnet.cpmm.program),
+    running(LATERITE_PROGRAM_ADDRESS),
+    running(devnet.cpmm.program),
 ]);
-if (programRunning && programRunning !== executableHash(program)) {
-    problems.push(`${LATERITE_PROGRAM_ADDRESS} runs ${programRunning}, not the build ${executableHash(program)}`);
+if (programRunning && programRunning.hash !== build) {
+    console.log(`${LATERITE_PROGRAM_ADDRESS} runs ${programRunning.hash}: the deploy upgrades it to ${build}`);
 }
 for (const [holder, kept] of [
     [authority, buffers.laterite],
@@ -183,6 +186,18 @@ if (!programRunning) {
     }
     items.push(['program account', await rent(PROGRAM_ACCOUNT)]);
     items.push(['upload fees', BigInt(Math.ceil(size / WRITE_BYTES) + 3) * FEE]);
+} else if (programRunning.hash !== build) {
+    const size = program.length;
+    if (!keptBuffer?.exists) {
+        items.push([`upgrade buffer (${size + BUFFER_HEADER} bytes), returned`, await rent(size + BUFFER_HEADER)]);
+    }
+    if (size > programRunning.capacity) {
+        const extension =
+            (await rent(size + PROGRAM_DATA_HEADER)) - (await rent(programRunning.capacity + PROGRAM_DATA_HEADER));
+        items.push([`program data extension (${size - programRunning.capacity} bytes), kept`, extension]);
+    }
+    items.push(['upload fees', BigInt(Math.ceil(size / WRITE_BYTES) + 3) * FEE]);
+    if (verificationAccount!.exists) items.push(['verification PDA update', FEE]);
 }
 if (!configAccount!.exists) items.push(['config', await rent(getConfigSize())]);
 if (missingPlans > 0) items.push([`${missingPlans} plans`, BigInt(missingPlans) * (await rent(PLAN_SIZE))]);
@@ -200,7 +215,7 @@ if (!verificationAccount!.exists) items.push(['verification PDA', (await rent(VE
 items.push(["smoke: two wallets' token accounts and fees", 2n * (await rent(TOKEN_ACCOUNT)) + 8n * FEE]);
 await requireBalance('Upgrade authority', authority, items);
 
-if (cpmmRunning === executableHash(cpmm)) {
+if (cpmmRunning?.hash === executableHash(cpmm)) {
     console.log(`Issuer ${issuer}: the CPMM already runs the build`);
 } else {
     const size = cpmm.length;

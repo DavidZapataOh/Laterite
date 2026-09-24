@@ -123,7 +123,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "635611"
+        "value": "638500"
       }
     },
     {
@@ -141,7 +141,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "635393"
+        "value": "638282"
       }
     },
     {
@@ -159,7 +159,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "662975"
+        "value": "665988"
       }
     },
     {
@@ -177,7 +177,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "3178060"
+        "value": "3192506"
       }
     },
     {
@@ -195,7 +195,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "3176969"
+        "value": "3191410"
       }
     },
     {
@@ -213,7 +213,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "3314879"
+        "value": "3329947"
       }
     },
     {
@@ -249,7 +249,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "3138984512954294806"
+        "value": "3153252624376814328"
       }
     },
     {
@@ -267,7 +267,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "259850265124821"
+        "value": "261031402693570"
       }
     },
     {
@@ -393,7 +393,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "536"
+        "value": "539"
       }
     },
     {
@@ -573,7 +573,7 @@
       ],
       "paymentDecimals": 0,
       "result": {
-        "value": "14084507042253"
+        "value": "14148527528809"
       }
     },
     {
@@ -609,7 +609,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "98862215737275"
+        "value": "99311589445172"
       }
     },
     {
@@ -717,7 +717,7 @@
       ],
       "paymentDecimals": 0,
       "result": {
-        "value": "3520"
+        "value": "3536"
       }
     },
     {
@@ -933,7 +933,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "597"
+        "value": "600"
       }
     },
     {
@@ -1185,7 +1185,7 @@
       ],
       "paymentDecimals": 0,
       "result": {
-        "value": "126"
+        "value": "127"
       }
     },
     {
@@ -1257,7 +1257,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "231616175854"
+        "value": "232668976653"
       }
     },
     {
@@ -1455,7 +1455,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "234264970"
+        "value": "235329810"
       }
     },
     {
@@ -1527,7 +1527,7 @@
       ],
       "paymentDecimals": 0,
       "result": {
-        "value": "76961417920593"
+        "value": "77311242547504"
       }
     },
     {
@@ -1563,7 +1563,7 @@
       ],
       "paymentDecimals": 0,
       "result": {
-        "value": "9890100000000000"
+        "value": "9935055000000000"
       }
     },
     {
@@ -1581,7 +1581,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "45654"
+        "value": "45862"
       }
     },
     {
@@ -1779,7 +1779,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "5975200042573913203"
+        "value": "6002360042767430990"
       }
     },
     {
@@ -1941,7 +1941,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "59811810282190179"
+        "value": "60083682147109225"
       }
     },
     {
@@ -2103,7 +2103,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "259813296812810"
+        "value": "260994266343777"
       }
     },
     {
@@ -2211,7 +2211,7 @@
       ],
       "paymentDecimals": 0,
       "result": {
-        "value": "19267169245830"
+        "value": "19354747287856"
       }
     },
     {
@@ -2391,7 +2391,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "988"
+        "value": "992"
       }
     },
     {
@@ -2427,7 +2427,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "964888123895598"
+        "value": "969273979004215"
       }
     },
     {
@@ -2517,7 +2517,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "9897298092"
+        "value": "9942285810"
       }
     },
     {
@@ -2661,7 +2661,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "536533604654151"
+        "value": "538972393766215"
       }
     },
     {
@@ -2679,7 +2679,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "12555938052200548"
+        "value": "12613010497892368"
       }
     },
     {
@@ -2733,7 +2733,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "1826227663297245"
+        "value": "1834528698130414"
       }
     },
     {
@@ -2805,7 +2805,7 @@
       ],
       "paymentDecimals": 0,
       "result": {
-        "value": "133"
+        "value": "134"
       }
     },
     {
@@ -2949,7 +2949,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "3368795432517266"
+        "value": "3384108139028708"
       }
     },
     {
@@ -3201,7 +3201,7 @@
       ],
       "paymentDecimals": 0,
       "result": {
-        "value": "990000000"
+        "value": "994500000"
       }
     },
     {
@@ -3237,7 +3237,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "456681"
+        "value": "458756"
       }
     },
     {
@@ -3273,7 +3273,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "220770"
+        "value": "221773"
       }
     },
     {
@@ -3669,7 +3669,7 @@
       ],
       "paymentDecimals": 0,
       "result": {
-        "value": "978025563380"
+        "value": "982471134122"
       }
     },
     {
@@ -3741,7 +3741,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "317"
+        "value": "319"
       }
     },
     {
@@ -3795,7 +3795,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "964888123"
+        "value": "969273978"
       }
     },
     {
@@ -3831,7 +3831,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "18262276632971"
+        "value": "18345286981303"
       }
     },
     {
@@ -3939,7 +3939,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "989611706"
+        "value": "994109941"
       }
     },
     {
@@ -3975,7 +3975,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "98961185848352"
+        "value": "99411009420390"
       }
     },
     {
@@ -4065,7 +4065,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "1826597804"
+        "value": "1834900521"
       }
     },
     {
@@ -4137,7 +4137,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "76078"
+        "value": "76424"
       }
     },
     {
@@ -4173,7 +4173,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "22492"
+        "value": "22595"
       }
     },
     {
@@ -4227,7 +4227,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "1406759492"
+        "value": "1413153853"
       }
     },
     {
@@ -4389,7 +4389,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "989"
+        "value": "993"
       }
     },
     {
@@ -4443,7 +4443,7 @@
       ],
       "paymentDecimals": 0,
       "result": {
-        "value": "1926351765345979709"
+        "value": "1935107909733915980"
       }
     },
     {
@@ -4497,7 +4497,7 @@
       ],
       "paymentDecimals": 0,
       "result": {
-        "value": "976305489556444768"
+        "value": "980743241781701335"
       }
     },
     {
@@ -4587,7 +4587,7 @@
       ],
       "paymentDecimals": 6,
       "result": {
-        "value": "5366800753"
+        "value": "5391195302"
       }
     },
     {
@@ -4659,7 +4659,7 @@
       ],
       "paymentDecimals": 9,
       "result": {
-        "value": "25955348350192"
+        "value": "26073327206329"
       }
     },
     {

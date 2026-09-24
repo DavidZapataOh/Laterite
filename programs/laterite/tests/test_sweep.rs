@@ -293,14 +293,17 @@ fn only_the_configured_router_swaps() {
 #[test]
 fn a_manipulated_pool_reverts_the_whole_sweep() {
     let mut sweep = sweep_env(&params());
-    // The route's own minimum is 0: only the prices bound the fill.
-    peg(&mut sweep.env.svm, pool(SPYX, USDC), PYTH_SPYX_QUOTE, 200);
+    // The route's own minimum is 0: only the prices bound the fill. At 50 bps above the oracle, the pool's 25 bps
+    // fee takes the fill past the bound.
     let balance = token_amount(&sweep.env.svm, &sweep.user_payment_account(USDC_TOKEN));
-    assert_eq!(error_of(sweep_real(&mut sweep, USDC_TOKEN)), Some(LateriteError::SlippageExceeded.into()));
-    assert_eq!(token_amount(&sweep.env.svm, &sweep.user_payment_account(USDC_TOKEN)), balance);
-    assert_eq!(fetch_user_config(&sweep.env, &sweep.user.pubkey()).last_sweep_day, [0; 2]);
+    for bps in [200, 50] {
+        peg(&mut sweep.env.svm, pool(SPYX, USDC), PYTH_SPYX_QUOTE, bps);
+        assert_eq!(error_of(sweep_real(&mut sweep, USDC_TOKEN)), Some(LateriteError::SlippageExceeded.into()));
+        assert_eq!(token_amount(&sweep.env.svm, &sweep.user_payment_account(USDC_TOKEN)), balance);
+        assert_eq!(fetch_user_config(&sweep.env, &sweep.user.pubkey()).last_sweep_day, [0; 2]);
+    }
 
-    peg(&mut sweep.env.svm, pool(SPYX, USDC), PYTH_SPYX_QUOTE, 50);
+    peg(&mut sweep.env.svm, pool(SPYX, USDC), PYTH_SPYX_QUOTE, 0);
     sweep_real(&mut sweep, USDC_TOKEN).1.unwrap();
 }
 

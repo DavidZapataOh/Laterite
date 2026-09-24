@@ -160,10 +160,10 @@ fn a_malformed_update_is_refused() {
 
 #[test]
 fn min_out_is_the_worth_at_the_conservative_prices_less_slippage() {
-    assert_eq!(min_out(1_000_000, Quote::DOLLAR, USD_DECIMALS, PYTH_SPYX_QUOTE, ASSET_DECIMALS).unwrap(), 127_121);
-    assert_eq!(min_out(10_000_000, Quote::DOLLAR, USD_DECIMALS, PYTH_SPYX_QUOTE, ASSET_DECIMALS).unwrap(), 1_271_223);
-    assert_eq!(min_out(25_000_000, Quote::DOLLAR, USD_DECIMALS, PYTH_QQQX_QUOTE, ASSET_DECIMALS).unwrap(), 3_316_017);
-    assert_eq!(min_out(25_000_000, PYTH_USDT_QUOTE, USD_DECIMALS, PYTH_QQQX_QUOTE, ASSET_DECIMALS).unwrap(), 3_314_879);
+    assert_eq!(min_out(1_000_000, Quote::DOLLAR, USD_DECIMALS, PYTH_SPYX_QUOTE, ASSET_DECIMALS).unwrap(), 127_699);
+    assert_eq!(min_out(10_000_000, Quote::DOLLAR, USD_DECIMALS, PYTH_SPYX_QUOTE, ASSET_DECIMALS).unwrap(), 1_277_001);
+    assert_eq!(min_out(25_000_000, Quote::DOLLAR, USD_DECIMALS, PYTH_QQQX_QUOTE, ASSET_DECIMALS).unwrap(), 3_331_090);
+    assert_eq!(min_out(25_000_000, PYTH_USDT_QUOTE, USD_DECIMALS, PYTH_QQQX_QUOTE, ASSET_DECIMALS).unwrap(), 3_329_947);
     assert_eq!(min_out(0, Quote::DOLLAR, USD_DECIMALS, PYTH_SPYX_QUOTE, ASSET_DECIMALS).unwrap(), 0);
 }
 
@@ -172,8 +172,8 @@ fn usdt_counts_at_its_verified_price_from_its_own_update() {
     let asset = quote(PYTH_SPYX_QQQX, SPYX, PYTH_UPDATES_AT).unwrap();
     let usdt = quote(PYTH_USDT, USDT_FEED, PYTH_UPDATES_AT).unwrap();
     let usdc = quote(&[], 0, PYTH_UPDATES_AT).unwrap();
-    assert_eq!(min_out(10_000_000, usdt, USD_DECIMALS, asset, ASSET_DECIMALS).unwrap(), 1_270_787);
-    assert_eq!(min_out(10_000_000, usdc, USD_DECIMALS, asset, ASSET_DECIMALS).unwrap(), 1_271_223);
+    assert_eq!(min_out(10_000_000, usdt, USD_DECIMALS, asset, ASSET_DECIMALS).unwrap(), 1_276_564);
+    assert_eq!(min_out(10_000_000, usdc, USD_DECIMALS, asset, ASSET_DECIMALS).unwrap(), 1_277_001);
 }
 
 #[test]

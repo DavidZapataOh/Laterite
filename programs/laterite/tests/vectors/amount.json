@@ -194,7 +194,7 @@
     "MAX_CONFIDENCE_BPS": "50",
     "MAX_PRICE_AGE_SECONDS": "60",
     "PLAN_PERIOD_HOURS": "168",
-    "SLIPPAGE_BPS": "100",
+    "SLIPPAGE_BPS": "55",
     "TIERS": [
       "10000000",
       "25000000"

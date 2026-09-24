@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { expectedAmountOut, poolPrice, repegAmountIn, repegOrder } from '../../src/repeg';
+import { expectedAmountOut, poolPrice, REPEG_TOLERANCE_BPS, repegAmountIn, repegOrder } from '../../src/repeg';
 
 const fees = { tradeFeeRate: 2_500n, protocolFeeRate: 120_000n, fundFeeRate: 40_000n };
 const decimals = { base: 8, quote: 6 };
@@ -27,7 +27,20 @@ describe('re-peg calculator', () => {
         expect(Math.abs(after / 760 - 1)).toBeLessThan(1e-4);
     });
 
-    it('leaves a pool inside the tolerance alone', () => {
-        expect(repegOrder(reserves, 775.9, decimals, fees, 25)).toBeNull();
+    it('leaves a pool within 10 bps of the target alone and re-pegs one past it', () => {
+        const price = poolPrice(reserves, decimals);
+        expect(REPEG_TOLERANCE_BPS).toBe(10);
+        expect(repegOrder(reserves, price / 1.00099, decimals, fees)).toBeNull();
+        expect(repegOrder(reserves, price * 1.00099, decimals, fees)).toBeNull();
+        expect(repegOrder(reserves, price / 1.0011, decimals, fees)?.side).toBe('sell');
+        expect(repegOrder(reserves, price * 1.0011, decimals, fees)?.side).toBe('buy');
+    });
+
+    it("keeps a $25 buy at the band's dear edge within 40 bps of the target", () => {
+        const target = poolPrice(reserves, decimals) / (1 + REPEG_TOLERANCE_BPS / 10_000);
+        const out = expectedAmountOut(reserves.quote, reserves.base, 25_000_000n, fees);
+        const cost = (1 - ((Number(out) / 1e8) * target) / 25) * 10_000;
+        expect(cost).toBeGreaterThan(35);
+        expect(cost).toBeLessThan(40);
     });
 });

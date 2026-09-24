@@ -60,7 +60,8 @@ own asset account.
   the token-fetched USDT updates, so USDT sweeps stop too (fail closed) while USDC sweeps continue.
 - An update is usable for 60 seconds by the feed's own timestamp, so a caller can pick among the last minute's prices.
   Confidence wider than 0.5% of the price is refused. The minimum output uses the conservative side of both
-  confidence intervals, less 1% slippage.
+  confidence intervals, less 0.55% slippage (`SLIPPAGE_BPS`, measured in ADR-001): a caller who picks the route can
+  take at most that much of a sweep, plus the confidence interval.
 - Freshness, confidence and slippage are the only price checks; there is no cross-index check. Trust rests on the
   signers Pyth's storage account lists, which Pyth's authority controls.
 

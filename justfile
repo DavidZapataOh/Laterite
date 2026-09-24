@@ -298,8 +298,8 @@ devnet_programs := "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA TokenzQdBNbLqP5V
 # Associated Token (a loader v2 program) and Pyth Pro's storage and treasury
 devnet_accounts := "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL 3rdJbqfnagQ4yx9HXJViD4zc4xpiSqmFsKpPuSCQVyQL opsLibxVY7Vz5eYMmSfX8cLFCFVYTtH6fr6MiifMpA7"
 
-# Start a local devnet on port 18899, a new chain on Agave's test validator with devnet's features and a copy of every devnet program and account the deployment uses, and fund the issuer and the program's upgrade authority
-devnet-local: devnet-keys
+# Start a local devnet on port 18899, a new chain on Agave's test validator with devnet's features and a copy of every devnet program and account the deployment uses, and fund the issuer and the program's upgrade authority; `deployed` also copies Laterite's devnet deployment (program, accounts and record), to rehearse an upgrade
+devnet-local state="fresh": devnet-keys
     #!/usr/bin/env bash
     set -euo pipefail
     health='{"jsonrpc":"2.0","id":1,"method":"getHealth"}'
@@ -308,11 +308,21 @@ devnet-local: devnet-keys
         exit 0
     fi
     mkdir -p test-ledger
-    rm -f "$(just _devnet-deployment-file local)"
+    record=$(just _devnet-deployment-file local)
+    rm -f "$record"
+    deployment=()
+    case "{{state}}" in
+        fresh) ;;
+        deployed)
+            deployment=(--clone-upgradeable-program "$(just program-id)"
+                --clone $(pnpm --silent --filter @laterite/deployment accounts))
+            cp "$(just _devnet-deployment-file devnet)" "$record" ;;
+        *) echo "Error: unknown state {{state}} (fresh or deployed)" >&2; exit 1 ;;
+    esac
     cpmm=$(node -p "require('./packages/devnet/addresses.json').cpmm.program")
     nohup solana-test-validator --reset --quiet --ledger test-ledger/devnet --rpc-port 18899 \
         --url devnet --clone-feature-set --clone-upgradeable-program "$cpmm" {{devnet_programs}} \
-        --clone {{devnet_accounts}} $(pnpm --silent --filter @laterite/devnet accounts) \
+        --clone {{devnet_accounts}} $(pnpm --silent --filter @laterite/devnet accounts) "${deployment[@]}" \
         > test-ledger/devnet.log 2>&1 &
     echo $! > test-ledger/devnet.pid
     for _ in {1..60}; do
@@ -399,7 +409,7 @@ devnet-assets cluster="local": (deploy-cpmm cluster)
 
 priority_fee := "100000"
 
-# Write a program's build into a buffer and deploy or upgrade from it as the upgrade authority, unless the cluster already runs the same executable. The buffer's keypair is kept, so a rerun resumes an interrupted upload; an upgrade to another executable asks for the program's address first
+# Write a program's build into a buffer and deploy or upgrade from it as the upgrade authority, unless the cluster already runs the same executable. The buffer's keypair is kept, so a rerun resumes an interrupted upload; an upgrade to another executable asks for the program's address first and extends the program's data when the build outgrows it
 _deploy-verified cluster binary program_key authority buffer_key:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -440,6 +450,13 @@ _deploy-verified cluster binary program_key authority buffer_key:
         exit 1
     fi
     if [[ -n "$running" ]]; then
+        # An upgrade needs program data at least as large as the build, and the loader never grows it on its own
+        size=$(wc -c < {{binary}})
+        capacity=$(solana program show "$id" "${signer[@]}" --output json | node -p "JSON.parse(require('fs').readFileSync(0)).dataLen")
+        if (( size > capacity )); then
+            solana program extend "$id" $(( size - capacity )) "${signer[@]}"
+            finalized
+        fi
         solana program upgrade "$buffer" "$id" --upgrade-authority {{authority}} "${signer[@]}"
     else
         solana program deploy --buffer "$buffer" --program-id {{program_key}} --upgrade-authority {{authority}} "${options[@]}"
@@ -488,7 +505,7 @@ _require-deployment-keys cluster:
         done
     fi
 
-# Check, read-only, what a devnet target needs before a deployment: the SOL the authority and the issuer must hold at the cluster's rent, SIMD-0500 inactive, the program absent or the same build, no stray buffers
+# Check, read-only, what a devnet target needs before a deployment or an upgrade: the SOL the authority and the issuer must hold at the cluster's rent, SIMD-0500 inactive, no stray buffers
 devnet-preflight cluster="local": (_require-deployment-keys cluster) build-program build-cpmm
     #!/usr/bin/env bash
     set -euo pipefail

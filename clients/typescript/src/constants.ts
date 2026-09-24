@@ -44,7 +44,7 @@ export const MAX_PRICE_AGE_SECONDS = 60n;
 export const MAX_CONFIDENCE_BPS = 50n;
 
 /** How far below the oracle's worth a sweep's swap may fill, in basis points. */
-export const SLIPPAGE_BPS = 100n;
+export const SLIPPAGE_BPS = 55n;
 
 /** Decimals of every payment token: one dollar is 1,000,000 raw units. */
 export const USD_DECIMALS = 6;

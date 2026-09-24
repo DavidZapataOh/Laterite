@@ -10,7 +10,7 @@ pub const MAX_PRICE_AGE_SECONDS: i64 = 60;
 pub const MAX_CONFIDENCE_BPS: u64 = 50;
 
 /// How far below the oracle's worth a swap may fill, in basis points.
-pub const SLIPPAGE_BPS: u64 = 100;
+pub const SLIPPAGE_BPS: u64 = 55;
 
 const SOLANA_FORMAT_MAGIC: u32 = 2_182_742_457;
 const PAYLOAD_FORMAT_MAGIC: u32 = 2_479_346_549;

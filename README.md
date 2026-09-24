@@ -117,7 +117,7 @@ just devnet-repeg local    # swap every pool back to the live mainnet price
 `just devnet-deploy devnet` (or `local`, against the fork) takes the program from nothing to a configured deployment, and a second run sends nothing. On devnet it runs only with the keys the local rehearsal used: it refuses to start when a devnet key is missing or differs from the recorded deployment. Run `just devnet-preflight devnet` first: read-only, it prints what the upgrade authority and the issuer need at the cluster's current rent and checks the conditions below.
 
 1. `just devnet-assets` creates or verifies the stand-ins, the CPMM and the pools.
-2. `just deploy-program` writes the verifiable build of `laterite.so` into a buffer (`keys/devnet-laterite-buffer.json`), checks the buffer's executable hash, and deploys the program at `keys/laterite-program.json`, upgradeable by `devnet-authority`, unless the cluster already runs the same executable. The CPMM is deployed the same way. The upload holds about 4.2 SOL of the authority's balance while it runs, of which 2.09 SOL of program rent stays. An interrupted upload resumes from the same buffer on the next run; `solana program close <buffer> -u devnet --keypair keys/devnet-authority.json` returns an abandoned buffer's rent. Upgrading a program that runs another executable asks for its address first.
+2. `just deploy-program` writes the verifiable build of `laterite.so` into a buffer (`keys/devnet-laterite-buffer.json`), checks the buffer's executable hash, and deploys the program at `keys/laterite-program.json`, upgradeable by `devnet-authority`, unless the cluster already runs the same executable. The CPMM is deployed the same way. The upload holds about 4.2 SOL of the authority's balance while it runs, of which 2.09 SOL of program rent stays. An interrupted upload resumes from the same buffer on the next run; `solana program close <buffer> -u devnet --keypair keys/devnet-authority.json` returns an abandoned buffer's rent. Upgrading a program that runs another executable asks for its address first (see Upgrading the program).
 3. `packages/deployment` initializes the config as the upgrade authority, with the CPMM as router, the stand-ins as the asset and payment-token tables, the recorded attestor and sponsor public keys and the genesis hash read from the cluster's RPC; creates the four plans and the swap authority's USDC and USDT accounts; loads the NYSE calendar from `programs/laterite/data/nyse-calendar.json`; creates and freezes the onboarding lookup table; funds the sponsor; and records the public addresses in `packages/devnet/deployment.json` as it goes, the lookup table's before it is created. To create another table, delete `lookupTable` from the record and run the deploy again.
 
 The router, the asset and payment-token tables and the genesis hash are fixed at `initialize`, so a run against a config that holds others stops: changing them takes a new program. The attestor and the sponsor change only with `just rotate-key devnet attestor|sponsor`, which generates the new key, sets it with `update_config`, records it and keeps the retired key in `keys/retired/`: a retired sponsor still signs the Restore of subscriptions it paid for. A changed cap is applied with `update_config` on the next deploy.
@@ -130,6 +130,19 @@ just devnet-smoke devnet    # re-peg, then enroll and sweep a fresh wallet per p
 ```
 
 `local` runs every command above against `just devnet-local`: a new chain on Agave's test validator, the client devnet runs, with devnet's feature set and a copy of every devnet program and account the deployment uses, so a rehearsal sends the transactions devnet will. Its rent is the validator's genesis rate (6,960 lamports a byte, above devnet's), which the preflight reads like any cluster's.
+
+#### Upgrading the program
+
+After a program change, rehearse the upgrade on a local copy of the devnet deployment, then run it on devnet:
+
+```bash
+just devnet-local deployed      # a local chain with the devnet program, its accounts and record, upgradeable by devnet-authority
+just devnet-preflight local     # the upgrade buffer (returned), any program data extension (kept) and fees
+just deploy-program local       # type the program's address to upgrade it
+just devnet-smoke local         # the upgraded program sweeps with the client's minimum output
+```
+
+`just deploy-program devnet` writes the new build into the kept buffer, checks its executable hash, extends the program's data first when the build is larger (`solana program extend`: the loader never grows it on its own, and an upgrade to a larger build fails without it), and upgrades with `solana program upgrade`, which returns the buffer's rent. The config, plans and accounts stay as they are, so `devnet-deploy`'s configuration sends nothing. Then push the commit and run `just verify-program devnet`, `just test-deployment devnet` and `just devnet-smoke devnet`. On the local copy, only the checks that hold on another chain apply: its genesis hash is its own and it has no devnet history, so the config's genesis hash and the recorded `MarketCalendarSet` are checked on devnet only.
 
 To hand the program to a Squads vault, run `just propose-admin devnet <vault>` and execute `accept_admin` from a vault proposal, then move the upgrade authority with `solana program set-upgrade-authority LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf --new-upgrade-authority <vault> --skip-new-upgrade-authority-signer-check --upgrade-authority keys/devnet-authority.json -u devnet`. From then on the recipes that need the admin print the instruction to propose instead of sending it, and upgrades, IDL updates (`program-metadata … --export`) and verification PDAs are Squads proposals.
 

@@ -6,6 +6,7 @@
         ".": "./src/index.ts"
     },
     "scripts": {
+        "accounts": "tsx scripts/accounts.ts",
         "configure": "tsx scripts/configure.ts",
         "market-calendar": "tsx scripts/market-calendar.ts",
         "preflight": "tsx scripts/preflight.ts",

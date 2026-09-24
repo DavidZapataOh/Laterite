@@ -238,7 +238,7 @@ describe('Jupiter routes for the sweep', () => {
             inputMint: USDT,
             maxAccounts: '40',
             outputMint: SPYX,
-            slippageBps: '100',
+            slippageBps: '55',
             taker: swapAuthority,
             wrapAndUnwrapSol: 'false',
         });
