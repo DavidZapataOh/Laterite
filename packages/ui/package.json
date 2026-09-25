@@ -2,10 +2,13 @@
     "name": "@laterite/ui",
     "private": true,
     "type": "module",
-    "sideEffects": ["**/*.css"],
+    "sideEffects": [
+        "**/*.css"
+    ],
     "exports": {
         "./styles.css": "./src/styles.css",
         "./fonts": "./src/fonts.ts",
+        "./fonts/narrow": "./src/fonts-narrow.ts",
         "./seal": "./src/seal.tsx",
         "./button": "./src/button.ts",
         "./chip": "./src/chip.ts",

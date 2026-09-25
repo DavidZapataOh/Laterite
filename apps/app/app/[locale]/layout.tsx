@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing } from '@laterite/i18n/routing';
-import { fontVariables, martianMonoNarrow } from '@laterite/ui/fonts';
+import { fontVariables } from '@laterite/ui/fonts';
+import { martianMonoNarrow } from '@laterite/ui/fonts/narrow';
 import '../globals.css';
 
 export function generateStaticParams() {

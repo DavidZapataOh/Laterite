@@ -162,6 +162,7 @@ for (const [path, key] of [
         const page = await context.newPage();
         await open(page, { key, name: 'Phantom' }, path);
         await expect(page.getByRole('radiogroup').first()).toBeVisible();
+        await page.evaluate(() => document.fonts.ready);
         const rows = await page.locator('form [role="radiogroup"], form [role="group"]').evaluateAll(groups =>
             groups.map(group => {
                 const [label, controls] = [...group.children] as HTMLElement[];
