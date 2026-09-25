@@ -20,6 +20,19 @@ describe('Seal', () => {
         expect(renderToStaticMarkup(<Seal mono main="TRIAL · 7 DAYS · CAP $5" />)).toContain('viewBox="0 0 470 120"');
     });
 
+    it('draws a round stamp with its label on both arcs', () => {
+        const svg = renderToStaticMarkup(<Seal round label="Active" main="$25/WK" />);
+        expect(svg).toContain('viewBox="0 0 240 240"');
+        expect(svg.match(/<textPath[^>]*>Active<\/textPath>/g)).toHaveLength(2);
+        expect(svg).toContain('aria-label="Active: $25/WK"');
+    });
+
+    it('fits a long main line inside the round stamp', () => {
+        expect(renderToStaticMarkup(<Seal round label="Active" main="$25/WK" />)).not.toContain('textLength');
+        expect(renderToStaticMarkup(<Seal round label="Revoked" main="NO PERMISSION" />)).toContain('textLength="172"');
+        expect(renderToStaticMarkup(<Seal round label="No permission" main="$0/WK" />)).toContain('textLength="190"');
+    });
+
     it('derives its ink roughness from its text', () => {
         expect(renderToStaticMarkup(<Seal main="$25 / WK" />)).toContain('seed="24"');
     });

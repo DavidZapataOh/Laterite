@@ -1,0 +1,232 @@
+/*
+ * The one screen, measured from the approved comp.
+ *
+ * Every size is in --u, a hundredth of the column's content width (350px on a 390px
+ * phone, at most 520px), so the phone composition keeps its proportions when desktop
+ * gives the column more room. Fields (the terracotta band, the course) stay full bleed.
+ */
+
+.screen {
+    --u: calc(min(100vw - 2 * var(--gutter), 520px) / 100);
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+}
+
+.field {
+    background: var(--laterite);
+    color: var(--lime);
+}
+
+.column {
+    width: 100%;
+    max-width: calc(520px + 2 * var(--gutter));
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+}
+
+/* ---- top bar ------------------------------------------------------------- */
+
+.bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(3 * var(--u));
+    padding-top: calc(4 * var(--u));
+}
+
+.symbol {
+    flex: none;
+    width: calc(8.3 * var(--u));
+    height: auto;
+}
+
+.chips {
+    display: flex;
+    gap: calc(1.9 * var(--u));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* ---- the band ------------------------------------------------------------ */
+
+.main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.band {
+    /* overlap the bar by a pixel so no seam of the page shows between the two */
+    margin-top: -1px;
+}
+/* sized by its content in the comp's units, as the comp is: the lime body takes the slack */
+.band > .column {
+    padding-top: calc(10.7 * var(--u));
+    padding-bottom: calc(11 * var(--u));
+}
+
+.heading {
+    display: flex;
+    flex-direction: column;
+    gap: calc(5.4 * var(--u));
+    margin: 0;
+    font-weight: inherit;
+}
+
+.label {
+    font-size: max(12px, calc(3.9 * var(--u)));
+    font-weight: 700;
+    letter-spacing: 0.14em;
+}
+
+.figureLine {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: calc(4.3 * var(--u));
+}
+
+/* the figure fits its line: a longer word is set smaller, never wrapped */
+.figure {
+    font-size: min(calc(23.8 * var(--u)), calc(97 * var(--u) / var(--ems)));
+    font-weight: 900;
+    font-stretch: 112%;
+    font-variant-numeric: tabular-nums;
+    line-height: 0.8;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    /* pull the first stem onto the gutter */
+    margin-left: -0.05em;
+}
+
+.unit {
+    font-size: max(14px, calc(6 * var(--u)));
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.note {
+    margin: calc(5.4 * var(--u)) 0 0;
+    font-size: max(12px, calc(4.4 * var(--u)));
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-wrap: balance;
+}
+
+.action {
+    margin-top: calc(7 * var(--u));
+}
+.action > :disabled {
+    cursor: progress;
+}
+.action > * {
+    width: 100%;
+    height: max(48px, calc(14 * var(--u)));
+    font-size: max(16px, calc(5 * var(--u)));
+}
+
+/* ---- the seam: a course of kiln bricks, the seal riding on it ------------- */
+
+.seam {
+    position: relative;
+    /* a lime joint separates the band from its last course */
+    border-top: max(2px, calc(0.8 * var(--u))) solid var(--lime);
+}
+
+.course {
+    height: max(14px, calc(5.5 * var(--u)));
+    background: repeating-linear-gradient(
+            90deg,
+            var(--kiln) 0 calc(var(--brick) - var(--joint-w)),
+            var(--lime) calc(var(--brick) - var(--joint-w)) var(--brick)
+        )
+        calc(var(--brick) * -0.42) 0 / auto;
+    --brick: max(64px, calc(18.2 * var(--u)));
+    --joint-w: max(2px, calc(0.8 * var(--u)));
+}
+
+.seam > .column {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.seal {
+    --seal-paper: var(--lime);
+    position: absolute;
+    right: calc(var(--gutter) - calc(1.4 * var(--u)));
+    top: 0;
+    width: calc(23 * var(--u));
+    color: var(--soot);
+    transform: translateY(-50%) rotate(-8deg);
+}
+
+/* ---- rows and foot on lime ----------------------------------------------- */
+
+.body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding-top: calc(5 * var(--u));
+    padding-bottom: calc(5.5 * var(--u));
+}
+
+.rows {
+    margin: 0;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(4 * var(--u));
+    min-height: calc(18.5 * var(--u));
+    border-bottom: 2px solid var(--sand);
+}
+.row:last-child {
+    border-bottom: 0;
+}
+
+.rowLabel {
+    font-size: max(12px, calc(3.9 * var(--u)));
+    font-weight: 500;
+    letter-spacing: 0.16em;
+}
+
+.rowValue {
+    margin: 0;
+    /* a longer value is set smaller, never wrapped */
+    font-size: min(calc(11 * var(--u)), calc(60 * var(--u) / (var(--chars) * 0.8)));
+    font-weight: 900;
+    font-stretch: 125%;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+.receipt {
+    margin: calc(6 * var(--u)) 0 0;
+    font-size: max(13px, calc(3.7 * var(--u)));
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    text-wrap: balance;
+}
+
+.foot {
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+    gap: calc(2.2 * var(--u));
+    margin-top: auto;
+    padding-top: calc(6 * var(--u));
+}
+.foot > * {
+    height: max(44px, calc(13.6 * var(--u)));
+    font-size: max(11px, calc(3.5 * var(--u)));
+    font-weight: 700;
+}

@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-25T00:10:00Z",
+  "title": "Design System: Laterite app",
+  "extensions": {
+    "colorMeta": {
+      "laterite-terracotta": {
+        "role": "primary",
+        "displayName": "Laterite Terracotta"
+      },
+      "ember-hover": {
+        "role": "primary",
+        "displayName": "Ember"
+      },
+      "kiln-course": {
+        "role": "primary",
+        "displayName": "Kiln"
+      },
+      "lime-ground": {
+        "role": "neutral",
+        "displayName": "Lime"
+      },
+      "chalk-layer": {
+        "role": "neutral",
+        "displayName": "Chalk"
+      },
+      "sand-rule": {
+        "role": "neutral",
+        "displayName": "Sand"
+      },
+      "soot-ink": {
+        "role": "neutral",
+        "displayName": "Soot"
+      },
+      "danger-crimson": {
+        "role": "tertiary",
+        "displayName": "Cold Crimson"
+      }
+    },
+    "typographyMeta": {
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "The band's one figure, fitted to the column."
+      },
+      "value": {
+        "displayName": "Value",
+        "purpose": "A row's value."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "A layer's heading."
+      },
+      "statement": {
+        "displayName": "Statement",
+        "purpose": "The declaration's statements."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "The band's and the rows' labels."
+      },
+      "note": {
+        "displayName": "Note",
+        "purpose": "The one line under the figure."
+      },
+      "receipt": {
+        "displayName": "Receipt",
+        "purpose": "One line of support."
+      }
+    },
+    "motion": [
+      {
+        "name": "ease-lay",
+        "value": "cubic-bezier(0.2, 0.9, 0.25, 1)",
+        "purpose": "Every transition and a layer's rise."
+      },
+      {
+        "name": "dur-lay",
+        "value": "320ms",
+        "purpose": "A layer rises 24px; buttons press."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "layer-card",
+        "value": "721px"
+      },
+      {
+        "name": "column",
+        "value": "520px + 2 gutters"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Band action",
+      "kind": "button",
+      "refersTo": "button-inverse",
+      "description": "The band's one action: lime with a soot edge.",
+      "html": "<button class=\"ds-btn-inverse\">Connect Phantom</button>",
+      "css": ".ds-btn-inverse { --edge: 6px; width: 100%; height: 49px; margin-bottom: var(--edge); border: 0; border-radius: 8px; background: var(--lime, #f4eee2); color: var(--soot, #1e1612); font: 700 17px/1 Archivo, sans-serif; font-stretch: 105%; box-shadow: 0 var(--edge) 0 var(--soot, #1e1612); transition: transform 320ms cubic-bezier(0.2, 0.9, 0.25, 1), box-shadow 320ms cubic-bezier(0.2, 0.9, 0.25, 1); } .ds-btn-inverse:hover { background: #fbf8f1; transform: translateY(2px); box-shadow: 0 4px 0 #1e1612; } .ds-btn-inverse:active { transform: translateY(6px); box-shadow: 0 0 0 #1e1612; } .ds-btn-inverse:focus-visible { outline: 3px solid #f4eee2; outline-offset: 3px; }"
+    },
+    {
+      "name": "Sign button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The declaration's primary action.",
+      "html": "<button class=\"ds-btn-primary\">Sign declaration</button>",
+      "css": ".ds-btn-primary { --edge: 6px; width: 100%; height: 52px; margin-bottom: var(--edge); border: 0; border-radius: 8px; background: #b8452e; color: #f4eee2; font: 700 17px/1 Archivo, sans-serif; box-shadow: 0 var(--edge) 0 #7a2a1b; } .ds-btn-primary:hover { background: #9c3822; transform: translateY(2px); box-shadow: 0 4px 0 #7a2a1b; } .ds-btn-primary:focus-visible { outline: 3px solid #b8452e; outline-offset: 3px; }"
+    },
+    {
+      "name": "Outline button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary actions: wallet choices, disconnect, try again.",
+      "html": "<button class=\"ds-btn-outline\">DISCONNECT</button>",
+      "css": ".ds-btn-outline { width: 100%; height: 48px; border: 2px solid currentColor; border-radius: 6px; background: transparent; color: #1e1612; font: 700 12px/1 'Martian Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; transition: background-color 320ms; } .ds-btn-outline:hover { background: #fbf8f1; } .ds-btn-outline:active { transform: translateY(2px); } .ds-btn-outline:focus-visible { outline: 3px solid #b8452e; outline-offset: 3px; }"
+    },
+    {
+      "name": "Band chip",
+      "kind": "chip",
+      "refersTo": "chip-on-band",
+      "description": "Outlined lime facts in the bar: network, language, wallet.",
+      "html": "<div style=\"background:#b8452e;padding:12px\"><span class=\"ds-chip\">DEVNET</span></div>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; height: 30px; padding: 0 8px; border: 2px solid currentColor; border-radius: 6px; color: #f4eee2; font: 500 10px/1 'Martian Mono', monospace; letter-spacing: 0.14em; }"
+    },
+    {
+      "name": "Notice",
+      "kind": "custom",
+      "description": "A failure in cold crimson with a drawn icon; a recovery button only where the screen has no other.",
+      "html": "<div class=\"ds-notice\" role=\"alert\"><svg viewBox=\"0 0 20 20\" width=\"20\"><circle cx=\"10\" cy=\"10\" r=\"8.3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\"/><path d=\"M10 5.4v5.8M10 13.6v1\" stroke=\"currentColor\" stroke-width=\"2.4\"/></svg><p>Phantom did not connect: the request was declined.</p></div>",
+      "css": ".ds-notice { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 14px; border: 2px solid #a3123a; border-radius: 7px; background: #fbf8f1; color: #a3123a; font: 600 14px/1.35 Archivo, sans-serif; } .ds-notice p { margin: 0; }"
+    },
+    {
+      "name": "Row",
+      "kind": "custom",
+      "description": "A label and value row under the band.",
+      "html": "<div class=\"ds-row\"><span>CUSTODY</span><strong>NONE</strong></div>",
+      "css": ".ds-row { display: flex; justify-content: space-between; align-items: center; min-height: 65px; border-bottom: 2px solid #e6dccb; color: #1e1612; } .ds-row span { font: 500 13px 'Martian Mono', monospace; letter-spacing: 0.16em; } .ds-row strong { font: 900 38px Archivo, sans-serif; font-stretch: 125%; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Stamped Pay Slip",
+    "overview": "The app is one screen. A terracotta band owns the top of the phone and carries the one figure of the current state in giant cream Archivo; a course of kiln bricks closes the band, and a round rubber stamp, the Seal, rides that seam with the permission's state. Below, on lime, label and value rows are separated by sand rules. Everything else is a layer that opens above this screen and closes.",
+    "keyCharacteristics": [
+      "Numbers first: the band's figure is the state; every figure carries its unit.",
+      "One screen, layers above it, no tabs and no navigation.",
+      "The band is the brand, never an alert: problems are cold crimson with a drawn icon, below the band.",
+      "Desktop centres the phone composition on full-bleed fields, never stretches it.",
+      "Every size is a hundredth of the column, so the phone's proportions hold at every width."
+    ],
+    "rules": [
+      {
+        "name": "The Band Is Not An Alert Rule",
+        "body": "The terracotta band states the state, including \"unavailable\" and \"reading\"; a failure is a crimson notice with a drawn icon in the rows, and the band stays as it was.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do put the state's one figure in the band, with its unit, fitted to the column.",
+      "Do stamp the permission state on the Seal at the seam: No permission, Active, Paused, Revoked, Unavailable.",
+      "Do open everything else as a layer above the one screen, and close it.",
+      "Do size everything in --u so the phone composition holds on desktop.",
+      "Do say a failure in crimson with a drawn icon and its recovery, under the band.",
+      "Do take tokens, fonts, buttons, chips, the Seal and brand marks from packages/ui; add a missing primitive there, as its own entry or variant."
+    ],
+    "donts": [
+      "Don't colour the band for an error, a warning or a block.",
+      "Don't stretch the phone composition across a desktop, or give desktop a second layout.",
+      "Don't add tabs, cards, charts or badges to the screen.",
+      "Don't define a token, font, button, chip or seal style in the app.",
+      "Don't show a number without its unit, or a figure that could read as a return."
+    ]
+  }
+}

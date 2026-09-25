@@ -1,0 +1,101 @@
+{
+    "app": {
+        "meta": {
+            "title": "Laterite",
+            "description": "Un piloto automático con tope y revocable, de tus ingresos en stablecoins al S&P 500 tokenizado, en tu propia billetera."
+        },
+        "skip": "Ir al contenido",
+        "bar": {
+            "home": "Laterite",
+            "network": "Devnet",
+            "language": "EN / ES",
+            "switchLanguage": "Read in English",
+            "wallet": "Billetera {address}",
+            "copy": "Copiar dirección",
+            "copied": "Copiada",
+            "disconnect": "Desconectar"
+        },
+        "seal": {
+            "none": "Sin permiso",
+            "active": "Activo",
+            "paused": "En pausa",
+            "revoked": "Revocado",
+            "unavailable": "No disponible",
+            "perWeek": "${amount}/SEM",
+            "zero": "$0/SEM"
+        },
+        "welcome": {
+            "label": "Tope semanal",
+            "figure": "$10",
+            "unit": "/ sem",
+            "note": "o $25 · primera semana $5",
+            "custody": "Custodia",
+            "custodyValue": "Ninguna",
+            "signatures": "Firmás",
+            "signaturesValue": "Una vez",
+            "exit": "Salida",
+            "exitValue": "Cuando quieras"
+        },
+        "connect": {
+            "one": "Conectar {wallet}",
+            "any": "Conectar una billetera",
+            "note": "Aprobá en {wallet}",
+            "reconnecting": "Reconectando"
+        },
+        "wallets": {
+            "title": "Elegí una billetera",
+            "note": "Phantom, Solflare o Backpack, en devnet.",
+            "open": "Abrir en {wallet}",
+            "close": "Cerrar"
+        },
+        "account": {
+            "reading": "Leyendo devnet",
+            "label": "Tope semanal",
+            "unit": "/ sem",
+            "notEnrolled": "Todavía no firmaste nada",
+            "next": "Lo que sigue: elegí tu tope semanal y firmá un solo permiso.",
+            "exited": "Saliste · la cuenta queda",
+            "active": "Activo desde el {date}",
+            "paused": "En pausa · alta el {date}"
+        },
+        "errors": {
+            "rejected": "{wallet} no se conectó: rechazaste el pedido.",
+            "failed": "{wallet} no se pudo conectar.",
+            "rpc": "Devnet no respondió.",
+            "eligibility": "Laterite no pudo revisar tu declaración.",
+            "retry": "Reintentar"
+        },
+        "declaration": {
+            "title": "Antes de empezar",
+            "intro": "Firmá una vez para declarar que:",
+            "note": "Es una firma, no una transacción: sin comisión, no se mueve nada.",
+            "sign": "Firmar declaración",
+            "signing": "Aprobá en {wallet}",
+            "disconnect": "Desconectar",
+            "rejected": "No firmaste la declaración.",
+            "failed": "No se pudo registrar la declaración.",
+            "unavailable": "Laterite no está disponible en tu región."
+        },
+        "unavailable": {
+            "label": "Tu región",
+            "note": "No se ofrece acá",
+            "issuer": "Emisor",
+            "issuerValue": "Backed Assets",
+            "spyx": "SPYx",
+            "spyxValue": "No se ofrece",
+            "wallets": "Conectar",
+            "walletsValue": "Cerrado",
+            "why": "Laterite compra xStocks, y su emisor no los ofrece en tu región."
+        }
+    },
+    "declaration": {
+        "heading": "Declaración de elegibilidad de Laterite",
+        "request": "{domain} te pide que declares:",
+        "us": "No soy una persona estadounidense y no estoy en los Estados Unidos.",
+        "residence": "No vivo en el Reino Unido, Canadá, Australia ni en ningún país donde los xStocks estén prohibidos o no se ofrezcan.",
+        "sanctions": "No estoy sujeto a sanciones internacionales.",
+        "wallet": "Billetera: {wallet}",
+        "version": "Versión: {version}",
+        "issuedAt": "Emitida el: {issuedAt}"
+    }
+}

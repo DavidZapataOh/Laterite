@@ -1,0 +1,25 @@
+/* chips on the band are lime outlines; placements size them from the column unit */
+.chip {
+    justify-content: center;
+    height: max(28px, calc(8.5 * var(--u)));
+    padding: 0 max(8px, calc(1.9 * var(--u)));
+    font-size: max(10px, calc(2.6 * var(--u)));
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--lime);
+    text-decoration: none;
+    background: none;
+}
+
+.link {
+    transition: background-color var(--dur-lay) var(--ease-lay);
+}
+.link:hover {
+    background: var(--ember);
+}
+
+/* base58 is case-sensitive: an address keeps its own case */
+.address {
+    text-transform: none;
+    letter-spacing: 0.06em;
+}

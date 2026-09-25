@@ -44,7 +44,7 @@ program-id:
 # ============================================
 
 # Build everything
-build: build-program build-landing
+build: build-program build-landing build-app
 
 # Build the program, then the router its tests route through, in the pinned verifiable-build image: every machine builds the bytes a deployment verifies
 build-program:
@@ -61,6 +61,11 @@ build-program:
 build-landing:
     pnpm --filter @laterite/landing build
     @echo "✓ Landing built"
+
+# Build the product app
+build-app:
+    pnpm --filter @laterite/app build
+    @echo "✓ App built"
 
 # ============================================
 # Test
@@ -130,7 +135,7 @@ test-and-benchmark: build-program
     CU_REPORT=1 cargo test -p laterite --test test_sweep cu_report
 
 # Run every suite CI runs
-test: unit-test client-test devnet-unit-test deployment-unit-test ui-test
+test: unit-test client-test devnet-unit-test deployment-unit-test ui-test i18n-test
 
 # Type-check the TypeScript client and run its tests against the built program
 client-test: build-program
@@ -145,6 +150,17 @@ vectors: build-program
 ui-test:
     pnpm --filter @laterite/ui typecheck
     pnpm --filter @laterite/ui test
+
+# Type-check the locales and check every locale's messages against English
+i18n-test:
+    pnpm --filter @laterite/i18n typecheck
+    pnpm --filter @laterite/i18n test
+
+# Build the product app against a local validator on port 48899, then run its unit and route tests and its browser journeys against DATABASE_URL
+app-test:
+    NEXT_PUBLIC_SOLANA_RPC_URL=http://127.0.0.1:48899 pnpm --filter @laterite/app build
+    pnpm --filter @laterite/app test
+    pnpm --filter @laterite/app test:e2e
 
 # Type-check the devnet package and run its offline tests
 devnet-unit-test:

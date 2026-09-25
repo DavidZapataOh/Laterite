@@ -6,6 +6,9 @@ packages:
   - 'tests/*'
 
 allowBuilds:
+  # next-intl's message extractor, which Laterite does not use
+  '@parcel/watcher': false
+  '@swc/core': false
   esbuild: true
   unrs-resolver: true
 

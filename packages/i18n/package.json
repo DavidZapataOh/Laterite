@@ -1,0 +1,32 @@
+{
+    "name": "@laterite/i18n",
+    "private": true,
+    "type": "module",
+    "sideEffects": false,
+    "exports": {
+        ".": "./src/locales.ts",
+        "./routing": "./src/routing.ts",
+        "./messages/*": "./messages/*"
+    },
+    "scripts": {
+        "test": "vitest run",
+        "typecheck": "tsc --noEmit"
+    },
+    "peerDependencies": {
+        "next-intl": "4.14.6"
+    },
+    "peerDependenciesMeta": {
+        "next-intl": {
+            "optional": true
+        }
+    },
+    "devDependencies": {
+        "@formatjs/icu-messageformat-parser": "3.5.20",
+        "@types/node": "^24",
+        "next": "16.3.5",
+        "next-intl": "4.14.6",
+        "react": "19.2.8",
+        "typescript": "5.9.3",
+        "vitest": "5.0.1"
+    }
+}

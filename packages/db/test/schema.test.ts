@@ -1,7 +1,10 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { desc, eq, sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { type Database, migrate, sweeps } from '../src';
+import { type Database, migrate, MIGRATIONS_FOLDER, sweeps } from '../src';
 import { createTestDatabase } from '../src/testing';
 
 const U64_MAX = 2n ** 64n - 1n;
@@ -36,7 +39,8 @@ describe('schema', () => {
     it('applies every migration once', async () => {
         await migrate(db);
         const { rows } = await db.$client.query('select count(*)::int as applied from drizzle.__drizzle_migrations');
-        expect(rows[0].applied).toBe(2);
+        const journal = JSON.parse(readFileSync(join(MIGRATIONS_FOLDER, 'meta', '_journal.json'), 'utf8'));
+        expect(rows[0].applied).toBe(journal.entries.length);
     });
 
     it('keeps a u64 whole and derives the headroom in basis points of min_out', async () => {

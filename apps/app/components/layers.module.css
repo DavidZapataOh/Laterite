@@ -1,0 +1,196 @@
+/*
+ * What opens above the screen: the wallet layer and the declaration (dialogs that
+ * rise from the foot like a sheet of paper laid on the pile), the wallet menu, and
+ * notices. Sizes use the screen's --u, re-declared here for the top layer.
+ */
+
+.layer,
+.menu {
+    --u: calc(min(100vw - 2 * var(--gutter), 520px) / 100);
+    border: 2px solid var(--soot);
+    background: var(--chalk);
+    color: var(--soot);
+}
+
+.layer {
+    width: min(100vw, calc(100 * var(--u) + 2 * var(--gutter)));
+    max-width: none;
+    max-height: 92svh;
+    margin: auto auto 0;
+    padding: calc(7 * var(--u)) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
+    border-width: 2px 2px 0;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    overflow: auto;
+}
+.layer::backdrop {
+    background: rgb(30 22 18 / 0.55);
+}
+.layer[open] {
+    animation: rise var(--dur-lay) var(--ease-lay);
+}
+
+@media (min-width: 721px) {
+    .layer {
+        margin: auto;
+        border-width: 2px;
+        border-radius: var(--radius-card);
+    }
+}
+
+@keyframes rise {
+    from {
+        transform: translateY(24px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .layer[open] {
+        animation: none;
+    }
+}
+
+.title {
+    margin: 0;
+    font-size: max(28px, calc(9.4 * var(--u)));
+    font-weight: 900;
+    font-stretch: 125%;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+
+.receipt {
+    margin: calc(3.5 * var(--u)) 0 0;
+    font-size: max(13px, calc(3.7 * var(--u)));
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    text-wrap: balance;
+}
+
+.choices {
+    display: grid;
+    gap: calc(2.2 * var(--u));
+    margin: calc(7 * var(--u)) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.choice,
+.close,
+.menuButton {
+    width: 100%;
+    height: max(48px, calc(13.6 * var(--u)));
+    font-size: max(12px, calc(3.5 * var(--u)));
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.close {
+    margin-top: calc(5 * var(--u));
+    border-color: transparent;
+}
+
+/* ---- the wallet menu, under the bar's right edge ------------------------- */
+
+.menu {
+    position: fixed;
+    inset: calc(15 * var(--u)) max(var(--gutter), calc((100vw - 100 * var(--u)) / 2)) auto auto;
+    width: min(calc(100vw - 2 * var(--gutter)), 360px);
+    margin: 0;
+    padding: calc(4 * var(--u));
+    border-radius: var(--radius-card);
+}
+
+.address {
+    margin: 0;
+    font-size: max(12px, calc(3.3 * var(--u)));
+    letter-spacing: 0.04em;
+    text-transform: none;
+    overflow-wrap: anywhere;
+}
+
+.menuActions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(2.2 * var(--u));
+    margin-top: calc(4 * var(--u));
+}
+
+/* ---- notices: danger is cold crimson with an icon, never the band -------- */
+
+.notice {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: calc(2.5 * var(--u)) calc(3 * var(--u));
+    margin-bottom: calc(4 * var(--u));
+    padding: calc(4 * var(--u));
+    border: 2px solid var(--danger);
+    border-radius: var(--radius-brick);
+    color: var(--danger);
+    background: var(--chalk);
+}
+
+.noticeIcon {
+    width: max(20px, calc(5.5 * var(--u)));
+    height: auto;
+}
+
+.noticeText {
+    margin: 0;
+    font-size: max(14px, calc(4 * var(--u)));
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.notice > :last-child:not(.noticeText) {
+    grid-column: 1 / -1;
+    height: max(44px, calc(12 * var(--u)));
+    font-size: max(12px, calc(3.5 * var(--u)));
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+/* ---- the declaration ------------------------------------------------------ */
+
+.intro {
+    margin: calc(5 * var(--u)) 0 0;
+    font-size: max(16px, calc(4.6 * var(--u)));
+    font-weight: 700;
+    font-stretch: 105%;
+}
+
+.statements {
+    display: grid;
+    gap: calc(3 * var(--u));
+    margin: calc(3.5 * var(--u)) 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: max(15px, calc(4.3 * var(--u)));
+    font-weight: 500;
+    font-stretch: 102%;
+    line-height: 1.35;
+}
+.statements li {
+    padding-top: calc(3 * var(--u));
+    border-top: 2px solid var(--sand);
+}
+
+.actions {
+    display: grid;
+    gap: calc(3 * var(--u));
+    margin-top: calc(6 * var(--u));
+}
+
+.sign {
+    width: 100%;
+    height: max(52px, calc(15 * var(--u)));
+    font-size: max(16px, calc(5 * var(--u)));
+    border: 0;
+    cursor: pointer;
+}
+.sign:disabled {
+    cursor: progress;
+    background: var(--ember);
+}

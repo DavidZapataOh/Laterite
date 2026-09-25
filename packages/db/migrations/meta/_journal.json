@@ -15,6 +15,13 @@
       "when": 1790304356282,
       "tag": "0001_watch_cursors",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790313907062,
+      "tag": "0002_eligibility_signature",
+      "breakpoints": true
     }
   ]
 }

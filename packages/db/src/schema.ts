@@ -181,7 +181,10 @@ export const telegramLinks = pgTable(
     table => [primaryKey({ columns: [table.wallet, table.chatId] })],
 );
 
-/** A wallet's eligibility declaration, with the country its request came from. */
+/**
+ * A wallet's eligibility declaration, with the country its request came from, and the text the wallet signed with its
+ * signature (base58), so anyone can check the declaration against the wallet's key.
+ */
 export const eligibilityDeclarations = pgTable(
     'eligibility_declarations',
     {
@@ -189,6 +192,8 @@ export const eligibilityDeclarations = pgTable(
         declarationVersion: text('declaration_version').notNull(),
         country: char('country', { length: 2 }),
         declaredAt: time('declared_at').notNull().defaultNow(),
+        message: text('message').notNull(),
+        signature: text('signature').notNull(),
     },
     table => [primaryKey({ columns: [table.wallet, table.declarationVersion] })],
 );

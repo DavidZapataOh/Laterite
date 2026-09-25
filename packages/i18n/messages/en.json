@@ -1,0 +1,101 @@
+{
+    "app": {
+        "meta": {
+            "title": "Laterite",
+            "description": "A capped, revocable autopilot from your stablecoin income into tokenized S&P 500, in your own wallet."
+        },
+        "skip": "Skip to content",
+        "bar": {
+            "home": "Laterite",
+            "network": "Devnet",
+            "language": "EN / ES",
+            "switchLanguage": "Leer en español",
+            "wallet": "Wallet {address}",
+            "copy": "Copy address",
+            "copied": "Copied",
+            "disconnect": "Disconnect"
+        },
+        "seal": {
+            "none": "No permission",
+            "active": "Active",
+            "paused": "Paused",
+            "revoked": "Revoked",
+            "unavailable": "Unavailable",
+            "perWeek": "${amount}/WK",
+            "zero": "$0/WK"
+        },
+        "welcome": {
+            "label": "Weekly cap",
+            "figure": "$10",
+            "unit": "/ wk",
+            "note": "or $25 · first week $5",
+            "custody": "Custody",
+            "custodyValue": "None",
+            "signatures": "You sign",
+            "signaturesValue": "Once",
+            "exit": "Exit",
+            "exitValue": "Any time"
+        },
+        "connect": {
+            "one": "Connect {wallet}",
+            "any": "Connect a wallet",
+            "note": "Approve in {wallet}",
+            "reconnecting": "Reconnecting"
+        },
+        "wallets": {
+            "title": "Choose a wallet",
+            "note": "Phantom, Solflare or Backpack, on devnet.",
+            "open": "Open in {wallet}",
+            "close": "Close"
+        },
+        "account": {
+            "reading": "Reading devnet",
+            "label": "Weekly cap",
+            "unit": "/ wk",
+            "notEnrolled": "Nothing signed yet",
+            "next": "Next: choose your weekly cap, then sign one permission.",
+            "exited": "You left · the account stays",
+            "active": "Active since {date}",
+            "paused": "Paused · enrolled {date}"
+        },
+        "errors": {
+            "rejected": "{wallet} did not connect: the request was declined.",
+            "failed": "{wallet} could not connect.",
+            "rpc": "Devnet did not answer.",
+            "eligibility": "Laterite could not check your declaration.",
+            "retry": "Try again"
+        },
+        "declaration": {
+            "title": "Before you start",
+            "intro": "Sign once to declare that:",
+            "note": "A signature, not a transaction: no fee, nothing moves.",
+            "sign": "Sign declaration",
+            "signing": "Approve in {wallet}",
+            "disconnect": "Disconnect",
+            "rejected": "The declaration was not signed.",
+            "failed": "The declaration could not be recorded.",
+            "unavailable": "Laterite is not available in your region."
+        },
+        "unavailable": {
+            "label": "Your region",
+            "note": "Not offered here",
+            "issuer": "Issuer",
+            "issuerValue": "Backed Assets",
+            "spyx": "SPYx",
+            "spyxValue": "Not offered",
+            "wallets": "Connect",
+            "walletsValue": "Closed",
+            "why": "Laterite buys xStocks, and their issuer does not offer them in your region."
+        }
+    },
+    "declaration": {
+        "heading": "Laterite eligibility declaration",
+        "request": "{domain} asks you to declare:",
+        "us": "I am not a U.S. person and I am not in the United States.",
+        "residence": "I do not live in the United Kingdom, Canada, Australia, or any country where xStocks are prohibited or not offered.",
+        "sanctions": "I am not subject to international sanctions.",
+        "wallet": "Wallet: {wallet}",
+        "version": "Version: {version}",
+        "issuedAt": "Issued at: {issuedAt}"
+    }
+}

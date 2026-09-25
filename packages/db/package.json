@@ -5,6 +5,7 @@
     "sideEffects": false,
     "exports": {
         ".": "./src/index.ts",
+        "./database": "./src/database.ts",
         "./testing": "./src/testing.ts"
     },
     "scripts": {

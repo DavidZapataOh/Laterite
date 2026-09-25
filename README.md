@@ -11,6 +11,7 @@ LatBPQotoZgdg8rsyBrCiy6qyqeALs185Z4pjkFTfZf
 ## Project Structure
 
 ```
+apps/app/            The product app (Next.js): wallets, eligibility and the account's state
 apps/landing/        Marketing site (Next.js)
 clients/typescript/  Generated TypeScript client (Codama)
 docs/                Architecture decision records and the threat model
@@ -19,6 +20,8 @@ idl/                 Program IDL
 packages/db/         Postgres schema and migrations (Drizzle), shared by the services and the app
 packages/deployment/ Deployment runbooks, their checks and the devnet smoke
 packages/devnet/     Devnet stand-in assets, pools and re-peg
+packages/i18n/       Locales and messages (English, Spanish for Argentina), shared by the apps and the services
+packages/ui/         The design system the apps share: tokens, fonts, buttons, chips, the Seal and brand assets
 programs/laterite/   On-chain program (Anchor)
 services/operator/   The always-on service on Railway: history indexer and operations alarms
 tests/fork/          Mainnet-fork tests (Surfpool)
@@ -34,7 +37,8 @@ tests/fork/          Mainnet-fork tests (Surfpool)
 6. just: `brew install just`
 7. Surfpool 1.6.0 (fork tests): `curl -sL https://run.surfpool.run/ | VERSION=v1.6.0 bash`, and a mainnet RPC URL in `.env` (see `.env.example`).
 8. Services: Docker, for a disposable Postgres (`just db-up`) and the service's image.
-9. Devnet assets: nothing more. `just build-cpmm` builds the DEX in the verifiable-build image of the Solana version its source pins (3.1.10), and the Solana CLI's `solana-test-validator` runs the local devnet.
+9. App: Playwright's Chromium for its browser tests (`pnpm --filter @laterite/app exec playwright install chromium`).
+10. Devnet assets: nothing more. `just build-cpmm` builds the DEX in the verifiable-build image of the Solana version its source pins (3.1.10), and the Solana CLI's `solana-test-validator` runs the local devnet.
 
 ## Quick Start
 
@@ -203,6 +207,26 @@ just operator-image    # the image Railway builds
 | `OPS_TELEGRAM_BOT_TOKEN`, `OPS_TELEGRAM_CHAT_ID` | The operations bot's token and the chat it alerts                       |
 
 `DATABASE_URL` references the Postgres, and Railway sets `PORT`. The service refuses to start when a variable is missing or malformed, naming it, when the attestor's key is the crank's, and when its RPC's genesis hash is not the one Laterite's config holds.
+
+## App
+
+`apps/app` is the product app, served at app.laterite.cash: one screen whose layers open above it, built on `packages/ui`.
+
+- **Wallets:** Phantom, Solflare and Backpack through Wallet Standard (`@solana/kit-plugin-wallet`). The wallet is the user's identity and never pays: Laterite's sponsor pays every fee. Inside a wallet's own browser one tap connects; elsewhere the wallet layer opens the app inside each wallet's browser. The connected wallet's `UserConfig` tells a new wallet, an exited account (it stays) and an active or paused enrollment apart.
+- **Languages:** English at `/`, Spanish (Argentina) at `/es`, from `packages/i18n` (next-intl), the one set of locales and messages for every surface.
+- **Availability:** `proxy.ts` reads Vercel's `x-vercel-ip-country` and `x-vercel-ip-country-region` and answers requests from where the issuer of xStocks does not offer them with the unavailable screen, and the API with an error, both as 451. The list is `apps/app/lib/geo.ts`, from the issuer's [restricted countries](https://assets.backed.fi/legal-documentation/restricted-countries).
+- **Eligibility:** every wallet signs a short declaration once per version (a message, not a transaction). `POST /api/eligibility` rebuilds the text from the locale, the host, the wallet and the issue time, checks the wallet's signature and records the wallet, the country, the version, the text and the signature in `eligibility_declarations`.
+
+| Variable                     | Where           | Value                                                                                |
+| ---------------------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_SOLANA_RPC_URL` | Build, browser  | A devnet RPC browsers may call (public devnet by default)                            |
+| `DATABASE_URL`               | Server (Vercel) | Laterite's Postgres; from Vercel, Railway's public URL of it (`DATABASE_PUBLIC_URL`) |
+
+```bash
+eval "$(just db-up)"                  # a disposable Postgres 18
+just app-test                         # build against a local validator (port 48899), then unit, route and browser tests
+pnpm --filter @laterite/app dev       # http://localhost:3401
+```
 
 ## License
 

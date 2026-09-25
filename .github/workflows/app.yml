@@ -1,0 +1,63 @@
+name: App
+
+on:
+  pull_request:
+    paths:
+      - 'apps/app/**'
+      - 'packages/ui/**'
+      - 'packages/i18n/**'
+      - 'packages/db/**'
+      - 'clients/typescript/**'
+      - 'justfile'
+      - 'pnpm-lock.yaml'
+      - '.github/actions/setup/action.yml'
+      - '.github/workflows/app.yml'
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        # The Postgres Railway runs, as `just db-up` pins it.
+        image: postgres:18.6-alpine3.24@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+      - uses: ./.github/actions/setup
+        with:
+          install-rust: 'false'
+          install-solana-verify: 'false'
+          install-anchor: 'false'
+      - name: Install Chromium for the browser journeys
+        run: pnpm --filter @laterite/app exec playwright install --with-deps chromium
+      - name: Test the app against Postgres and a local validator
+        run: just app-test
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: app-playwright-report
+          path: apps/app/playwright-report/
+          retention-days: 7

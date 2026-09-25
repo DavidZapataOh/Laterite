@@ -10,6 +10,9 @@ target/
 apps/landing/next-env.d.ts
 apps/landing/.impeccable/
 apps/landing/*.md
+apps/app/next-env.d.ts
+apps/app/.impeccable/
+apps/app/*.md
 cu_baseline.md
 cu_report.md
 programs/laterite/tests/vectors/

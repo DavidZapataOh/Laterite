@@ -26,3 +26,23 @@
     font-size: 11px;
     letter-spacing: 0.16em;
 }
+
+.roundMain {
+    font-family: var(--font-archivo), sans-serif;
+    font-weight: 900;
+    font-stretch: 112%;
+    font-size: 44px;
+}
+
+.paper {
+    fill: var(--seal-paper, none);
+}
+
+.ring {
+    font-family: var(--font-archivo), sans-serif;
+    font-weight: 800;
+    font-stretch: 118%;
+    font-size: 22px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}

@@ -1,0 +1,44 @@
+{
+  "name": "@laterite/app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3401",
+    "build": "next build",
+    "start": "next start -p 3402",
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@laterite/client": "workspace:*",
+    "@laterite/db": "workspace:*",
+    "@laterite/i18n": "workspace:*",
+    "@laterite/ui": "workspace:*",
+    "@solana/kit": "8.3.0",
+    "@solana/kit-plugin-rpc": "0.19.0",
+    "@solana/kit-plugin-wallet": "0.20.0",
+    "@solana/react": "8.3.0",
+    "@vercel/functions": "3.9.9",
+    "drizzle-orm": "0.45.3",
+    "next": "16.3.5",
+    "next-intl": "4.14.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.5",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "5.0.1"
+  }
+}

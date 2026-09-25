@@ -70,3 +70,39 @@
 .flat:active {
     transform: translateY(2px);
 }
+
+/* a button's own font reset, at zero specificity so a placement's font (e.g. `.mono`) wins */
+:where(.outline) {
+    font: inherit;
+}
+
+/* a secondary action: outlined like a chip, but it presses */
+.outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid currentColor;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background-color var(--dur-lay) var(--ease-lay),
+        transform var(--dur-lay) var(--ease-lay);
+}
+.outline:hover {
+    background: var(--chalk);
+}
+:global(.on-dark) .outline:hover {
+    background: var(--ember);
+}
+.outline:active {
+    transform: translateY(2px);
+}
+.outline:disabled {
+    cursor: default;
+    opacity: 0.55;
+    transform: none;
+}
