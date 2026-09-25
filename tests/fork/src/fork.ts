@@ -174,6 +174,14 @@ type SendableMessage = TransactionMessage & TransactionMessageWithFeePayer;
 
 const estimate = estimateResourceLimitsFactory({ rpc });
 
+/** Kit's estimator with a version 1 message's loaded-data limit raised to {@link loadedAccountsDataSize}. */
+export const forkEstimate = (async (message, config) => {
+    const limits = await estimate(message, config);
+    if (message.version !== 1) return limits;
+    const loaded = await loadedAccountsDataSize(message as never);
+    return { ...limits, loadedAccountsDataSizeLimit: Math.max(limits.loadedAccountsDataSizeLimit ?? 0, loaded) };
+}) as typeof estimate;
+
 /** The largest compute limit a transaction may set; a simulation that may fail runs under it, as it cannot be estimated. */
 const MAX_COMPUTE_UNIT_LIMIT = 1_400_000;
 

@@ -104,13 +104,25 @@ export const JUPITER_REQUEST_INTERVAL_MS = { keyed: 1_100, keyless: 2_100 };
  * stays within Jupiter's rate limit however many sweeps are due; `requests()` counts what it sent.
  */
 export function rateLimitedFetch(intervalMs: number, fetch = globalThis.fetch) {
-    let next = 0;
+    // Requests take turns; each waits the spacing from when the previous one actually left, so a late wake-up never
+    // brings the next one closer than the limit.
+    let turn: Promise<void> = Promise.resolve();
+    let sentAt = -Infinity;
+    let spacing = 0;
     let requests = 0;
+    const leave = (attempt: number) => {
+        const left = turn.then(async () => {
+            const wait = sentAt + spacing - Date.now();
+            if (wait > 0) await sleep(wait);
+            sentAt = Date.now();
+            spacing = intervalMs * 2 ** attempt;
+        });
+        turn = left;
+        return left;
+    };
     const limited = (async (url: string, init?: RequestInit) => {
         for (let attempt = 0; ; attempt++) {
-            const wait = next - Date.now();
-            next = Math.max(next, Date.now()) + intervalMs * 2 ** attempt;
-            if (wait > 0) await sleep(wait);
+            await leave(attempt);
             requests += 1;
             const response = await fetch(url, init);
             if (response.status !== 429 || attempt === 5) return response;

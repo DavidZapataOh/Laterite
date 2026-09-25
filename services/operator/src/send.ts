@@ -130,15 +130,18 @@ function simulationFailure(error: unknown): TransactionFailedError | null {
 export type Sender = ReturnType<typeof createSender>;
 
 export function createSender({
+    estimate: estimator,
     payer,
     rpc,
     rpcSubscriptions,
 }: {
+    /** The resource-limit estimator; Kit's simulation-based one unless a cluster's simulations under-report. */
+    estimate?: ReturnType<typeof estimateResourceLimitsFactory>;
     payer: TransactionSigner;
     rpc: Rpc<SolanaRpcApi>;
     rpcSubscriptions: RpcSubscriptions<SignatureNotificationsApi & SlotNotificationsApi>;
 }) {
-    const estimate = estimateResourceLimitsFactory({ rpc });
+    const estimate = estimator ?? estimateResourceLimitsFactory({ rpc });
     const estimateAndSet = estimateAndSetResourceLimitsFactory((async (message, config) => {
         const limits = await estimate(message, { ...config, commitment: 'confirmed' });
         return { ...limits, computeUnitLimit: withMargin(limits.computeUnitLimit) };

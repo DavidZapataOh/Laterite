@@ -19,7 +19,7 @@ import { asc, eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { forkContext } from './src/deployment';
-import { airdrop, alignClock, cheatcodes, rpc, rpcSubscriptions } from './src/fork';
+import { airdrop, alignClock, cheatcodes, forkEstimate, rpc, rpcSubscriptions } from './src/fork';
 import { jupiter } from './src/jupiter';
 import { report } from './src/report';
 import { refetchVenueAccounts } from './src/sweep';
@@ -53,7 +53,7 @@ describe("the crank's own code on the mainnet fork", () => {
         const accessToken = process.env.PYTH_PRO_ACCESS_TOKEN;
         if (!accessToken) throw new Error('PYTH_PRO_ACCESS_TOKEN is required for the USDT sweep');
         const pythPro = new PythProUpdates({ accessToken, storage });
-        const sender = createSender({ payer: crankKey, rpc, rpcSubscriptions });
+        const sender = createSender({ estimate: forkEstimate, payer: crankKey, rpc, rpcSubscriptions });
         const fetch = rateLimitedFetch(
             jupiter.apiKey ? JUPITER_REQUEST_INTERVAL_MS.keyed : JUPITER_REQUEST_INTERVAL_MS.keyless,
         );

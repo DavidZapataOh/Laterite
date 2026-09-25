@@ -131,4 +131,23 @@ describe("Jupiter's rate limit", () => {
         expect(gaps[2]).toBeGreaterThanOrEqual(95);
         answers = [];
     });
+
+    it('spaces a request from when the previous one left, even when that one woke up late', async () => {
+        const times: number[] = [];
+        const fetch = rateLimitedFetch(100, (async () => {
+            times.push(Date.now());
+            return new Response(null, { status: 200 });
+        }) as typeof globalThis.fetch);
+        const first = await fetch('https://api.jup.ag/swap/v2/build');
+        // the event loop is busy from 50 ms to 160 ms after the first request: the second, due at 100 ms, leaves late
+        setTimeout(() => {
+            const until = Date.now() + 110;
+            while (Date.now() < until);
+        }, 50);
+        await Promise.all([fetch('https://api.jup.ag/swap/v2/build'), fetch('https://api.jup.ag/swap/v2/build')]);
+        expect(first.status).toBe(200);
+        const gaps = times.slice(1).map((time, index) => time - times[index]!);
+        expect(gaps[0]).toBeGreaterThanOrEqual(150);
+        expect(gaps[1]).toBeGreaterThanOrEqual(99);
+    });
 });
