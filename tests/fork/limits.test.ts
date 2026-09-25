@@ -1,4 +1,4 @@
-import { pullTotal, TIERS, TRIAL_CAP } from '@laterite/client';
+import { LATERITE_ERROR__STALE_PRICE, pullTotal, TIERS, TRIAL_CAP } from '@laterite/client';
 import { afterAll, describe, expect, it } from 'vitest';
 
 import { forkContext } from './src/deployment';
@@ -7,6 +7,12 @@ import { CLASSIC_DEXES } from './src/jupiter';
 import { report } from './src/report';
 import { jupiterRoute, measureSweep, prepareSweep, type RouteSource } from './src/sweep';
 import { backdateEnrollment, enroll, enrollParams } from './src/users';
+
+/** Whether a simulation failed on Laterite's `StalePrice`. */
+const staleOnce = (err: unknown) =>
+    JSON.stringify(err ?? null, (_, v) => (typeof v === 'bigint' ? Number(v) : v)).includes(
+        `"Custom":${LATERITE_ERROR__STALE_PRICE}`,
+    );
 
 /** ADR-001's ceilings for a version 1 sweep. */
 const MAX_BYTES = 4_096;
@@ -52,14 +58,21 @@ describe("ADR-001's worst case on real routes at maxAccounts 40", () => {
                         };
                         rows.push(row);
                         let prepared;
+                        let simulated;
                         try {
                             prepared = await prepareSweep(fork.keys, user.address, paymentToken, source);
+                            simulated = await simulateMessage(prepared.message);
+                            // The fork's clock moves with what it executes; an update that aged past the program's 60 s
+                            // while the route was built is retried with a fresh one, as the crank does.
+                            if (staleOnce(simulated.err)) {
+                                prepared = await prepareSweep(fork.keys, user.address, paymentToken, source);
+                                simulated = await simulateMessage(prepared.message);
+                            }
                         } catch (error) {
                             row.refused = String(error).slice(0, 160);
                             continue;
                         }
                         expect(pullTotal(prepared.pull)).toBe(amount);
-                        const simulated = await simulateMessage(prepared.message);
                         const measured = await measureSweep(prepared, simulated.logs);
                         Object.assign(row, {
                             bytes: simulated.size,
