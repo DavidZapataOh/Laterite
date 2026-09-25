@@ -193,10 +193,10 @@ for (const [path, key] of [
         );
         for (const row of rows.filter(row => !row.label?.match(/^(Tokens)$/) || key === users.holder)) {
             expect(row, row.label ?? '').toMatchObject({ controlLines: 1, labelLines: 1, sameLine: true });
-            // Linux's Chromium, Android's included, sets the same text about 4% wider than macOS's: every row keeps that
-            // much room, and 6px more, wherever the test runs
+            // Linux's Chromium, Android's included, sets the same text about 4% wider than macOS's: measured elsewhere,
+            // a row keeps that much more room than the 6px it keeps on Linux
             expect(row.spare, `${row.label} leaves ${row.spare.toFixed(1)}px`).toBeGreaterThanOrEqual(
-                6 + 0.04 * row.text,
+                6 + (process.platform === 'linux' ? 0 : 0.04 * row.text),
             );
         }
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
