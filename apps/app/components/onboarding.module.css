@@ -33,7 +33,7 @@
     font-stretch: 75%;
     font-weight: 500;
     line-height: 1.3;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
 }
 
 /* the chips keep to the label's line; what does not fit (the schedule's amount) takes the next line, at the right */
@@ -61,7 +61,7 @@
     font-stretch: 75%;
     font-variant-numeric: tabular-nums;
     font-weight: 600;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
 }
 .chip {
     min-width: 40px;

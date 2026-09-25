@@ -173,11 +173,22 @@ for (const [path, key] of [
                     controlLines: Math.round(b.height / controls!.firstElementChild!.getBoundingClientRect().height),
                     sameLine: a.top < b.bottom && b.top < a.bottom,
                     labelLines: Math.round(a.height / parseFloat(getComputedStyle(label!).lineHeight)),
+                    // room left on the line once the label, the row's gap and every chip are laid out: text renders a few
+                    // pixels wider on some platforms, so a row that fits with nothing to spare wraps there
+                    spare:
+                        group.clientWidth -
+                        a.width -
+                        parseFloat(getComputedStyle(group).columnGap) -
+                        [...controls!.children].reduce(
+                            (sum, chip) => sum + chip.getBoundingClientRect().width,
+                            parseFloat(getComputedStyle(controls!).columnGap) * (controls!.children.length - 1),
+                        ),
                 };
             }),
         );
         for (const row of rows.filter(row => !row.label?.match(/^(Tokens)$/) || key === users.holder)) {
             expect(row, row.label ?? '').toMatchObject({ controlLines: 1, labelLines: 1, sameLine: true });
+            expect(row.spare, `${row.label} leaves ${row.spare.toFixed(1)}px`).toBeGreaterThanOrEqual(6);
         }
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
         // an over-long goal name scrolls in its own box: the amount stays whole inside the field
