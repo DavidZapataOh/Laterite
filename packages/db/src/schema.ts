@@ -220,8 +220,41 @@ export const telegramLinks = pgTable(
         messageSignature: text('message_signature').notNull(),
         linkedAt: time('linked_at').notNull().defaultNow(),
         revokedAt: time('revoked_at'),
+        /** The locale the wallet signed the link in, which the bot writes to the chat in. */
+        locale: text('locale').notNull().default('en'),
     },
     table => [primaryKey({ columns: [table.wallet, table.chatId] })],
+);
+
+/**
+ * A wallet's signed request to link a Telegram chat: the chat that opens the bot with the request's one-time token
+ * (kept only as its SHA-256) before `expires_at` is linked to the wallet. A signature makes one request.
+ */
+export const telegramLinkRequests = pgTable('telegram_link_requests', {
+    tokenHash: text('token_hash').primaryKey(),
+    wallet: text('wallet').notNull(),
+    locale: text('locale').notNull(),
+    message: text('message').notNull(),
+    signature: text('signature').notNull().unique(),
+    createdAt: time('created_at').notNull().defaultNow(),
+    expiresAt: time('expires_at').notNull(),
+    usedAt: time('used_at'),
+});
+
+/**
+ * Every notification the bot handled for a chat, keyed by its source (a sweep, a user event, a skipped day, a goal
+ * milestone): each is handled once, across restarts.
+ */
+export const telegramNotifications = pgTable(
+    'telegram_notifications',
+    {
+        chatId: bigint('chat_id', { mode: 'bigint' }).notNull(),
+        key: text('key').notNull(),
+        /** Whether it was sent, or held back by the rules (a skipped day while paused, anything after an exit). */
+        sent: boolean('sent').notNull(),
+        at: time('at').notNull().defaultNow(),
+    },
+    table => [primaryKey({ columns: [table.chatId, table.key] })],
 );
 
 /**

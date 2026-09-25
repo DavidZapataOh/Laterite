@@ -163,5 +163,36 @@
         "wallet": "Billetera: {wallet}",
         "version": "Versión: {version}",
         "issuedAt": "Emitida el: {issuedAt}"
+    },
+    "bot": {
+        "link": {
+            "heading": "Notificaciones de Laterite en Telegram",
+            "request": "{domain} te pide que vincules un chat de Telegram a esta billetera. El chat va a recibir tus compras, los hitos de tu meta y los días sin compra.",
+            "unlink": "{domain} te pide que desvincules todos los chats de Telegram de esta billetera.",
+            "wallet": "Billetera: {wallet}",
+            "issuedAt": "Emitida el: {issuedAt}"
+        },
+        "replies": {
+            "linked": "Este chat ahora recibe las notificaciones de Laterite de {wallet}. Mandá /unlink para dejar de recibirlas.",
+            "expired": "Este enlace venció o ya se usó. Vinculá Telegram de nuevo desde la configuración de Laterite.",
+            "welcome": "Vinculá este chat desde la configuración de Laterite para recibir acá tus compras, los hitos de tu meta y los días sin compra.",
+            "unlinked": "Este chat ya no recibe las notificaciones de Laterite.",
+            "notLinked": "Este chat no está vinculado a ninguna billetera."
+        },
+        "notices": {
+            "purchase": "Invertiste {total, number, ::currency/USD} de {token}: {shares, number, ::.########} {asset}.",
+            "parts": "{engine, number, ::currency/USD} programados y {pending, number, ::currency/USD} de tus pagos.",
+            "capReached": "Llegaste al tope semanal de {cap, number, ::currency/USD}: {waiting, number, ::currency/USD} esperan a la semana que viene.",
+            "waiting": "{waiting, number, ::currency/USD} quedan por invertir.",
+            "goal": "Llegaste al {percent}% de tu meta “{label}”: invertiste {invested, number, ::currency/USD} de {goal, number, ::currency/USD}.",
+            "goalUnnamed": "Llegaste al {percent}% de tu meta: invertiste {invested, number, ::currency/USD} de {goal, number, ::currency/USD}.",
+            "skipped": "Sin compra con {token} el {day, date, ::MMMMd}: {reason, select, restore {el permiso de {token} se cerró fuera de Laterite. Restauralo en la app para volver a invertir.} pull {no se pudo cobrar el pago. Revisá tu saldo y tu permiso de {token}.} other {no hubo precios ni rutas disponibles ese día.}}",
+            "paused": "En pausa: no se compra nada hasta que reanudes. Lo que queda por invertir se conserva.",
+            "resumed": "Reanudado: Laterite vuelve a invertir por vos.",
+            "tierChanged": "Tu tope semanal ahora es de {cap, number, ::currency/USD}.",
+            "tokensChanged": "Laterite ahora invierte con tus {tokens}.",
+            "exited": "Saliste de Laterite: todos los permisos terminaron. Este chat no recibe nada más salvo que vuelvas.",
+            "reactivated": "Volviste: Laterite invierte por vos otra vez."
+        }
     }
 }

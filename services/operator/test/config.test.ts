@@ -25,6 +25,7 @@ const env = {
     OPS_TELEGRAM_CHAT_ID: '-1001234567890',
     PYTH_PRO_ACCESS_TOKEN: 'secret-token',
     SOLANA_RPC_URL: 'https://api.devnet.solana.com',
+    TELEGRAM_BOT_TOKEN: '987654321:secret-product-bot-token-0000000000000',
     TREASURY_KEYPAIR: treasury.file,
 };
 
@@ -43,6 +44,7 @@ describe('configuration', () => {
             ops: { botToken: env.OPS_TELEGRAM_BOT_TOKEN, chatId: env.OPS_TELEGRAM_CHAT_ID },
             port: 8080,
             rpcSubscriptionsUrl: 'wss://api.devnet.solana.com',
+            telegram: { botToken: env.TELEGRAM_BOT_TOKEN },
         });
         expect(config.jupiterApiKey).toBeUndefined();
         const other = await loadConfig(
@@ -72,6 +74,15 @@ describe('configuration', () => {
         expect((error as ConfigError).variables).toEqual(['ATTESTOR_KEYPAIR']);
     });
 
+    it('refuses the operations bot as the product bot, even with a new token', async () => {
+        const error = await loadConfig(
+            { ...env, TELEGRAM_BOT_TOKEN: '123456789:another-token-of-the-operations-bot-00' },
+            expected,
+        ).catch((thrown: unknown) => thrown);
+        expect(error).toBeInstanceOf(ConfigError);
+        expect((error as ConfigError).variables).toEqual(['TELEGRAM_BOT_TOKEN']);
+    });
+
     it('refuses a treasury key that is not the devnet treasury', async () => {
         const error = await loadConfig(env).catch((thrown: unknown) => thrown);
         expect(error).toBeInstanceOf(ConfigError);
@@ -86,6 +97,7 @@ describe('configuration', () => {
             DATABASE_URL: 'https://not-postgres',
             OPS_TELEGRAM_BOT_TOKEN: 'not-a-bot-token',
             PYTH_PRO_ACCESS_TOKEN: '',
+            TELEGRAM_BOT_TOKEN: '',
             TREASURY_KEYPAIR: '[4,5,6]',
         };
         delete (broken as Partial<typeof env>).SOLANA_RPC_URL;
@@ -98,6 +110,7 @@ describe('configuration', () => {
             'OPS_TELEGRAM_BOT_TOKEN',
             'PYTH_PRO_ACCESS_TOKEN',
             'SOLANA_RPC_URL',
+            'TELEGRAM_BOT_TOKEN',
             'TREASURY_KEYPAIR',
         ]);
         expect((error as Error).message).not.toMatch(/\[1,2,3\]|\[4,5,6\]|not-json|not-postgres|not-a-bot-token/);

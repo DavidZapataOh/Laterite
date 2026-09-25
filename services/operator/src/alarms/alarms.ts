@@ -2,6 +2,7 @@ import { alarms, type Database } from '@laterite/db';
 import { eq } from 'drizzle-orm';
 
 import type { Logger } from '../log';
+import { createBotApi } from '../telegram/api';
 
 /** Delivers one line of text to the operator. */
 export type Notify = (text: string) => Promise<void>;
@@ -13,20 +14,11 @@ export const REPEAT_MS = 6 * 60 * 60 * 1_000;
 export function telegramNotifier(
     botToken: string,
     chatId: string,
-    {
-        api = 'https://api.telegram.org',
-        fetch = globalThis.fetch,
-    }: { api?: string; fetch?: typeof globalThis.fetch } = {},
+    options: { api?: string; fetch?: typeof globalThis.fetch } = {},
 ): Notify {
+    const call = createBotApi(botToken, options);
     return async text => {
-        const response = await fetch(`${api}/bot${botToken}/sendMessage`, {
-            body: JSON.stringify({ chat_id: chatId, link_preview_options: { is_disabled: true }, text }),
-            headers: { 'Content-Type': 'application/json' },
-            method: 'POST',
-            signal: AbortSignal.timeout(10_000),
-        });
-        // The request URL holds the token, so the error names only the status.
-        if (!response.ok) throw new Error(`Telegram answered ${response.status}`);
+        await call('sendMessage', { chat_id: chatId, link_preview_options: { is_disabled: true }, text });
     };
 }
 

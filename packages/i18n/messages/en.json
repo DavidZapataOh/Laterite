@@ -163,5 +163,36 @@
         "wallet": "Wallet: {wallet}",
         "version": "Version: {version}",
         "issuedAt": "Issued at: {issuedAt}"
+    },
+    "bot": {
+        "link": {
+            "heading": "Laterite notifications on Telegram",
+            "request": "{domain} asks you to link a Telegram chat to this wallet. The chat will get your purchases, goal milestones and skipped days.",
+            "unlink": "{domain} asks you to unlink every Telegram chat from this wallet.",
+            "wallet": "Wallet: {wallet}",
+            "issuedAt": "Issued at: {issuedAt}"
+        },
+        "replies": {
+            "linked": "This chat now gets Laterite's notifications for {wallet}. Send /unlink to stop them.",
+            "expired": "This link has expired or was already used. Link Telegram again from Laterite's settings.",
+            "welcome": "Link this chat from Laterite's settings to get your purchases, goal milestones and skipped days here.",
+            "unlinked": "This chat no longer gets Laterite's notifications.",
+            "notLinked": "This chat is not linked to a wallet."
+        },
+        "notices": {
+            "purchase": "Invested {total, number, ::currency/USD} of {token}: {shares, number, ::.########} {asset}.",
+            "parts": "{engine, number, ::currency/USD} on schedule and {pending, number, ::currency/USD} from your payments.",
+            "capReached": "This week's {cap, number, ::currency/USD} cap is reached: {waiting, number, ::currency/USD} waits for next week.",
+            "waiting": "{waiting, number, ::currency/USD} is still waiting to be invested.",
+            "goal": "You reached {percent}% of your goal “{label}”: {invested, number, ::currency/USD} of {goal, number, ::currency/USD} invested.",
+            "goalUnnamed": "You reached {percent}% of your goal: {invested, number, ::currency/USD} of {goal, number, ::currency/USD} invested.",
+            "skipped": "No {token} purchase on {day, date, ::MMMMd}: {reason, select, restore {the permission for {token} was ended outside Laterite. Restore it in the app to invest again.} pull {the payment could not be collected. Check your {token} balance and permission.} other {prices or routes were not available that day.}}",
+            "paused": "Paused: nothing is bought until you resume. What waits to be invested is kept.",
+            "resumed": "Resumed: Laterite invests for you again.",
+            "tierChanged": "Your weekly cap is now {cap, number, ::currency/USD}.",
+            "tokensChanged": "Laterite now invests with your {tokens}.",
+            "exited": "You left Laterite: every permission ended. This chat gets nothing more unless you come back.",
+            "reactivated": "Welcome back: Laterite invests for you again."
+        }
     }
 }

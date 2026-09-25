@@ -5,6 +5,8 @@ import * as z from 'zod/mini';
 const url = z.url({ protocol: /^https?$/ });
 const wsUrl = z.url({ protocol: /^wss?$/ });
 
+const botToken = z.string().check(z.regex(/^\d+:[\w-]{30,}$/));
+
 const keypair = z.pipe(
     z.string(),
     z.transform((value, context) => {
@@ -34,12 +36,13 @@ const schema = z.object({
     MAINNET_FALLBACK_RPC_URL: url,
     MAINNET_RPC_URL: url,
     MAINNET_WS_URL: z.optional(wsUrl),
-    OPS_TELEGRAM_BOT_TOKEN: z.string().check(z.regex(/^\d+:[\w-]{30,}$/)),
+    OPS_TELEGRAM_BOT_TOKEN: botToken,
     OPS_TELEGRAM_CHAT_ID: z.string().check(z.regex(/^-?\d+$/)),
     PORT: z._default(z.coerce.number().check(z.int(), z.positive()), 8080),
     PYTH_PRO_ACCESS_TOKEN: z.string().check(z.minLength(1)),
     SOLANA_RPC_URL: url,
     SOLANA_WS_URL: z.optional(wsUrl),
+    TELEGRAM_BOT_TOKEN: botToken,
     TREASURY_KEYPAIR: keypair,
 });
 
@@ -61,6 +64,8 @@ export type Config = {
     rpcUrl: string;
     /** The RPC's WebSocket endpoint: `SOLANA_WS_URL`, else `SOLANA_RPC_URL` on `ws`/`wss`, as providers serve both. */
     rpcSubscriptionsUrl: string;
+    /** The product bot, which writes to the users' linked chats: never the operations bot. */
+    telegram: { botToken: string };
     /** The devnet treasury, which re-pegs the devnet pools: read only by the crank. */
     treasury: KeyPairSigner;
 };
@@ -94,6 +99,11 @@ export async function loadConfig(
     // The attestor never pays or signs a transaction, so it must not be the crank.
     if (attestor.address === crank.address) throw new ConfigError(['ATTESTOR_KEYPAIR']);
     if (treasury.address !== expected.treasury) throw new ConfigError(['TREASURY_KEYPAIR']);
+    // Users' chats and the operations chat never share a bot; a token starts with its bot's id.
+    const botId = (token: string) => token.split(':')[0];
+    if (botId(value.TELEGRAM_BOT_TOKEN) === botId(value.OPS_TELEGRAM_BOT_TOKEN)) {
+        throw new ConfigError(['TELEGRAM_BOT_TOKEN']);
+    }
     return {
         attestor: { address: attestor.address, signMessages: attestor.signMessages },
         crank,
@@ -107,6 +117,7 @@ export async function loadConfig(
         pythProAccessToken: value.PYTH_PRO_ACCESS_TOKEN,
         rpcSubscriptionsUrl: value.SOLANA_WS_URL ?? value.SOLANA_RPC_URL.replace(/^http/, 'ws'),
         rpcUrl: value.SOLANA_RPC_URL,
+        telegram: { botToken: value.TELEGRAM_BOT_TOKEN },
         treasury,
     };
 }

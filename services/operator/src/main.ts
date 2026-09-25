@@ -22,6 +22,9 @@ import { createLogger, type Logger } from './log';
 import { every } from './loop';
 import { createFailoverRpc } from './rpc';
 import { createSender } from './send';
+import { createBotApi } from './telegram/api';
+import { TelegramBot } from './telegram/bot';
+import { Notices } from './telegram/notices';
 import { Watcher } from './watcher/watcher';
 
 /** The cluster this build serves: its addresses come from `@laterite/devnet`. */
@@ -32,6 +35,9 @@ const WATCHER_INTERVAL_MS = 1_000;
 const RECORDS_INTERVAL_MS = 60_000;
 const CRANK_INTERVAL_MS = 30_000;
 const REPEG_INTERVAL_MS = 30_000;
+const NOTICES_INTERVAL_MS = 3_000;
+/** How long the bot waits after a failed `getUpdates`; a successful one is followed at once by the next. */
+const TELEGRAM_RETRY_MS = 5_000;
 /** How long the crank may go without finishing a run. */
 const CRANK_STALL_MS = 10 * 60 * 1_000;
 
@@ -135,6 +141,12 @@ async function main(log: Logger) {
         treasury: devnet.treasury,
     });
 
+    // A token Telegram refuses stops the deploy here, as a wrong cluster does.
+    const telegram = createBotApi(config.telegram.botToken);
+    const { username } = await telegram<{ username: string }>('getMe', {});
+    const bot = new TelegramBot(telegram, db, log);
+    const notices = new Notices(telegram, db, rpc, log);
+
     const startedAt = Date.now();
     let role: 'leader' | 'standby' = 'standby';
     const server = await startHealthServer(
@@ -207,6 +219,7 @@ async function main(log: Logger) {
     log.info(
         {
             attestor: config.attestor.address,
+            bot: `@${username}`,
             crank: config.crank.address,
             genesisHash,
             router: onChain.router,
@@ -227,6 +240,19 @@ async function main(log: Logger) {
         every('watcher', WATCHER_INTERVAL_MS, () => watcher.tick(), log, stopping.signal),
         every('records', RECORDS_INTERVAL_MS, () => watcher.closeRecords(), log, stopping.signal),
         every('crank', CRANK_INTERVAL_MS, () => crank.tick(), log, stopping.signal),
+        every('notices', NOTICES_INTERVAL_MS, () => notices.tick(), log, stopping.signal),
+        every(
+            'telegram',
+            TELEGRAM_RETRY_MS,
+            // A shutdown ends the long poll waiting for messages.
+            () =>
+                bot.poll(stopping.signal).catch(error => {
+                    if (!stopping.signal.aborted) throw error;
+                    return false;
+                }),
+            log,
+            stopping.signal,
+        ),
         repegger &&
             every(
                 'repeg',

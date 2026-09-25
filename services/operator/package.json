@@ -19,6 +19,7 @@
         "@laterite/client": "workspace:*",
         "@laterite/db": "workspace:*",
         "@laterite/devnet": "workspace:*",
+        "@laterite/i18n": "workspace:*",
         "@solana-program/system": "0.15.0",
         "@solana-program/token": "0.17.0",
         "@solana-program/token-2022": "0.19.0",
@@ -27,6 +28,7 @@
         "@solana/sysvars": "8.3.0",
         "drizzle-orm": "0.45.3",
         "pino": "10.3.1",
+        "use-intl": "4.14.6",
         "zod": "4.6.5"
     },
     "devDependencies": {

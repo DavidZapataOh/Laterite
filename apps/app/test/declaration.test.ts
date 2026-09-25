@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { declarationMessage, declarationProblem, DECLARATION_MAX_AGE_MS } from '@/lib/declaration';
+import { declarationMessage, declarationProblem } from '@/lib/declaration';
+import { SIGNATURE_MAX_AGE_MS } from '@/lib/signed';
 
 import { signedDeclaration, translators } from './support';
 
@@ -53,8 +54,8 @@ describe('declarationProblem', () => {
         const declaration = await signedDeclaration();
         const issued = Date.parse(declaration.issuedAt);
         const at = (now: number) => declarationProblem(translators.en, declaration, now);
-        expect(await at(issued + DECLARATION_MAX_AGE_MS)).toBeNull();
-        expect(await at(issued + DECLARATION_MAX_AGE_MS + 1)).toBe('issuedAt is too far from now');
-        expect(await at(issued - DECLARATION_MAX_AGE_MS - 1)).toBe('issuedAt is too far from now');
+        expect(await at(issued + SIGNATURE_MAX_AGE_MS)).toBeNull();
+        expect(await at(issued + SIGNATURE_MAX_AGE_MS + 1)).toBe('issuedAt is too far from now');
+        expect(await at(issued - SIGNATURE_MAX_AGE_MS - 1)).toBe('issuedAt is too far from now');
     });
 });

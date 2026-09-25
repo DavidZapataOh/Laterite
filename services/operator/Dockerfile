@@ -6,11 +6,13 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY clients/typescript/package.json clients/typescript/
 COPY packages/db/package.json packages/db/
 COPY packages/devnet/package.json packages/devnet/
+COPY packages/i18n/package.json packages/i18n/
 COPY services/operator/package.json services/operator/
 RUN pnpm install --frozen-lockfile --filter @laterite/operator...
 COPY clients/typescript clients/typescript
 COPY packages/db packages/db
 COPY packages/devnet packages/devnet
+COPY packages/i18n packages/i18n
 COPY services/operator services/operator
 RUN pnpm --filter @laterite/operator build
 

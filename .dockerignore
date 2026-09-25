@@ -11,6 +11,9 @@
 !packages/devnet/package.json
 !packages/devnet/addresses.json
 !packages/devnet/src
+!packages/i18n/package.json
+!packages/i18n/messages
+!packages/i18n/src
 !services/operator/package.json
 !services/operator/scripts
 !services/operator/src
