@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing } from '@laterite/i18n/routing';
-import { fontVariables } from '@laterite/ui/fonts';
+import { fontVariables, martianMonoNarrow } from '@laterite/ui/fonts';
 import '../globals.css';
 
 export function generateStaticParams() {
@@ -37,7 +37,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
     if (!hasLocale(routing.locales, locale)) notFound();
     setRequestLocale(locale);
     return (
-        <html lang={locale} className={fontVariables}>
+        <html lang={locale} className={`${fontVariables} ${martianMonoNarrow.variable}`}>
             <body>
                 <div hidden dangerouslySetInnerHTML={{ __html: DIRECTION_CONTRACT }} />
                 <NextIntlClientProvider>{children}</NextIntlClientProvider>

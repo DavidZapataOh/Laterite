@@ -197,3 +197,23 @@ export const eligibilityDeclarations = pgTable(
     },
     table => [primaryKey({ columns: [table.wallet, table.declarationVersion] })],
 );
+
+/**
+ * Every grant of the devnet faucet: the wallet, the address the request came from (none off Vercel) and the
+ * transaction that minted the test dollars, counted per wallet and per address to rate limit the faucet.
+ */
+export const faucetGrants = pgTable(
+    'faucet_grants',
+    {
+        id: bigint('id', { mode: 'number' }).primaryKey().generatedAlwaysAsIdentity(),
+        wallet: text('wallet').notNull(),
+        ip: text('ip'),
+        grantedAt: time('granted_at').notNull().defaultNow(),
+        /** Set once the mint lands. */
+        signature: text('signature'),
+    },
+    table => [
+        index('faucet_grants_wallet_granted_at').on(table.wallet, table.grantedAt),
+        index('faucet_grants_ip_granted_at').on(table.ip, table.grantedAt),
+    ],
+);

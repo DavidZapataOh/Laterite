@@ -1,9 +1,14 @@
-import type { Address, GetAccountInfoApi, Rpc } from '@solana/kit';
+import type { Address, GetAccountInfoApi, GetMultipleAccountsApi, Rpc } from '@solana/kit';
 import {
+    type Config,
+    fetchConfig,
     fetchMaybeUserConfig,
+    fetchUserState,
+    findConfigPda,
     findUserConfigPda,
     LATERITE_PROGRAM_ADDRESS,
     type UserConfig,
+    type UserState,
     UserStatus,
 } from '@laterite/client';
 
@@ -24,4 +29,17 @@ export async function readAccount(
     return account.data.status === UserStatus.Exited
         ? { kind: 'exited', config: account.data }
         : { kind: 'enrolled', config: account.data };
+}
+
+/** What onboarding reads: Laterite's `Config`, then everything the onboarding transaction would read for `user`. */
+export type OnboardingData = { config: Config; state: UserState };
+
+export async function readOnboarding(
+    rpc: Rpc<GetAccountInfoApi & GetMultipleAccountsApi>,
+    user: Address,
+    abortSignal?: AbortSignal,
+): Promise<OnboardingData> {
+    const [address] = await findConfigPda();
+    const { data: config } = await fetchConfig(rpc, address, { abortSignal, commitment: 'confirmed' });
+    return { config, state: await fetchUserState(rpc, config, user) };
 }

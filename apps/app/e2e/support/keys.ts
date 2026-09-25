@@ -16,13 +16,24 @@ export function testKey(name: string): TestKey {
     return { address: getBase58Decoder().decode(Buffer.from(jwk.x!, 'base64url')) as Address, jwk };
 }
 
+/** A key as the Solana CLI writes a keypair file: its 32-byte seed then its public key, as a JSON array. */
+export function keypairJson({ jwk }: TestKey): string {
+    return JSON.stringify([...Buffer.from(jwk.d!, 'base64url'), ...Buffer.from(jwk.x!, 'base64url')]);
+}
+
+/** The tests' own faucet: mint authority of the test validator's stand-in USDC and USDT, never a devnet key. */
+export const faucet = testKey('faucet');
+
 /**
  * The wallets that declared eligibility before the tests: enrolled and active, enrolled and paused, and exited, whose
- * `UserConfig` the validator holds, and a newcomer, who never enrolled.
+ * `UserConfig` the validator holds; a newcomer, who never enrolled and holds no test dollars; a holder with USDC and
+ * USDT accounts; and one whose USDC account already approves another program.
  */
 export const users = {
     active: testKey('active'),
+    delegated: testKey('delegated'),
     exited: testKey('exited'),
+    holder: testKey('holder'),
     newcomer: testKey('newcomer'),
     paused: testKey('paused'),
 };

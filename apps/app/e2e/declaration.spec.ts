@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import { createDatabase, eligibilityDeclarations } from '@laterite/db';
 
 import { testKey } from './support/keys';
+import { APP_ORIGIN } from './support/origin';
 import { installWallets } from './support/wallets';
 
 test.use({ extraHTTPHeaders: { 'x-vercel-ip-country': 'AR' }, viewport: { height: 844, width: 390 } });
@@ -32,13 +33,13 @@ test('a new wallet declares once, and the declaration is recorded with its count
 
     await layer.getByRole('button', { name: 'Sign declaration' }).click();
     await expect(layer).toBeHidden();
-    await expect(page.getByText('Nothing signed yet')).toBeVisible();
+    await expect(page.getByText('If you get paid $1,000')).toBeVisible();
     const [row] = await recorded(key.address);
     expect(row).toMatchObject({ country: 'AR', declarationVersion: '1', wallet: key.address });
-    expect(row.message).toContain(`127.0.0.1:3402 asks you to declare:\n- I am not a U.S. person`);
+    expect(row.message).toContain(`${new URL(APP_ORIGIN).host} asks you to declare:\n- I am not a U.S. person`);
 
     await page.reload();
-    await expect(page.getByText('Nothing signed yet')).toBeVisible();
+    await expect(page.getByText('If you get paid $1,000')).toBeVisible();
     await expect(page.getByRole('dialog')).toBeHidden();
 });
 

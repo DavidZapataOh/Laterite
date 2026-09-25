@@ -7,6 +7,7 @@ import en from '@laterite/i18n/messages/en.json' with { type: 'json' };
 
 import { DECLARATION_VERSION, declarationMessage, type DeclarationTranslator } from '../../lib/declaration';
 import type { TestKey } from './keys';
+import { APP_ORIGIN } from './origin';
 
 const t = createTranslator({ locale: 'en', messages: en, namespace: 'declaration' }) as DeclarationTranslator;
 
@@ -19,7 +20,7 @@ export async function declare(keys: TestKey[]) {
         await migrate(db);
         const issuedAt = new Date().toISOString();
         const rows = keys.map(({ address, jwk }) => {
-            const message = declarationMessage(t, { domain: '127.0.0.1:3402', issuedAt, wallet: address });
+            const message = declarationMessage(t, { domain: new URL(APP_ORIGIN).host, issuedAt, wallet: address });
             const signature = sign(null, Buffer.from(message), createPrivateKey({ format: 'jwk', key: jwk }));
             return {
                 country: 'AR',

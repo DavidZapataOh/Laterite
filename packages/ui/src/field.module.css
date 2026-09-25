@@ -1,0 +1,45 @@
+/* a text or amount the user types, outlined like a chip: an <input>, or a <label> holding inputs and their units */
+.field {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    border: 2px solid currentColor;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: text;
+    transition: background-color var(--dur-lay) var(--ease-lay);
+}
+.field:hover,
+.field:focus-within {
+    background: var(--chalk);
+}
+.field:focus-visible,
+.field:has(:focus-visible) {
+    outline: 2px solid var(--soot);
+    outline-offset: 2px;
+}
+.field input {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    outline: none;
+}
+.field::placeholder,
+.field input::placeholder {
+    color: var(--ash);
+    opacity: 1;
+}
+.field[aria-invalid='true'],
+.field:has([aria-invalid='true']) {
+    border-color: var(--danger);
+    color: var(--danger);
+}

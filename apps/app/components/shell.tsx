@@ -14,11 +14,13 @@ import { useFormatter, useTranslations } from 'next-intl';
 import { TIERS, UserStatus } from '@laterite/client';
 import { button } from '@laterite/ui/button';
 import { readAccount } from '@/lib/account';
+import type { OnboardingIntent } from '@/lib/onboarding';
 import { client, isUserRejection, type UiWallet } from '@/lib/solana';
 import { BarChips } from './chips';
 import { DeclarationLayer } from './declaration-layer';
 import { Notice } from './notice';
-import { type BandProps, Receipt, Row, Rows, Screen } from './screen';
+import { Onboarding } from './onboarding';
+import { type BandProps, Row, Rows, Screen } from './screen';
 import { WalletChip } from './wallet-chip';
 import { WalletLayer } from './wallet-layer';
 
@@ -40,6 +42,8 @@ export function Shell() {
     const disconnect = useDisconnect(client);
     const layer = useRef<HTMLDialogElement>(null);
     const [chosen, setChosen] = useState<UiWallet | null>(null);
+    // what the wallet chose to sign; the permission screen opens on it
+    const [, setReview] = useState<OnboardingIntent | null>(null);
 
     const address = connected?.account.address as Address | undefined;
     const account = useRequest(
@@ -70,29 +74,8 @@ export function Shell() {
 
     if (address) {
         const state = account.status === 'success' ? account.data : undefined;
-        let band: BandProps = { label: t('account.reading'), figure: '—', busy: true };
-        let seal = noPermission;
-        let next: string | null = null;
-        if (state?.kind === 'new') {
-            band = { label: t('account.label'), figure: '$0', unit: t('account.unit'), note: t('account.notEnrolled') };
-            next = t('account.next');
-        } else if (state?.kind === 'exited') {
-            band = { label: t('account.label'), figure: '$0', unit: t('account.unit'), note: t('account.exited') };
-            seal = { label: t('seal.revoked'), main: t('seal.zero') };
-        } else if (state?.kind === 'enrolled') {
-            const cap = String(TIERS[state.config.tier] / 1_000_000n);
-            const date = format.dateTime(new Date(Number(state.config.enrolledAt) * 1000), { dateStyle: 'medium' });
-            const paused = state.config.status === UserStatus.Paused;
-            band = {
-                label: t('account.label'),
-                figure: `$${cap}`,
-                unit: t('account.unit'),
-                note: paused ? t('account.paused', { date }) : t('account.active', { date }),
-            };
-            seal = { label: paused ? t('seal.paused') : t('seal.active'), main: t('seal.perWeek', { amount: cap }) };
-        }
-        return (
-            <Screen {...common} band={band} seal={seal}>
+        const notices = (
+            <>
                 {eligibility.status === 'success' && !eligibility.data?.declared ? (
                     <DeclarationLayer
                         wallet={address}
@@ -131,7 +114,37 @@ export function Shell() {
                         {t('errors.rpc')}
                     </Notice>
                 ) : null}
-                {next ? <Receipt>{next}</Receipt> : null}
+            </>
+        );
+        if (state?.kind === 'new' || state?.kind === 'exited') {
+            return (
+                <Onboarding
+                    key={address}
+                    common={common}
+                    wallet={address}
+                    account={state.kind === 'exited' ? state.config : null}
+                    notices={notices}
+                    onReview={setReview}
+                />
+            );
+        }
+        let band: BandProps = { label: t('account.reading'), figure: '—', busy: true };
+        let seal = noPermission;
+        if (state?.kind === 'enrolled') {
+            const cap = String(TIERS[state.config.tier] / 1_000_000n);
+            const date = format.dateTime(new Date(Number(state.config.enrolledAt) * 1000), { dateStyle: 'medium' });
+            const paused = state.config.status === UserStatus.Paused;
+            band = {
+                label: t('account.label'),
+                figure: `$${cap}`,
+                unit: t('account.unit'),
+                note: paused ? t('account.paused', { date }) : t('account.active', { date }),
+            };
+            seal = { label: paused ? t('seal.paused') : t('seal.active'), main: t('seal.perWeek', { amount: cap }) };
+        }
+        return (
+            <Screen {...common} band={band} seal={seal}>
+                {notices}
             </Screen>
         );
     }

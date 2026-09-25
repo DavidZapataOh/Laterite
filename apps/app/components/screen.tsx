@@ -11,8 +11,10 @@ export type BandProps = {
     figure: string;
     /** The figure's unit, set in mono beside it. */
     unit?: string;
+    /** Set the unit small and light, so the figure takes the line. */
+    quietUnit?: boolean;
     /** One mono line under the figure. */
-    note?: string;
+    note?: ReactNode;
     /** True while the figure is still being read. */
     busy?: boolean;
 };
@@ -56,10 +58,14 @@ export function Screen({ home, skip, chips, band, action, seal, children, foot }
                     <div className={styles.column}>
                         <h1 className={styles.heading}>
                             <span className={`${styles.label} mono`}>{band.label}</span>
-                            <span className={styles.figureLine}>
+                            <span className={styles.figureLine} data-unit={band.quietUnit ? 'quiet' : undefined}>
                                 <span
                                     className={styles.figure}
-                                    style={{ '--ems': Math.max(ems(band.figure), 3) } as CSSProperties}
+                                    style={
+                                        {
+                                            '--ems': Math.max(ems(band.figure) + unitEms(band.unit, band.quietUnit), 3),
+                                        } as CSSProperties
+                                    }
                                 >
                                     {band.figure}
                                 </span>
@@ -100,6 +106,16 @@ function ems(text: string): number {
         else width += 0.68;
     }
     return width;
+}
+
+/**
+ * About how many of the figure's ems a unit set beside it takes, so the unit stays on the figure's line: a mono
+ * character advances about 0.84 of the unit's size with its tracking, the unit is 6u (quiet: 3.2u) of the figure's
+ * 23.8u, and the gap and the figure's own advance past its estimate take about 0.4 em more.
+ */
+function unitEms(unit: string | undefined, quiet = false): number {
+    if (!unit) return 0;
+    return (unit.length * 0.84 * (quiet ? 3.2 : 6)) / 23.8 + 0.4;
 }
 
 /** One label and value row under the band. */

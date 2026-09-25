@@ -1,0 +1,184 @@
+/*
+ * The onboarding rows, measured from the approved comp in the screen's column units (--u):
+ * a label on the left and its chips or fields on the right, one row per choice, sand rules between.
+ */
+
+.rows {
+    margin: 0;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(2.2 * var(--u)) calc(2 * var(--u));
+    min-height: calc(16 * var(--u));
+    padding: calc(2.4 * var(--u)) 0;
+    border-bottom: 2px solid var(--sand);
+}
+.row:last-child {
+    border-bottom: 0;
+}
+
+/* labels and chips set Martian Mono narrow (its width axis at 75%), so each row holds one line, as the comp does */
+.rows :is(.label, .chip, .amount, .wide) {
+    font-family: var(--font-martian-mono-narrow), ui-monospace, monospace;
+}
+
+/* a label keeps its words on one line; its controls take the rest of the row */
+.label {
+    flex: 0 0 auto;
+    font-size: max(11px, calc(3.2 * var(--u)));
+    font-stretch: 75%;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+}
+
+/* the chips keep to the label's line; what does not fit (the schedule's amount) takes the next line, at the right */
+.controls {
+    display: flex;
+    flex: 1 1 0;
+    flex-wrap: wrap;
+    min-width: 0;
+    margin-left: auto;
+    justify-content: flex-end;
+    gap: calc(1.4 * var(--u));
+}
+/* a typed box spans the control column, as the comp's cushion and goal do */
+.controls:has(> .wide) {
+    flex: 0 1 calc(56 * var(--u));
+}
+
+/* chips sized to thumbs: never under 40px, as the comp's proportions give on a phone */
+.chip,
+.amount,
+.wide {
+    height: max(40px, calc(11 * var(--u)));
+    padding: 0 max(8px, calc(2.2 * var(--u)));
+    font-size: max(11px, calc(3.2 * var(--u)));
+    font-stretch: 75%;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+.chip {
+    min-width: 40px;
+    justify-content: center;
+}
+
+/* the rule's own wording: a static fact, not a control */
+.fact {
+    cursor: default;
+}
+
+.amount,
+.wide {
+    gap: 0;
+    text-transform: uppercase;
+}
+/* "$20 STAYS", "HOUSE · $5,000": the dollar sign sits on its amount, the words keep their space */
+.amount > span,
+.wide > span {
+    margin-inline-start: 0.6ch;
+}
+.wide > span[aria-hidden] {
+    margin-inline-end: 0.6ch;
+}
+/* an amount is as wide as what it holds */
+.amount input,
+.wide input {
+    width: calc(var(--chars, 4) * (1ch + 0.06em) + 0.2em);
+}
+
+.wide {
+    flex: 1 1 auto;
+    justify-content: center;
+}
+/* a goal's name is the user's own words: shown as typed; its placeholder in the row's capitals */
+.wide input:not([inputmode]) {
+    text-transform: none;
+}
+.wide input::placeholder {
+    text-transform: uppercase;
+}
+
+.hint {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: max(12px, calc(3.3 * var(--u)));
+    line-height: 1.45;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    text-align: right;
+    text-wrap: balance;
+}
+
+.faucet {
+    height: auto;
+    min-height: max(40px, calc(11 * var(--u)));
+    border-color: var(--laterite);
+    color: var(--laterite);
+    white-space: normal;
+    text-align: center;
+}
+
+/*
+ * The band's note breaks only between its clauses. Every clause carries its separator in a margin the line pulls
+ * back, which the clipped box hides wherever a clause starts a line.
+ */
+.clauses {
+    display: block;
+    overflow: hidden;
+}
+.clauseLine {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -3ch;
+}
+.clause {
+    padding-left: 3ch;
+    white-space: nowrap;
+}
+.clause::before {
+    content: '·';
+    display: inline-block;
+    width: 3ch;
+    margin-left: -3ch;
+    text-align: center;
+}
+
+.replace {
+    height: max(44px, calc(12 * var(--u)));
+    font-size: max(12px, calc(3.5 * var(--u)));
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.problem {
+    margin: calc(5 * var(--u)) 0 0;
+    font-size: max(12px, calc(3.4 * var(--u)));
+    line-height: 1.45;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    text-align: center;
+}
+
+/* the foot's one brick: the comp sets it large, in mono, as typed */
+.review.review {
+    height: max(52px, calc(15 * var(--u)));
+    font-family: var(--font-martian-mono), ui-monospace, monospace;
+    font-size: max(15px, calc(4.6 * var(--u)));
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    border: 0;
+    cursor: pointer;
+}
+.review.review:disabled {
+    cursor: not-allowed;
+    background: var(--clay);
+    color: var(--soot);
+    box-shadow: 0 var(--edge) 0 var(--ash);
+    transform: none;
+}

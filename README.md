@@ -216,15 +216,20 @@ just operator-image    # the image Railway builds
 - **Languages:** English at `/`, Spanish (Argentina) at `/es`, from `packages/i18n` (next-intl), the one set of locales and messages for every surface.
 - **Availability:** `proxy.ts` reads Vercel's `x-vercel-ip-country` and `x-vercel-ip-country-region` and answers requests from where the issuer of xStocks does not offer them with the unavailable screen, and the API with an error, both as 451. The list is `apps/app/lib/geo.ts`, from the issuer's [restricted countries](https://assets.backed.fi/legal-documentation/restricted-countries).
 - **Eligibility:** every wallet signs a short declaration once per version (a message, not a transaction). `POST /api/eligibility` rebuilds the text from the locale, the host, the wallet and the issue time, checks the wallet's signature and records the wallet, the country, the version, the text and the signature in `eligibility_declarations`.
+- **Onboarding:** a wallet that never enrolled, or exited, sets its rules on the same screen: how it gets paid (which only picks defaults), the weekly cap (only those within `Config.userWeeklyCap`), the schedule, the income rule, change per payment, the cushion, the goal, the asset and the tokens (only those whose account the wallet holds). The band previews what a $1,000 payday would invest this week under those rules, computed with the program's own rules through `@laterite/client`'s mirrors. The choices become `EnrollParams` for `enroll`, or for `reactivate` when the account exited; an approval of another program on a token account must be confirmed, and nothing is offered while the program is paused or the beta is full.
+- **Devnet faucet:** `POST /api/faucet` mints $100 of the devnet USDC and $100 of the devnet USDT stand-ins to a declared wallet, creating its accounts. It holds `devnet-faucet` (their mint authority, which pays the fee and the two accounts' rent: 2,981,880 lamports a grant at devnet's 5,080 lamports a byte) and allows one grant per wallet and three per requesting address in 24 hours, counted in `faucet_grants`.
 
 | Variable                     | Where           | Value                                                                                |
 | ---------------------------- | --------------- | ------------------------------------------------------------------------------------ |
 | `NEXT_PUBLIC_SOLANA_RPC_URL` | Build, browser  | A devnet RPC browsers may call (public devnet by default)                            |
 | `DATABASE_URL`               | Server (Vercel) | Laterite's Postgres; from Vercel, Railway's public URL of it (`DATABASE_PUBLIC_URL`) |
+| `FAUCET_KEYPAIR`             | Server (Vercel) | Secret: `keys/devnet-faucet.json`'s contents (a JSON array of 64 bytes)              |
+| `SOLANA_RPC_URL`             | Server (Vercel) | The devnet RPC the faucet sends through                                              |
+| `SOLANA_WS_URL`              | Server (Vercel) | Its WebSocket endpoint (the RPC URL on `wss://` by default)                          |
 
 ```bash
 eval "$(just db-up)"                  # a disposable Postgres 18
-just app-test                         # build against a local validator (port 48899), then unit, route and browser tests
+just app-test                         # build against local validators (ports 48899 and 49899), then unit, route and browser tests
 pnpm --filter @laterite/app dev       # http://localhost:3401
 ```
 

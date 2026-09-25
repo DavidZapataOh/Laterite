@@ -1,6 +1,8 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { testKey, users } from './support/keys';
+import { APP_ORIGIN } from './support/origin';
+import { RPC_PORT } from './support/validator';
 import { installWallets } from './support/wallets';
 
 test.use({ viewport: { height: 844, width: 390 } });
@@ -21,10 +23,8 @@ test('Phantom, the only wallet of its own browser, connects in one tap and disco
     await installWallets(page, [{ key: users.newcomer, name: 'Phantom' }]);
     await page.goto('/');
     await page.getByRole('button', { name: 'Connect Phantom' }).click();
-    await expect(heading(page)).toHaveText('Weekly cap$0/ wk');
-    await expect(page.getByText('Nothing signed yet')).toBeVisible();
-    await expect(page.getByText('Next: choose your weekly cap, then sign one permission.')).toBeVisible();
-    await expect(page.getByRole('img', { name: 'No permission: $0/WK' })).toBeVisible();
+    await expect(heading(page)).toHaveText('If you get paid $1,000$5.00this week');
+    await expect(page.getByRole('img', { name: 'Preview: $10/WK' })).toBeVisible();
     await disconnect(page, users.newcomer.address);
     await expect(heading(page)).toHaveText('Weekly cap$10/ wk');
 });
@@ -57,8 +57,8 @@ test('Backpack reads an exited account, and a paused one in Spanish', async ({ p
     await installWallets(page, [{ key: users.exited, name: 'Backpack' }]);
     await page.goto('/');
     await page.getByRole('button', { name: 'Connect Backpack' }).click();
-    await expect(page.getByText('You left · the account stays')).toBeVisible();
-    await expect(page.getByRole('img', { name: 'Revoked: $0/WK' })).toBeVisible();
+    await expect(page.getByText(/^Coming back keeps your first enrollment/)).toBeVisible();
+    await expect(page.getByRole('img', { name: 'Preview: $10/WK' })).toBeVisible();
     await disconnect(page, users.exited.address);
 
     const paused = await page.context().newPage();
@@ -108,8 +108,8 @@ test('without a supported wallet, the layer opens the page inside each one', asy
     await page.goto('/es');
     await page.getByRole('button', { name: 'Conectar una billetera' }).click();
     const layer = page.getByRole('dialog', { name: 'Elegí una billetera' });
-    const here = encodeURIComponent('http://127.0.0.1:3402/es');
-    const ref = encodeURIComponent('http://127.0.0.1:3402');
+    const here = encodeURIComponent(`${APP_ORIGIN}/es`);
+    const ref = encodeURIComponent(APP_ORIGIN);
     await expect(layer.getByRole('link', { name: 'Abrir en Phantom' })).toHaveAttribute(
         'href',
         `https://phantom.app/ul/browse/${here}?ref=${ref}`,
@@ -128,11 +128,11 @@ test('without a supported wallet, the layer opens the page inside each one', asy
 
 test('an unanswered devnet read says so and retries', async ({ page }) => {
     await installWallets(page, [{ key: users.active, name: 'Phantom' }]);
-    await page.route('http://127.0.0.1:48899/**', route => route.abort());
+    await page.route(`http://127.0.0.1:${RPC_PORT}/**`, route => route.abort());
     await page.goto('/');
     await page.getByRole('button', { name: 'Connect Phantom' }).click();
     await expect(notice(page)).toContainText('Devnet did not answer.');
-    await page.unroute('http://127.0.0.1:48899/**');
+    await page.unroute(`http://127.0.0.1:${RPC_PORT}/**`);
     await page.getByRole('button', { name: 'Try again' }).click();
     await expect(heading(page)).toHaveText('Weekly cap$25/ wk');
 });

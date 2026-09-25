@@ -106,6 +106,12 @@
     font-weight: 700;
     letter-spacing: 0.08em;
 }
+/* a quiet unit reads under the figure, as a receipt's small print */
+[data-unit='quiet'] .unit {
+    font-size: max(11px, calc(3.2 * var(--u)));
+    font-weight: 500;
+    letter-spacing: 0.14em;
+}
 
 .note {
     margin: calc(5.4 * var(--u)) 0 0;

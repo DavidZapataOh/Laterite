@@ -44,12 +44,18 @@ importers:
       '@laterite/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@laterite/devnet':
+        specifier: workspace:*
+        version: link:../../packages/devnet
       '@laterite/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
       '@laterite/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@solana-program/token':
+        specifier: 0.17.0
+        version: 0.17.0(@solana/kit@8.3.0(typescript@5.9.3))
       '@solana/kit':
         specifier: 8.3.0
         version: 8.3.0(typescript@5.9.3)
@@ -87,6 +93,9 @@ importers:
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
+      '@solana/subscriptions':
+        specifier: 0.5.0
+        version: 0.5.0(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@7.1.1(typescript@5.9.3))(typescript@5.9.3)
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.3.3
@@ -2266,6 +2275,15 @@ packages:
       '@solana/kit-plugin-rpc':
         optional: true
       '@solana/kit-plugin-signer':
+        optional: true
+
+  '@solana/sysvars@7.1.1':
+    resolution: {integrity: sha512-EscE/HKbBRKedG6AtQ0t9LOX87bw409viferac5YSuvuDxtZvbMpCCJs89uEQPVpgvHtjMJhfsjEwMK97uG9pA==}
+    engines: {node: '>=20.18.0'}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
         optional: true
 
   '@solana/sysvars@8.3.0':
@@ -5548,6 +5566,14 @@ snapshots:
     dependencies:
       '@solana/kit': 8.3.0(typescript@5.9.3)
 
+  '@solana-program/token-2022@0.14.1(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@7.1.1(typescript@5.9.3))':
+    dependencies:
+      '@noble/curves': 1.9.7
+      '@solana-program/record': 0.3.0(@solana/kit@8.3.0(typescript@5.9.3))
+      '@solana-program/zk-elgamal-proof': 0.3.2(@solana/kit@8.3.0(typescript@5.9.3))
+      '@solana/kit': 8.3.0(typescript@5.9.3)
+      '@solana/sysvars': 7.1.1(typescript@5.9.3)
+
   '@solana-program/token-2022@0.14.1(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@8.3.0(typescript@5.9.3))':
     dependencies:
       '@noble/curves': 1.9.7
@@ -6336,6 +6362,20 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
+  '@solana/subscriptions@0.5.0(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@7.1.1(typescript@5.9.3))(typescript@5.9.3)':
+    dependencies:
+      '@solana-program/token': 0.15.0(@solana/kit@8.3.0(typescript@5.9.3))
+      '@solana-program/token-2022': 0.14.1(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@7.1.1(typescript@5.9.3))
+      '@solana/kit': 8.3.0(typescript@5.9.3)
+      '@solana/kit-plugin-rpc': 0.15.0(@solana/kit@8.3.0(typescript@5.9.3))
+      '@solana/kit-plugin-signer': 0.13.0(@solana/kit@8.3.0(typescript@5.9.3))
+      '@solana/program-client-core': 7.1.1(typescript@5.9.3)
+    transitivePeerDependencies:
+      - '@solana/sysvars'
+      - '@solana/zk-sdk'
+      - fastestsmallesttextencoderdecoder
+      - typescript
+
   '@solana/subscriptions@0.5.0(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@8.3.0(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
       '@solana-program/token': 0.15.0(@solana/kit@8.3.0(typescript@5.9.3))
@@ -6367,6 +6407,19 @@ snapshots:
       '@solana/surfpool-darwin-arm64': 1.5.0
       '@solana/surfpool-darwin-x64': 1.5.0
       '@solana/surfpool-linux-x64-gnu': 1.5.0
+
+  '@solana/sysvars@7.1.1(typescript@5.9.3)':
+    dependencies:
+      '@solana/accounts': 7.1.1(typescript@5.9.3)
+      '@solana/codecs-core': 7.1.1(typescript@5.9.3)
+      '@solana/codecs-data-structures': 7.1.1(typescript@5.9.3)
+      '@solana/codecs-numbers': 7.1.1(typescript@5.9.3)
+      '@solana/errors': 7.1.1(typescript@5.9.3)
+      '@solana/rpc-types': 7.1.1(typescript@5.9.3)
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - fastestsmallesttextencoderdecoder
 
   '@solana/sysvars@8.3.0(typescript@5.9.3)':
     dependencies:

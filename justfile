@@ -156,9 +156,9 @@ i18n-test:
     pnpm --filter @laterite/i18n typecheck
     pnpm --filter @laterite/i18n test
 
-# Build the product app against a local validator on port 48899, then run its unit and route tests and its browser journeys against DATABASE_URL
+# Build the product app against a local validator on VALIDATOR_RPC_PORT (48899), then run its unit and route tests and its browser journeys against DATABASE_URL
 app-test:
-    NEXT_PUBLIC_SOLANA_RPC_URL=http://127.0.0.1:48899 pnpm --filter @laterite/app build
+    NEXT_PUBLIC_SOLANA_RPC_URL=http://127.0.0.1:${VALIDATOR_RPC_PORT:-48899} pnpm --filter @laterite/app build
     pnpm --filter @laterite/app test
     pnpm --filter @laterite/app test:e2e
 

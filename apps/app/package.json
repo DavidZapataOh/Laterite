@@ -15,8 +15,10 @@
   "dependencies": {
     "@laterite/client": "workspace:*",
     "@laterite/db": "workspace:*",
+    "@laterite/devnet": "workspace:*",
     "@laterite/i18n": "workspace:*",
     "@laterite/ui": "workspace:*",
+    "@solana-program/token": "0.17.0",
     "@solana/kit": "8.3.0",
     "@solana/kit-plugin-rpc": "0.19.0",
     "@solana/kit-plugin-wallet": "0.20.0",
@@ -31,6 +33,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
+    "@solana/subscriptions": "0.5.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24",
     "@types/react": "^19",

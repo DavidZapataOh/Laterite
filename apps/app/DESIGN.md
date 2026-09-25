@@ -163,12 +163,17 @@ Terracotta field, `.on-dark`. The cream L symbol (decorative image with the name
 | Connecting | Weekly cap | $10 / wk | or $25 · first week $5 | Approve in {wallet}, disabled | No permission |
 | Reconnecting | Weekly cap | $10 / wk | or $25 · first week $5 | Reconnecting, disabled | No permission |
 | Reading | Reading devnet | — | none | none | No permission |
-| New wallet | Weekly cap | $0 / wk | Nothing signed yet | none (onboarding adds it); a receipt line says what comes next | No permission, $0/WK |
-| Exited | Weekly cap | $0 / wk | You left · the account stays | none | Revoked, $0/WK |
+| New or exited wallet (onboarding) | If you get paid $1,000 | what this week's rules would invest, e.g. $5.00, with a quiet THIS WEEK | the binding limit, then the following week: First week $5 · then $10/wk | none (the foot's Review and sign) | Preview, $N/WK of the chosen cap |
+| Onboarding closed | Enrollment | Closed | Laterite's program is paused, or The beta is full | none | No permission, $0/WK |
 | Active, paused | Weekly cap | $10 or $25 / wk | Active since, or Paused · enrolled, a date | none | Active or Paused, $N/WK |
 | Unavailable | Your region | the country or region code | Not offered here | none | Unavailable, the country |
 
 A pending connection never changes the screen: only the band's action says what it waits on, so the figure stays a number. Not connected, the rows say what Laterite cannot do: custody none, you sign once, exit any time. Unavailable, they name the issuer, the stock not offered and connecting closed, with one receipt line.
+
+### Onboarding ("The payday preview")
+The band is a live preview: a $1,000 payday received now, run through the program's own rules (the client's mirrors of `income_share` and `pull`, the NYSE session for the weekly engine), gives the figure, its unit set quiet (3.2u, weight 500) so the figure takes the line; the note names what binds it (the first week's $5, the cap, the cushion, or the rules), then what the following week buys (never above the cap), each clause kept whole so a break falls at the separator. Under the seam, one row per choice on one line, sand rules between: labels and chips in Martian Mono narrowed by its width axis (75%), the label on the left and its controls on the right: How you get paid (Stablecoins, I have savings: only defaults), Weekly cap ($10, $25 within the beta's cap), Schedule (Off, Daily, Weekly, and the amount a buy), Income rule (the rule's wording as a static chip, then On/Off), Change per payment (Off, 1x–3x), Cushion ($20 stays), Goal (name · amount), Asset (SPYx, QQQx), Tokens (the tokens whose account the wallet holds, and the faucet's outline button, which wraps, while one is missing; with none, the row's line says the faucet creates both accounts). Cushion and Goal are boxes spanning the control column (`$20 STAYS`, `HOUSE · $5,000` with the amount placeholder in the locale's digits); a long goal name scrolls in its own box so the amount stays whole. A choice's rule appears as a small line under its row only while it is on. A prior approval on a chosen token is a crimson notice with its own Replace it checkbox. An exited wallet reads one receipt line on what carries over. The foot is one terracotta brick, Review and sign, in mono as typed; clay and inert, with the reason in a line above it, until the choices can be signed.
+
+Choices are `packages/ui`'s `Choice` (a native radio or checkbox inside an outlined chip, solid soot once chosen) at 40px or more; typed amounts are `packages/ui`'s `field` (an outlined box holding its inputs and units, as wide as what it holds).
 
 ### Buttons
 - **Inverse** (the band's action): lime with a soot edge, full column width, 14u tall.

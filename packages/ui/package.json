@@ -9,6 +9,8 @@
         "./seal": "./src/seal.tsx",
         "./button": "./src/button.ts",
         "./chip": "./src/chip.ts",
+        "./choice": "./src/choice.tsx",
+        "./field": "./src/field.ts",
         "./use-hydrated": "./src/use-hydrated.ts",
         "./use-in-view": "./src/use-in-view.ts",
         "./use-scroll-progress": "./src/use-scroll-progress.ts",

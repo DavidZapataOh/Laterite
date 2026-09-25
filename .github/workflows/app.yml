@@ -7,6 +7,7 @@ on:
       - 'packages/ui/**'
       - 'packages/i18n/**'
       - 'packages/db/**'
+      - 'packages/devnet/**'
       - 'clients/typescript/**'
       - 'justfile'
       - 'pnpm-lock.yaml'
