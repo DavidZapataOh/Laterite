@@ -6,6 +6,7 @@ node_modules/
 .env.*
 !.env.example
 .vercel
+dist/
 
 # Solana / Anchor
 target/
