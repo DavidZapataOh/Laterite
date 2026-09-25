@@ -21,7 +21,6 @@ export default defineRailway(() => {
                 'pnpm-workspace.yaml',
             ],
         },
-        deploy: { restartPolicyMaxRetries: 10, restartPolicyType: 'ON_FAILURE' },
         env: {
             CRANK_KEYPAIR: preserve(),
             DATABASE_URL: db.env.DATABASE_URL,
