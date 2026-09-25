@@ -58,18 +58,18 @@ describe('the Kamino Scope relay alarms, on recorded mainnet responses', () => {
         const postedAt = latest.get(1843)!.blockTime!;
         expect(latest.get(1843)!.message).toHaveLength(548);
         for (const age of [30n, 100n, THRESHOLDS.priceAgeSeconds]) {
-            expect(kaminoAlarms(latest, feeds, postedAt + age)).toEqual({
+            expect(kaminoAlarms(latest, feeds, postedAt + age, 0n)).toEqual({
                 'price-QQQX': null,
                 'price-SPYX': null,
                 'price-update-size': null,
             });
         }
-        expect(kaminoAlarms(latest, feeds, postedAt + 30n, 548)['price-update-size']).toBeNull();
+        expect(kaminoAlarms(latest, feeds, postedAt + 30n, 0n, 548)['price-update-size']).toBeNull();
     });
 
     it('fires when no post carrying a feed has been seen for 120 s', async () => {
         const latest = await fetchLatestKaminoUpdates(rpc, [1843, 1837]);
-        const states = kaminoAlarms(latest, feeds, latest.get(1843)!.blockTime! + THRESHOLDS.priceAgeSeconds + 1n);
+        const states = kaminoAlarms(latest, feeds, latest.get(1843)!.blockTime! + THRESHOLDS.priceAgeSeconds + 1n, 0n);
         expect(states['price-SPYX']).toBe(
             'Kamino Scope has posted no SPYX (feed 1843) for more than 120 s: sweeps fail with StalePrice',
         );
@@ -79,10 +79,20 @@ describe('the Kamino Scope relay alarms, on recorded mainnet responses', () => {
     it('fires when the update no longer carries a configured feed, or outgrows the sweep', async () => {
         const latest = await fetchLatestKaminoUpdates(rpc, [1843, 9_999]);
         const now = latest.get(1843)!.blockTime! + 30n;
-        expect(kaminoAlarms(latest, [...feeds.slice(0, 1), { feedId: 9_999, name: 'NEXT' }], now)['price-NEXT']).toBe(
+        const next = [...feeds.slice(0, 1), { feedId: 9_999, name: 'NEXT' }];
+        expect(kaminoAlarms(latest, next, now, 0n)['price-NEXT']).toBe(
             'no recent Kamino Scope post carries NEXT (feed 9999): sweeps into it fail with PriceUnavailable',
         );
-        expect(kaminoAlarms(latest, feeds.slice(0, 1), now, 547)['price-update-size']).toBe(
+        // a relay that started watching less than 120 s ago has not had time to see a post: a restart does not alarm
+        expect(kaminoAlarms(new Map(), feeds, now, now - THRESHOLDS.priceAgeSeconds)).toEqual({
+            'price-QQQX': null,
+            'price-SPYX': null,
+            'price-update-size': null,
+        });
+        expect(kaminoAlarms(new Map(), feeds, now, now - THRESHOLDS.priceAgeSeconds - 1n)['price-SPYX']).toContain(
+            'PriceUnavailable',
+        );
+        expect(kaminoAlarms(latest, feeds.slice(0, 1), now, 0n, 547)['price-update-size']).toBe(
             "Kamino Scope's update is 548 bytes, above the 547 a sweep has room for: sweeps would not fit in a transaction",
         );
     });

@@ -59,7 +59,12 @@ export class Monitor {
                     feedId: pythFeedId,
                     name: ['SPYX', 'QQQX'][index] ?? `asset ${index}`,
                 }));
-                return kaminoAlarms(this.input.kaminoUpdates(), feeds, seconds);
+                return kaminoAlarms(
+                    this.input.kaminoUpdates(),
+                    feeds,
+                    seconds,
+                    BigInt(Math.floor(this.startedAt / 1_000)),
+                );
             },
             'pyth-pro': () => pythTokenAlarm(this.input.pythUsdtUpdate),
             'swap-accounts': () => swapAccountAlarm(db, new Date(now)),

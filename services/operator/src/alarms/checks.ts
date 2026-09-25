@@ -128,12 +128,14 @@ export async function balanceAlarms(
 /**
  * The Kamino Scope relay alarms: per asset feed, fired when no recent Scope post carries it (sweeps into that asset
  * fail with `PriceUnavailable`) or the latest one that does is older than 120 s (they would fail with `StalePrice`);
- * and when the update outgrows the room a sweep has for it.
+ * and when the update outgrows the room a sweep has for it. A feed the relay has not seen since it started watching,
+ * at `watchingSince`, fires only once that is 120 s ago, so a restart does not alarm before Scope's next post.
  */
 export function kaminoAlarms(
     latest: ReadonlyMap<number, { message: ReadonlyUint8Array }>,
     feeds: readonly { feedId: number; name: string }[],
     now: bigint,
+    watchingSince: bigint,
     maxBytes = THRESHOLDS.assetUpdateBytes,
 ): Record<string, string | null> {
     const states: Record<string, string | null> = {};
@@ -142,7 +144,9 @@ export function kaminoAlarms(
         const update = latest.get(feedId);
         if (!update) {
             states[`price-${name}`] =
-                `no recent Kamino Scope post carries ${name} (feed ${feedId}): sweeps into it fail with PriceUnavailable`;
+                now - watchingSince > THRESHOLDS.priceAgeSeconds
+                    ? `no recent Kamino Scope post carries ${name} (feed ${feedId}): sweeps into it fail with PriceUnavailable`
+                    : null;
             continue;
         }
         largest = Math.max(largest, update.message.length);
