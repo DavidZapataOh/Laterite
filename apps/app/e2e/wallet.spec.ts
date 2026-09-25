@@ -42,8 +42,8 @@ test('Solflare, chosen among three, reads an active enrollment', async ({ page }
     // outline buttons take their placement's mono face, not the button's inherited Archivo
     await expect(layer.getByRole('button', { name: 'Solflare' })).toHaveCSS('font-family', /Martian Mono/);
     await layer.getByRole('button', { name: 'Solflare' }).click();
-    await expect(heading(page)).toHaveText('Weekly cap$25/ wk');
-    await expect(page.getByText('Active since Sep 20, 2026')).toBeVisible();
+    await expect(heading(page)).toHaveText('Your position0.0000SPYX');
+    await expect(page.getByText('To invest')).toBeVisible();
     await expect(page.getByRole('img', { name: 'Active: $25/WK' })).toBeVisible();
     // base58 is case-sensitive: the chip shows the address as it is, not uppercased
     const { address } = users.active;
@@ -65,8 +65,8 @@ test('Backpack reads an exited account, and a paused one in Spanish', async ({ p
     await installWallets(paused, [{ key: users.paused, name: 'Backpack' }]);
     await paused.goto('/es');
     await paused.getByRole('button', { name: 'Conectar Backpack' }).click();
-    await expect(heading(paused)).toHaveText('Tope semanal$10/ sem');
-    await expect(paused.getByText('En pausa · alta el 20 sept 2026')).toBeVisible();
+    await expect(heading(paused)).toHaveText('Tu posición0.0000SPYX');
+    await expect(paused.getByText('Pausado', { exact: true })).toBeVisible();
     await expect(paused.getByRole('img', { name: 'En pausa: $10/SEM' })).toBeVisible();
 });
 
@@ -74,11 +74,11 @@ test('a wallet stays connected across a reload and a language switch', async ({ 
     await installWallets(page, [{ key: users.active, name: 'Phantom' }]);
     await page.goto('/');
     await page.getByRole('button', { name: 'Connect Phantom' }).click();
-    await expect(heading(page)).toHaveText('Weekly cap$25/ wk');
+    await expect(heading(page)).toHaveText('Your position0.0000SPYX');
     await page.reload();
-    await expect(heading(page)).toHaveText('Weekly cap$25/ wk');
+    await expect(heading(page)).toHaveText('Your position0.0000SPYX');
     await page.getByRole('link', { name: 'Leer en español' }).click();
-    await expect(heading(page)).toHaveText('Tope semanal$25/ sem');
+    await expect(heading(page)).toHaveText('Tu posición0.0000SPYX');
 });
 
 test('connecting keeps the screen and names the wallet it waits on in the action', async ({ page }) => {
@@ -88,7 +88,7 @@ test('connecting keeps the screen and names the wallet it waits on in the action
     await expect(page.getByRole('button', { name: 'Approve in Phantom' })).toBeDisabled();
     await expect(heading(page)).toHaveText('Weekly cap$10/ wk');
     await page.evaluate(() => (window as unknown as { approve: () => void }).approve());
-    await expect(heading(page)).toHaveText('Weekly cap$25/ wk');
+    await expect(heading(page)).toHaveText('Your position0.0000SPYX');
 });
 
 test('a declined connection says so in crimson, and the band tries again', async ({ page }) => {
@@ -134,5 +134,5 @@ test('an unanswered devnet read says so and retries', async ({ page }) => {
     await expect(notice(page)).toContainText('Devnet did not answer.');
     await page.unroute(`http://127.0.0.1:${RPC_PORT}/**`);
     await page.getByRole('button', { name: 'Try again' }).click();
-    await expect(heading(page)).toHaveText('Weekly cap$25/ wk');
+    await expect(heading(page)).toHaveText('Your position0.0000SPYX');
 });

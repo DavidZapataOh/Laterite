@@ -1,0 +1,53 @@
+.history {
+    display: grid;
+    gap: calc(2.4 * var(--u));
+    margin-top: calc(6 * var(--u));
+}
+
+.heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: max(11px, calc(3.2 * var(--u)));
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: calc(1 * var(--u)) calc(3 * var(--u));
+    padding: calc(2.6 * var(--u)) 0;
+    border-bottom: 2px solid var(--sand);
+}
+
+.what {
+    font-size: max(14px, calc(4 * var(--u)));
+    font-weight: 700;
+}
+
+.when {
+    grid-column: 1;
+    font-size: max(11px, calc(3 * var(--u)));
+    color: var(--ash);
+}
+
+.link {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    align-self: center;
+    font-size: max(11px, calc(3 * var(--u)));
+    color: var(--info);
+}
+
+.empty {
+    padding: calc(3 * var(--u)) 0;
+    color: var(--ash);
+}

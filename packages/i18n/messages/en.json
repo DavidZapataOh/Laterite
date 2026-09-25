@@ -152,6 +152,44 @@
                 "full": "The beta is full",
                 "receipt": "Nothing can be signed until it reopens. Your wallet is untouched."
             }
+        },
+        "dashboard": {
+            "position": "Your position",
+            "invested": "Invested {amount}",
+            "toInvest": "To invest",
+            "nextBuy": "Next buy",
+            "week": "This week",
+            "weekValue": "{spent} of {cap}",
+            "goal": "Goal",
+            "goalValue": "{invested} of {goal}",
+            "next": {
+                "paused": "Paused",
+                "income": "When you get paid",
+                "soon": "Next run",
+                "hold": "On hold: market calendar"
+            },
+            "history": "History",
+            "csv": "Download CSV",
+            "empty": "Nothing yet. Your first buy shows here.",
+            "tx": "Tx",
+            "bought": "Bought {amount} {asset} for {paid} {token}",
+            "income": "Income {amount} {token}: {invested} to invest",
+            "payment": "Payment {amount} {token}: {invested} to invest",
+            "errors": {
+                "position": "Laterite could not read your position.",
+                "history": "Laterite could not read your history."
+            },
+            "controls": {
+                "enrolled": "Joined",
+                "settings_updated": "Settings changed",
+                "paused": "Paused",
+                "resumed": "Resumed",
+                "pending_lowered": "\"To invest\" lowered",
+                "tier_changed": "Cap changed",
+                "payment_tokens_changed": "Payment tokens changed",
+                "exited": "Left",
+                "reactivated": "Came back"
+            }
         }
     },
     "declaration": {

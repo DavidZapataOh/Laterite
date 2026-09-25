@@ -10,13 +10,13 @@ import {
 } from '@solana/kit-plugin-wallet/react';
 import { useRequest } from '@solana/react';
 import { useMemo, useRef, useState } from 'react';
-import { useFormatter, useTranslations } from 'next-intl';
-import { TIERS, UserStatus } from '@laterite/client';
+import { useTranslations } from 'next-intl';
 import { button } from '@laterite/ui/button';
 import { readAccount } from '@/lib/account';
 import type { OnboardingIntent } from '@/lib/onboarding';
 import { client, isUserRejection, type UiWallet } from '@/lib/solana';
 import { BarChips } from './chips';
+import { Dashboard } from './dashboard';
 import { DeclarationLayer } from './declaration-layer';
 import { Notice } from './notice';
 import { Onboarding } from './onboarding';
@@ -34,7 +34,6 @@ async function readEligibility(wallet: Address, signal: AbortSignal): Promise<{ 
 /** The app's one screen in the state the wallet and the account put it in. */
 export function Shell() {
     const t = useTranslations('app');
-    const format = useFormatter();
     const status = useWalletStatus(client);
     const wallets = useWallets(client);
     const connected = useConnectedWallet(client);
@@ -128,20 +127,11 @@ export function Shell() {
                 />
             );
         }
-        let band: BandProps = { label: t('account.reading'), figure: '—', busy: true };
-        let seal = noPermission;
         if (state?.kind === 'enrolled') {
-            const cap = String(TIERS[state.config.tier] / 1_000_000n);
-            const date = format.dateTime(new Date(Number(state.config.enrolledAt) * 1000), { dateStyle: 'medium' });
-            const paused = state.config.status === UserStatus.Paused;
-            band = {
-                label: t('account.label'),
-                figure: `$${cap}`,
-                unit: t('account.unit'),
-                note: paused ? t('account.paused', { date }) : t('account.active', { date }),
-            };
-            seal = { label: paused ? t('seal.paused') : t('seal.active'), main: t('seal.perWeek', { amount: cap }) };
+            return <Dashboard common={common} wallet={address} user={state.config} notices={notices} />;
         }
+        const band: BandProps = { label: t('account.reading'), figure: '—', busy: true };
+        const seal = noPermission;
         return (
             <Screen {...common} band={band} seal={seal}>
                 {notices}

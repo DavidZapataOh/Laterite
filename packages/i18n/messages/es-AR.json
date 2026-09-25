@@ -152,6 +152,44 @@
                 "full": "La beta está completa",
                 "receipt": "No se puede firmar nada hasta que reabra. Tu billetera no se toca."
             }
+        },
+        "dashboard": {
+            "position": "Tu posición",
+            "invested": "Invertido {amount}",
+            "toInvest": "Por invertir",
+            "nextBuy": "Próxima compra",
+            "week": "Esta semana",
+            "weekValue": "{spent} de {cap}",
+            "goal": "Meta",
+            "goalValue": "{invested} de {goal}",
+            "next": {
+                "paused": "Pausado",
+                "income": "Cuando cobres",
+                "soon": "En la próxima ronda",
+                "hold": "En pausa: calendario del mercado"
+            },
+            "history": "Historial",
+            "csv": "Descargar CSV",
+            "empty": "Todavía nada. Tu primera compra aparece acá.",
+            "tx": "Tx",
+            "bought": "Compraste {amount} {asset} por {paid} {token}",
+            "income": "Cobro {amount} {token}: {invested} por invertir",
+            "payment": "Pago {amount} {token}: {invested} por invertir",
+            "errors": {
+                "position": "Laterite no pudo leer tu posición.",
+                "history": "Laterite no pudo leer tu historial."
+            },
+            "controls": {
+                "enrolled": "Te uniste",
+                "settings_updated": "Cambiaste ajustes",
+                "paused": "Pausaste",
+                "resumed": "Reanudaste",
+                "pending_lowered": "Bajaste \"por invertir\"",
+                "tier_changed": "Cambiaste el tope",
+                "payment_tokens_changed": "Cambiaste los tokens",
+                "exited": "Saliste",
+                "reactivated": "Volviste"
+            }
         }
     },
     "declaration": {
