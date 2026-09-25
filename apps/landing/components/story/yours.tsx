@@ -2,15 +2,30 @@
 
 import { useEffect, useState } from 'react';
 import { useInView } from '@laterite/ui/use-in-view';
+import { example, shares as sharesIn } from '@/lib/example';
 import styles from './story.module.css';
 
-const BEFORE = 0.4532;
-const AFTER = 0.4944; // one more brick: +0.0412
+const { before: BEFORE, after: AFTER } = example.wallet;
 
-/** The wallet grows by one brick while the vault stays empty. */
-export function Yours() {
+/** The wallet grows by one brick while the vault stays empty. Amounts are set in `locale`'s digits. */
+export function Yours({
+    locale,
+    headline,
+    line,
+    balancesLabel,
+    held: heldLabel,
+    vault,
+}: {
+    locale: string;
+    headline: string;
+    line: string;
+    balancesLabel: string;
+    held: string;
+    vault: string;
+}) {
     const [ref, inView] = useInView<HTMLElement>();
-    const [held, setHeld] = useState(AFTER);
+    const [held, setHeld] = useState<number>(AFTER);
+    const shares = sharesIn(locale);
 
     useEffect(() => {
         if (!inView || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -30,21 +45,21 @@ export function Yours() {
         <section ref={ref} className={`${styles.band} ${styles.lime}`} aria-labelledby="yours-title">
             <div className={`${styles.copy} ${styles.lays}`} data-in={inView}>
                 <h2 id="yours-title" className={styles.headline}>
-                    It stays yours.
+                    {headline}
                 </h2>
-                <p className={styles.line}>Your stocks land in your wallet. Never ours.</p>
+                <p className={styles.line}>{line}</p>
             </div>
 
             <div className={`${styles.visual} ${styles.lays}`} data-in={inView}>
-                <dl className={styles.card} aria-label="Example balances">
+                <dl className={styles.card} aria-label={balancesLabel}>
                     <div className={styles.walletRow}>
                         <dt>SPYx</dt>
-                        <dd aria-hidden="true">{held.toFixed(4)}</dd>
-                        <dd className="sr-only">{AFTER.toFixed(4)} in your wallet</dd>
+                        <dd aria-hidden="true">{shares.format(held)}</dd>
+                        <dd className="sr-only">{heldLabel}</dd>
                     </div>
                     <div className={styles.vaultRow}>
-                        <dt>Laterite vault</dt>
-                        <dd>0.00</dd>
+                        <dt>{vault}</dt>
+                        <dd>{new Intl.NumberFormat(locale, { minimumFractionDigits: 2 }).format(0)}</dd>
                     </div>
                 </dl>
             </div>

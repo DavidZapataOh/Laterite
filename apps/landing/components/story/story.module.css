@@ -155,6 +155,33 @@
     outline-offset: 3px;
 }
 
+/* who enforces the cap: Laterite's program the total, Subscriptions each token */
+.enforcers {
+    display: grid;
+    gap: 0.5em;
+    margin: clamp(16px, 1.6vw, 26px) 0 0;
+    padding-top: clamp(14px, 1.4vw, 24px);
+    border-top: 2px solid var(--sand);
+    color: var(--ash);
+    font-size: clamp(11px, 1.2vw, 20px);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+.enforcers div {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1em;
+}
+.enforcers dt {
+    white-space: nowrap;
+}
+/* a value that no longer fits beside its label moves under it, still flush right */
+.enforcers dd {
+    margin: 0 0 0 auto;
+    color: var(--soot);
+    white-space: nowrap;
+}
+
 .capSeal {
     position: absolute;
     right: clamp(-30px, -1.6vw, -10px);
@@ -558,5 +585,11 @@
     .cant li,
     .lineTight {
         white-space: normal;
+    }
+}
+
+@media (max-width: 720px) {
+    .enforcers {
+        letter-spacing: 0.06em;
     }
 }

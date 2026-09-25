@@ -215,6 +215,10 @@ just operator-image    # the image Railway builds
 
 `DATABASE_URL` references the Postgres, and Railway sets `PORT`. The service refuses to start when a variable is missing or malformed, naming it, when the attestor's key is the crank's, when the treasury's key is not the devnet treasury, when the product bot is the operations bot or Telegram refuses its token, and when its RPC's genesis hash is not the one Laterite's config holds.
 
+## Landing
+
+`apps/landing` is the marketing page, served at laterite.cash: English at `/` and Spanish (Argentina) at `/es`, each statically rendered with its own Open Graph and Twitter card, generated at build. Its words come from the `landing` namespace of `packages/i18n`, whose test holds them to the page's word budget in every locale; `just landing-test` checks the locales, the language switch, every link and the cards, and `just test-visual` compares both locales with their screenshot baselines.
+
 ## App
 
 `apps/app` is the product app, served at app.laterite.cash: one screen whose layers open above it, built on `packages/ui`.

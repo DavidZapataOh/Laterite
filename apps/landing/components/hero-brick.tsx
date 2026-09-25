@@ -12,7 +12,15 @@ import styles from './hero.module.css';
  * The brick follows the pointer by a few pixels and can be laid again with a
  * click. Both are skipped when the visitor asks for reduced motion.
  */
-export function HeroBrick() {
+export function HeroBrick({
+    flowLabel,
+    steps: [income, cap, brick],
+    brickAlt,
+}: {
+    flowLabel: string;
+    steps: [string, string, string];
+    brickAlt: string;
+}) {
     const stage = useRef<HTMLDivElement>(null);
 
     const onPointerMove = useCallback((event: React.PointerEvent) => {
@@ -49,15 +57,15 @@ export function HeroBrick() {
             onPointerMove={onPointerMove}
             onPointerLeave={onPointerLeave}
         >
-            <ol className={`${styles.flow} mono`} aria-label="Example: how one payday becomes one brick">
-                <li className={styles.step}>+$1,000 USDC</li>
+            <ol className={`${styles.flow} mono`} aria-label={flowLabel}>
+                <li className={styles.step}>{income}</li>
                 <li className={styles.step}>
                     <Arrow />
-                    $25 cap
+                    {cap}
                 </li>
                 <li className={styles.step}>
                     <Arrow />
-                    <span className={styles.ticker}>0.0412 SPYx</span>
+                    <span className={styles.ticker}>{brick}</span>
                 </li>
             </ol>
 
@@ -74,7 +82,7 @@ export function HeroBrick() {
             <div className={styles.brickButton} onClick={layAgain}>
                 <Image
                     src="/hero/brick-25.png"
-                    alt="A red laterite brick stamped with $25"
+                    alt={brickAlt}
                     width={1536}
                     height={1024}
                     sizes="(max-width: 720px) 92vw, 42vw"

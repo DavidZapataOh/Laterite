@@ -6,7 +6,7 @@ import { Seal } from '@laterite/ui/seal';
 import { site } from '@/lib/site';
 import styles from './story.module.css';
 
-export function Close() {
+export function Close({ headline, cta, seal }: { headline: string; cta: string; seal: string }) {
     const [ref, inView] = useInView<HTMLElement>();
 
     return (
@@ -17,16 +17,16 @@ export function Close() {
         >
             <div className={`${styles.copy} ${styles.lays}`} data-in={inView}>
                 <h2 id="close-title" className={`${styles.headline} ${styles.closeHeadline}`}>
-                    Hardens with time.
+                    {headline}
                 </h2>
                 <a href={site.appUrl} className={`${button.inverse} ${styles.closeCta}`}>
-                    Lay the first brick
+                    {cta}
                 </a>
             </div>
 
             <div className={styles.visual}>
                 <div className={`${styles.trialSeal} ${styles.stampable}`} data-in={inView}>
-                    <Seal main="TRIAL · 7 DAYS · CAP $5" mono />
+                    <Seal main={seal} mono />
                 </div>
             </div>
         </section>

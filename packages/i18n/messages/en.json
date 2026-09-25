@@ -194,5 +194,100 @@
             "exited": "You left Laterite: every permission ended. This chat gets nothing more unless you come back.",
             "reactivated": "Welcome back: Laterite invests for you again."
         }
+    },
+    "landing": {
+        "meta": {
+            "title": "Laterite · Get paid. Lay a brick.",
+            "description": "Every payday, a capped slice of your dollars becomes S&P 500. Automatically, from your own wallet.",
+            "imageAlt": "Laterite. Get paid. Lay a brick."
+        },
+        "nav": {
+            "skip": "Skip to content",
+            "home": "Laterite, home",
+            "label": "Primary",
+            "howItWorks": "How it works",
+            "launch": "Launch app"
+        },
+        "hero": {
+            "first": "Get paid.",
+            "second": "Lay a",
+            "third": "brick.",
+            "flowLabel": "Example: how one payday becomes one brick",
+            "income": "+$1,000 USDC",
+            "cap": "$25 cap",
+            "brick": "0.0412 SPYx",
+            "brickAlt": "A red laterite brick stamped with $25",
+            "sentence": "Every payday, a slice of your dollars becomes S&P 500. From your own wallet.",
+            "cta": "Lay the first brick",
+            "chips": {
+                "custody": "Non-custodial",
+                "cap": "You set the cap",
+                "revoke": "Revoke in one tap"
+            },
+            "next": "The cap"
+        },
+        "cap": {
+            "headline": "You set the cap.",
+            "line": "{cap} a week. We can’t move a cent more.",
+            "label": "Your cap",
+            "figure": "{cap} / week",
+            "legend": "Weekly cap",
+            "enforcers": "Who enforces the cap",
+            "laterite": "Laterite program",
+            "subscriptions": "Solana Subscriptions",
+            "total": "{cap} in total",
+            "perToken": "{cap} per token",
+            "seal": "{cap} / WK"
+        },
+        "autopilot": {
+            "headline": "It runs itself.",
+            "line": "No deposits. No reminders. No app to open.",
+            "stripLabel": "Example: one brick every payday",
+            "laidAlt": "A brick stamped LAID",
+            "todayAlt": "Today’s brick, landing"
+        },
+        "yours": {
+            "headline": "It stays yours.",
+            "line": "Your stocks land in your wallet. Never ours.",
+            "balancesLabel": "Example balances",
+            "held": "{amount} in your wallet",
+            "vault": "Laterite vault"
+        },
+        "wall": {
+            "headline": "One year. 52 bricks.",
+            "total": "{total} laid over one year at {cap} a week",
+            "note": "Laid, not promised"
+        },
+        "cannot": {
+            "headline": "What Laterite can’t do.",
+            "limits": {
+                "cap": "Move more than your cap",
+                "destination": "Send it anywhere but your wallet",
+                "custody": "Hold your stocks",
+                "exit": "Stop you from leaving"
+            }
+        },
+        "builtOn": {
+            "label": "Built on",
+            "stack": {
+                "subscriptions": "Solana Subscriptions & Allowances",
+                "pyth": "Pyth",
+                "xstocks": "xStocks",
+                "jupiter": "Jupiter",
+                "openSource": "Open source"
+            }
+        },
+        "close": {
+            "headline": "Hardens with time.",
+            "cta": "Lay the first brick",
+            "seal": "TRIAL · 7 DAYS · CAP $5"
+        },
+        "footer": {
+            "docs": "Docs",
+            "github": "GitHub",
+            "x": "X",
+            "language": "Español",
+            "legal": "Running on Solana devnet. Tokenized stocks are not available in every country."
+        }
     }
 }

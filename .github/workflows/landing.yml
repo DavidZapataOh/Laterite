@@ -1,0 +1,46 @@
+name: Landing
+
+on:
+  pull_request:
+    paths:
+      - 'apps/landing/**'
+      - 'packages/ui/**'
+      - 'packages/i18n/**'
+      - 'justfile'
+      - 'pnpm-lock.yaml'
+      - '.github/actions/setup/action.yml'
+      - '.github/workflows/landing.yml'
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  landing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+      - uses: ./.github/actions/setup
+        with:
+          install-rust: 'false'
+          install-solana-verify: 'false'
+          install-anchor: 'false'
+      - name: Install Chromium
+        run: pnpm --filter @laterite/landing exec playwright install --with-deps chromium
+      - name: Test the landing's locales, links and social cards
+        run: just landing-test
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: landing-playwright-report
+          path: apps/landing/playwright-report/
+          retention-days: 7

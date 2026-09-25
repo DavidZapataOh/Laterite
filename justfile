@@ -176,7 +176,11 @@ deployment-unit-test: build-program
 unit-test: build-program
     cargo test -p laterite
 
-# Compare the landing with its screenshot baseline (macOS baselines, local only)
+# Build the landing, then run its locale, link and metadata tests in Chromium
+landing-test: build-landing
+    pnpm --filter @laterite/landing test:e2e
+
+# Compare both locales of the landing with their screenshot baselines (macOS baselines, local only)
 test-visual: build-landing
     pnpm --filter @laterite/landing test:visual
 

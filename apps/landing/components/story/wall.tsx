@@ -3,15 +3,10 @@
 import type { CSSProperties } from 'react';
 import { useHydrated } from '@laterite/ui/use-hydrated';
 import { slice, useScrollProgress } from '@laterite/ui/use-scroll-progress';
+import { dollars, example } from '@/lib/example';
 import styles from './story.module.css';
 
-const BRICKS = 52;
-const PER_BRICK = 25;
-
-const dollars = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-});
+const { bricks: BRICKS, cap: PER_BRICK } = example;
 
 type Course = { offset: boolean; bricks: number[] };
 
@@ -46,7 +41,17 @@ const NARROW = bond(5);
  * One year of paydays. The wall fills from the bottom course up as the band
  * scrolls through, and the figure counts what was laid, never a return.
  */
-export function Wall() {
+export function Wall({
+    locale,
+    headline,
+    total,
+    note,
+}: {
+    locale: string;
+    headline: string;
+    total: string;
+    note: string;
+}) {
     const [ref, progress] = useScrollProgress<HTMLElement>();
     const hydrated = useHydrated();
     const laid = hydrated ? Math.round(slice(progress, 0.16, 0.56) * BRICKS) : BRICKS;
@@ -59,14 +64,12 @@ export function Wall() {
         >
             <div className={styles.copy}>
                 <h2 id="wall-title" className={styles.headline}>
-                    One year. 52 bricks.
+                    {headline}
                 </h2>
                 <p className={styles.figure}>
-                    <span aria-hidden="true">{dollars.format(laid * PER_BRICK)}</span>
-                    <span className="sr-only">
-                        {dollars.format(BRICKS * PER_BRICK)} laid over one year at $25 a week
-                    </span>
-                    <span className={`${styles.figureNote} mono`}>Laid, not promised</span>
+                    <span aria-hidden="true">{dollars(locale).format(laid * PER_BRICK)}</span>
+                    <span className="sr-only">{total}</span>
+                    <span className={`${styles.figureNote} mono`}>{note}</span>
                 </p>
             </div>
 

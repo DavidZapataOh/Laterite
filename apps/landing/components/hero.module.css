@@ -10,11 +10,20 @@
  * and the -0.015em tracking. Like a justified forme, the courses mix widths:
  * 114 for the first (it sets the measure), 110 for the second, 125 for the
  * third (it reaches under the brick).
+ *
+ * The measures are custom properties so a locale can set its own words: the
+ * width fit's divisor (--measure, --measure-narrow) follows the widest
+ * course's ink, and the brick (--brick-x) and its labels (--flow-x) sit where
+ * the second course leaves its gap.
  */
 
 .hero {
     --nav-h: clamp(64px, 6vw, 115px);
     --pitch: 0.886em; /* course to course, leaves a mortar joint of 0.2em */
+    --measure: 5.64;
+    --measure-narrow: 4.02;
+    --brick-x: 3.43em;
+    --flow-x: 3.47em;
     display: flex;
     flex-direction: column;
     min-height: calc(100svh - var(--nav-h));
@@ -24,7 +33,7 @@
 
 .wall {
     --fs: min(
-        calc((100vw - 2 * var(--gutter)) / 5.64),
+        calc((100vw - 2 * var(--gutter)) / var(--measure)),
         calc((100svh - var(--nav-h) - clamp(236px, 16.2vw, 311px)) / 2.46)
     );
     position: relative;
@@ -82,7 +91,7 @@
 
 .flow {
     position: absolute;
-    left: 3.47em;
+    left: var(--flow-x);
     top: 0.777em;
     width: 2.34em;
     height: 0.2em;
@@ -131,7 +140,7 @@
 
 .leaders {
     position: absolute;
-    left: 3.47em;
+    left: var(--flow-x);
     top: 0.985em;
     width: 2.41em;
     height: 0.36em;
@@ -155,7 +164,7 @@
 
 .brickButton {
     position: absolute;
-    left: 3.43em;
+    left: var(--brick-x);
     top: 0.76em;
     width: 2.36em;
     cursor: pointer;
@@ -313,7 +322,7 @@
 @media (min-aspect-ratio: 161/100) and (min-width: 721px) {
     .wall {
         --fs: min(
-            calc((100vw - 2 * var(--gutter)) / 5.64),
+            calc((100vw - 2 * var(--gutter)) / var(--measure)),
             calc((100svh - var(--nav-h) - clamp(160px, 14.2vw, 272px)) / 2.46)
         );
     }
@@ -367,7 +376,7 @@
 
 @media (max-width: 720px) {
     .wall {
-        --fs: calc((100vw - 2 * var(--gutter)) / 4.02);
+        --fs: calc((100vw - 2 * var(--gutter)) / var(--measure-narrow));
         font-size: var(--fs);
     }
 
@@ -469,5 +478,43 @@
 
     .sentence {
         margin-top: 18px;
+    }
+}
+
+/* ---- Spanish: UN COBRO. / UN + brick / LADRILLO. --------------------------- */
+/* Ink per em: "UN COBRO." at width 110 and "LADRILLO." at 120 both end at
+   6.505 (6.432 from the gutter), so the first and last courses share the
+   measure; "UN" leaves the gap, and the brick ends where the ink does, as in
+   English. On phones the courses are UN / COBRO. / UN / LADRILLO., sized by
+   the last (5.999 from the gutter at width 110), and the stage is scaled back
+   to the English course size, so the brick and its labels keep theirs. */
+
+.hero:lang(es) {
+    --measure: 6.29;
+    --measure-narrow: 6.11;
+    --brick-x: 4.096em;
+    --flow-x: 4.136em;
+}
+
+.hero:lang(es) .course:nth-child(1) {
+    margin-left: -0.073em;
+    font-stretch: 110%;
+}
+.hero:lang(es) .course:nth-child(2) {
+    margin-left: -0.073em;
+    font-stretch: 125%;
+}
+.hero:lang(es) .course:nth-child(3) {
+    margin-left: -0.073em;
+    font-stretch: 120%;
+}
+
+@media (max-width: 720px) {
+    .hero:lang(es) .course:nth-child(n) {
+        font-stretch: 110%;
+    }
+
+    .hero:lang(es) .stage {
+        font-size: calc(6.11em / 4.02);
     }
 }

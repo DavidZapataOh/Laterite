@@ -1,11 +1,46 @@
 import type { Metadata, Viewport } from 'next';
+import { notFound } from 'next/navigation';
+import { hasLocale } from 'next-intl';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { routing } from '@laterite/i18n/routing';
 import { fontVariables } from '@laterite/ui/fonts';
-import './globals.css';
+import { getPathname } from '@/i18n/navigation';
+import { site } from '@/lib/site';
+import '../globals.css';
 
-export const metadata: Metadata = {
-    title: 'Laterite · Get paid. Lay a brick.',
-    description: 'Every payday, a capped slice of your dollars becomes S&P 500. Automatically, from your own wallet.',
-};
+export function generateStaticParams() {
+    return routing.locales.map(locale => ({ locale }));
+}
+
+export async function generateMetadata({ params }: LayoutProps<'/[locale]'>): Promise<Metadata> {
+    const { locale } = await params;
+    if (!hasLocale(routing.locales, locale)) return {};
+    const t = await getTranslations({ locale, namespace: 'landing.meta' });
+    const title = t('title');
+    const description = t('description');
+    const url = getPathname({ href: '/', locale });
+    return {
+        metadataBase: new URL(site.url),
+        title,
+        description,
+        alternates: {
+            canonical: url,
+            languages: {
+                ...Object.fromEntries(routing.locales.map(other => [other, getPathname({ href: '/', locale: other })])),
+                'x-default': '/',
+            },
+        },
+        openGraph: {
+            type: 'website',
+            siteName: site.name,
+            locale: locale.replace('-', '_').replace(/^en$/, 'en_US'),
+            url,
+            title,
+            description,
+        },
+        twitter: { card: 'summary_large_image', site: site.x, creator: site.x, title, description },
+    };
+}
 
 export const viewport: Viewport = {
     themeColor: '#1E1612',
@@ -22,9 +57,12 @@ FORM: Hero, letterpress forme, candidate 6 of 7, seed 9d8d3cbc. Body, bands of c
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
 -->`;
 
-export default function RootLayout({ children }: LayoutProps<'/'>) {
+export default async function LocaleLayout({ children, params }: LayoutProps<'/[locale]'>) {
+    const { locale } = await params;
+    if (!hasLocale(routing.locales, locale)) notFound();
+    setRequestLocale(locale);
     return (
-        <html lang="en" className={fontVariables}>
+        <html lang={locale} className={fontVariables}>
             <body>
                 <div hidden dangerouslySetInnerHTML={{ __html: DIRECTION_CONTRACT }} />
                 {children}

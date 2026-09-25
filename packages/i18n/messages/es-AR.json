@@ -194,5 +194,100 @@
             "exited": "Saliste de Laterite: todos los permisos terminaron. Este chat no recibe nada más salvo que vuelvas.",
             "reactivated": "Volviste: Laterite invierte por vos otra vez."
         }
+    },
+    "landing": {
+        "meta": {
+            "title": "Laterite · Un cobro. Un ladrillo.",
+            "description": "En cada cobro, una parte con tope de tus dólares se vuelve S&P 500. En automático, desde tu propia billetera.",
+            "imageAlt": "Laterite. Un cobro. Un ladrillo."
+        },
+        "nav": {
+            "skip": "Ir al contenido",
+            "home": "Laterite, inicio",
+            "label": "Principal",
+            "howItWorks": "Cómo funciona",
+            "launch": "Abrir la app"
+        },
+        "hero": {
+            "first": "Un cobro.",
+            "second": "Un",
+            "third": "ladrillo.",
+            "flowLabel": "Ejemplo: cómo un cobro se vuelve un ladrillo",
+            "income": "+$1.000 USDC",
+            "cap": "tope $25",
+            "brick": "0,0412 SPYx",
+            "brickAlt": "Un ladrillo rojo de laterita sellado con $25",
+            "sentence": "En cada cobro, una parte de tus dólares se vuelve S&P 500. Desde tu propia billetera.",
+            "cta": "Poné el primer ladrillo",
+            "chips": {
+                "custody": "Sin custodia",
+                "cap": "Vos ponés el tope",
+                "revoke": "Revocás con un toque"
+            },
+            "next": "El tope"
+        },
+        "cap": {
+            "headline": "Vos ponés el tope.",
+            "line": "{cap} por semana. Ni un centavo más.",
+            "label": "Tu tope",
+            "figure": "{cap} / sem",
+            "legend": "Tope semanal",
+            "enforcers": "Quién aplica el tope",
+            "laterite": "Programa de Laterite",
+            "subscriptions": "Solana Subscriptions",
+            "total": "{cap} en total",
+            "perToken": "{cap} por token",
+            "seal": "{cap} / SEM"
+        },
+        "autopilot": {
+            "headline": "Anda solo.",
+            "line": "Sin depósitos. Sin recordatorios. Sin abrir la app.",
+            "stripLabel": "Ejemplo: un ladrillo por cobro",
+            "laidAlt": "Un ladrillo con el sello LAID",
+            "todayAlt": "El ladrillo de hoy, cayendo"
+        },
+        "yours": {
+            "headline": "Sigue siendo tuyo.",
+            "line": "Tus acciones llegan a tu billetera. Nunca a la nuestra.",
+            "balancesLabel": "Saldos de ejemplo",
+            "held": "{amount} en tu billetera",
+            "vault": "Bóveda de Laterite"
+        },
+        "wall": {
+            "headline": "Un año. 52 ladrillos.",
+            "total": "{total} puestos en un año, a {cap} por semana",
+            "note": "Puesto, no prometido"
+        },
+        "cannot": {
+            "headline": "Laterite no puede.",
+            "limits": {
+                "cap": "Mover más que tu tope",
+                "destination": "Mandar tu plata a otra billetera",
+                "custody": "Quedarse con tus acciones",
+                "exit": "Impedirte salir"
+            }
+        },
+        "builtOn": {
+            "label": "Construido sobre",
+            "stack": {
+                "subscriptions": "Solana Subscriptions & Allowances",
+                "pyth": "Pyth",
+                "xstocks": "xStocks",
+                "jupiter": "Jupiter",
+                "openSource": "Código abierto"
+            }
+        },
+        "close": {
+            "headline": "Firme con el tiempo.",
+            "cta": "Poné el primer ladrillo",
+            "seal": "PRUEBA · 7 DÍAS · TOPE $5"
+        },
+        "footer": {
+            "docs": "Documentación",
+            "github": "GitHub",
+            "x": "X",
+            "language": "English",
+            "legal": "Funciona en la devnet de Solana. Las acciones tokenizadas no están disponibles en todos los países."
+        }
     }
 }

@@ -3,14 +3,7 @@
 import { useInView } from '@laterite/ui/use-in-view';
 import styles from './story.module.css';
 
-const LIMITS = [
-    'Move more than your cap',
-    'Send it anywhere but your wallet',
-    'Hold your stocks',
-    'Stop you from leaving',
-];
-
-export function Cannot() {
+export function Cannot({ headline, limits }: { headline: string; limits: string[] }) {
     const [ref, inView] = useInView<HTMLElement>();
 
     return (
@@ -21,12 +14,12 @@ export function Cannot() {
         >
             <div className={`${styles.copy} ${styles.lays}`} data-in={inView}>
                 <h2 id="cannot-title" className={styles.headline}>
-                    What Laterite can&rsquo;t do.
+                    {headline}
                 </h2>
             </div>
 
             <ul className={`${styles.cant} ${styles.lays}`} data-in={inView}>
-                {LIMITS.map(limit => (
+                {limits.map(limit => (
                     <li key={limit}>
                         <svg viewBox="0 0 20 20" className={styles.cross} aria-hidden="true">
                             <path
