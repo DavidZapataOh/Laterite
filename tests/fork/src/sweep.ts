@@ -48,40 +48,44 @@ export type RouteSource = (input: {
  * Jupiter's route, only through `dexes` when given, built and checked by the builders' `buildJupiterSweepRoute`. The
  * swap-authority accounts a route needs in an intermediate mint the deployment did not create are created by the
  * crank in a transaction of their own, as the crank does on mainnet (each mint's owner must be the token program the
- * builder named), and the route is built again.
+ * builder named), and the route is built again, for at most three rounds.
  */
 export const jupiterRoute =
     (crank: TransactionSigner, dexes?: string[]): RouteSource =>
     async input => {
         const build = () => buildJupiterSweepRoute({ ...input, ...jupiter, crank: crank.address, dexes, rpc });
-        try {
-            return await build();
-        } catch (error) {
-            if (!(error instanceof SwapAuthorityAccountsRequiredError)) throw error;
-            const mints = await fetchEncodedAccounts(
-                rpc,
-                error.accounts.map(({ mint }) => mint),
-            );
-            for (const [index, { mint, tokenProgram }] of error.accounts.entries()) {
-                const account = mints[index]!;
-                if (!account.exists || account.programAddress !== tokenProgram) {
-                    throw new Error(`${mint} is not a mint of ${tokenProgram}`);
+        const created: SwapAuthorityAccount[] = [];
+        // A route built again after its accounts were created can name another intermediate mint: a few rounds.
+        for (let round = 1; ; round++) {
+            try {
+                return { ...(await build()), created };
+            } catch (error) {
+                if (!(error instanceof SwapAuthorityAccountsRequiredError) || round === 3) throw error;
+                const mints = await fetchEncodedAccounts(
+                    rpc,
+                    error.accounts.map(({ mint }) => mint),
+                );
+                for (const [index, { mint, tokenProgram }] of error.accounts.entries()) {
+                    const account = mints[index]!;
+                    if (!account.exists || account.programAddress !== tokenProgram) {
+                        throw new Error(`${mint} is not a mint of ${tokenProgram}`);
+                    }
                 }
-            }
-            await send(
-                crank,
-                await Promise.all(
-                    error.accounts.map(({ mint, tokenProgram }) =>
-                        getCreateAssociatedTokenIdempotentInstructionAsync({
-                            mint,
-                            owner: input.swapAuthority,
-                            payer: crank,
-                            tokenProgram,
-                        }),
+                await send(
+                    crank,
+                    await Promise.all(
+                        error.accounts.map(({ mint, tokenProgram }) =>
+                            getCreateAssociatedTokenIdempotentInstructionAsync({
+                                mint,
+                                owner: input.swapAuthority,
+                                payer: crank,
+                                tokenProgram,
+                            }),
+                        ),
                     ),
-                ),
-            );
-            return { ...(await build()), created: error.accounts };
+                );
+                created.push(...error.accounts);
+            }
         }
     };
 
@@ -144,7 +148,7 @@ export async function prepareSweep(
  * the venues' state from mainnet again: Jupiter quotes mainnet, and a pool the fork cloned earlier in a run has moved
  * there since (a stale Raydium CLMM pool fails the route with its own error).
  */
-async function refetchVenueAccounts(route: Instruction, userAssetAccount: Address) {
+export async function refetchVenueAccounts(route: Instruction, userAssetAccount: Address) {
     const own = new Set([...(await swapAuthorityTokenAccounts()).keys(), userAssetAccount]);
     const venues = (route.accounts ?? [])
         .filter(meta => isWritableRole(meta.role) && !own.has(meta.address))

@@ -2,6 +2,13 @@
     "name": "@laterite/operator",
     "private": true,
     "type": "module",
+    "exports": {
+        "./alarms": "./src/alarms/alarms.ts",
+        "./crank": "./src/crank/index.ts",
+        "./log": "./src/log.ts",
+        "./rpc": "./src/rpc.ts",
+        "./send": "./src/send.ts"
+    },
     "scripts": {
         "build": "tsx scripts/build.ts",
         "start": "tsx src/main.ts",
@@ -12,9 +19,11 @@
         "@laterite/client": "workspace:*",
         "@laterite/db": "workspace:*",
         "@laterite/devnet": "workspace:*",
+        "@solana-program/system": "0.15.0",
         "@solana-program/token": "0.17.0",
         "@solana-program/token-2022": "0.19.0",
         "@solana/kit": "8.3.0",
+        "@solana/subscriptions": "0.5.0",
         "@solana/sysvars": "8.3.0",
         "drizzle-orm": "0.45.3",
         "pino": "10.3.1",
@@ -23,9 +32,10 @@
     "devDependencies": {
         "@laterite/deployment": "workspace:*",
         "@solana-program/address-lookup-table": "0.15.0",
-        "@solana-program/system": "0.15.0",
+        "@solana/kit-plugin-litesvm": "0.19.0",
         "@types/node": "^24",
         "esbuild": "0.28.2",
+        "litesvm": "1.4.1",
         "tsx": "4.23.15",
         "typescript": "5.9.3",
         "vitest": "5.0.1"

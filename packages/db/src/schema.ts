@@ -150,6 +150,49 @@ export const userEvents = pgTable(
     ],
 );
 
+export const sweepOutcome = pgEnum('sweep_outcome', ['landed', 'failed', 'skipped', 'pull_failed', 'already_swept']);
+
+/**
+ * The crank's sweeps of one user's payment token on one UTC day of the cluster's clock: each attempt that landed or
+ * failed, and the day's final word when the token is not bought that day (skipped, a pull failure, or swept by
+ * someone else), with the reason by the program's or the check's name. A day with only failed attempts is closed as
+ * skipped once it ends.
+ */
+export const sweepAttempts = pgTable(
+    'sweep_attempts',
+    {
+        id: bigint('id', { mode: 'bigint' }).primaryKey().generatedAlwaysAsIdentity(),
+        user: text('user').notNull(),
+        paymentToken: smallint('payment_token').notNull(),
+        day: integer('day').notNull(),
+        at: time('at').notNull().defaultNow(),
+        outcome: sweepOutcome('outcome').notNull(),
+        reason: text('reason'),
+        /** The transaction sent, landed or failed on-chain; `null` when refused before sending. */
+        signature: text('signature'),
+        pull: u64('pull'),
+        minOut: u64('min_out'),
+        /** The route's quoted output, at least `min_out` when sent. */
+        quoted: u64('quoted'),
+        route: text('route'),
+        /** Age of the asset price update when the sweep was built, and how long the crank waited for a fresh one. */
+        priceAgeSeconds: integer('price_age_seconds'),
+        priceWaitMs: integer('price_wait_ms'),
+        bytes: integer('bytes'),
+        computeUnits: integer('compute_units'),
+        computeUnitLimit: integer('compute_unit_limit'),
+        loadedAccountsDataSizeLimit: integer('loaded_accounts_data_size_limit'),
+        priorityFeeLamports: u64('priority_fee_lamports'),
+        feeLamports: u64('fee_lamports'),
+        /** From the start of the build to confirmation. */
+        latencyMs: integer('latency_ms'),
+    },
+    table => [
+        index('sweep_attempts_user_day').on(table.user, table.day),
+        index('sweep_attempts_day_outcome').on(table.day, table.outcome),
+    ],
+);
+
 /** Swap-authority token accounts the crank created for a route's intermediate mint, and the rent it paid. */
 export const swapAccountCreations = pgTable('swap_account_creations', {
     address: text('address').primaryKey(),

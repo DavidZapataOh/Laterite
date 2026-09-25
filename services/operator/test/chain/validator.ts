@@ -66,13 +66,15 @@ export const keys = {
     counterparty: () => seeded(14),
     /** The attestor a rotation hands over to. */
     nextAttestor: () => seeded(16),
+    /** Re-pegs the pools, as the devnet treasury does; holds 10 SOL, 100,000 USDC and USDT and 50 SPYx from genesis. */
+    treasury: () => seeded(17),
     /** Hold USDC and USDT from genesis. */
     users: () => Promise.all([seeded(11), seeded(12), seeded(15)]),
     /** Enrolled eight days before genesis with the income rule on, so its attestations can expire and close here. */
     veteran: () => seeded(13),
 };
 
-type GenesisAccount = { address: Address; data: Uint8Array; lamports?: bigint; owner: Address };
+export type GenesisAccount = { address: Address; data: Uint8Array; lamports?: bigint; owner: Address };
 
 const account = ({ address, data, lamports = 1_000_000_000n, owner }: GenesisAccount) => ({
     account: {
@@ -100,11 +102,11 @@ function tokenAccount(mint: Address, owner: Address, amount: bigint) {
 }
 
 /**
- * The genesis accounts: devnet's mints (SPYx's multiplier authority the tests' issuer), CPMM config and SPYx pools from
- * the committed copies with each pool at {@link SPYX_QUOTE}, Pyth Pro's devnet storage also trusting the tests' price
- * signer, the users' and the counterparty's dollars, and the veteran's `UserConfig`.
+ * The genesis accounts: devnet's mints (SPYx's multiplier and pause authority the tests' issuer), CPMM config and SPYx
+ * pools from the committed copies with each pool at {@link SPYX_QUOTE}, Pyth Pro's devnet storage also trusting the
+ * tests' price signer, the users', the counterparty's and the treasury's dollars, and the veteran's `UserConfig`.
  */
-async function genesisAccounts(now: bigint): Promise<GenesisAccount[]> {
+export async function genesisAccounts(now: bigint): Promise<GenesisAccount[]> {
     const { tokens, pools, cpmm } = devnet;
     const copy = async (address: Address, owner: Address) => ({
         address,
@@ -119,7 +121,11 @@ async function genesisAccounts(now: bigint): Promise<GenesisAccount[]> {
     const mint = getMintDecoder().decode(spyx.data);
     const issuer = (await keys.issuer()).address;
     const extensions = unwrapOption(mint.extensions)!.map(extension =>
-        extension.__kind === 'ScaledUiAmountConfig' ? { ...extension, authority: issuer } : extension,
+        extension.__kind === 'ScaledUiAmountConfig'
+            ? { ...extension, authority: issuer }
+            : extension.__kind === 'PausableConfig'
+              ? { ...extension, authority: some(issuer) }
+              : extension,
     );
     spyx.data = new Uint8Array(getMintEncoder().encode({ ...mint, extensions: some(extensions) }));
     for (const name of ['SPYx-USDC', 'SPYx-USDT'] as const) {
@@ -142,6 +148,22 @@ async function genesisAccounts(now: bigint): Promise<GenesisAccount[]> {
             accounts.push(copied);
         }
     }
+    // The treasury's SPYx inventory: 50 tokens in its associated account, laid out as a pool's SPYx vault (the mint's
+    // required account extensions) with the treasury as owner.
+    const treasury = await keys.treasury();
+    const pool = pools['SPYx-USDC'];
+    const template = await copy(
+        pool.token0Mint === tokens.SPYx.mint ? pool.token0Vault : pool.token1Vault,
+        tokens.SPYx.tokenProgram,
+    );
+    const [treasurySpyx] = await findAssociatedTokenPda({
+        mint: tokens.SPYx.mint,
+        owner: treasury.address,
+        tokenProgram: tokens.SPYx.tokenProgram,
+    });
+    template.data.set(getAddressEncoder().encode(treasury.address), 32);
+    u64(template.data, 64, 50n * 100_000_000n);
+    accounts.push({ ...template, address: treasurySpyx });
     const storage = new Uint8Array(await fixture('pyth_storage_devnet.bin'));
     // Storage: the trusted-signer count at 80, then 40-byte slots of public key and expiry.
     const slot = 81 + 40 * storage[80]!;
@@ -155,13 +177,19 @@ async function genesisAccounts(now: bigint): Promise<GenesisAccount[]> {
         owner: '11111111111111111111111111111111' as Address,
     });
     const counterparty = await keys.counterparty();
-    accounts.push({
-        address: counterparty.address,
-        data: new Uint8Array(),
-        lamports: 10_000_000_000n,
-        owner: '11111111111111111111111111111111' as Address,
-    });
-    const holders = [...(await keys.users()).map(user => [user, 100n] as const), [counterparty, 10_000n] as const];
+    for (const wallet of [counterparty, treasury]) {
+        accounts.push({
+            address: wallet.address,
+            data: new Uint8Array(),
+            lamports: 10_000_000_000n,
+            owner: '11111111111111111111111111111111' as Address,
+        });
+    }
+    const holders = [
+        ...(await keys.users()).map(user => [user, 100n] as const),
+        [counterparty, 10_000n] as const,
+        [treasury, 100_000n] as const,
+    ];
     for (const [holder, dollars] of holders) {
         for (const symbol of ['USDC', 'USDT'] as const) {
             const { mint, tokenProgram } = tokens[symbol];
@@ -209,12 +237,27 @@ async function genesisAccounts(now: bigint): Promise<GenesisAccount[]> {
 
 export type Validator = { rpcUrl: string; stop: () => Promise<void>; wsUrl: string };
 
+/** Starts of a validator that exits at once (a port its predecessor has not released yet) before the test fails. */
+const STARTS = 3;
+
 /**
  * Starts a new chain on Agave's test validator with Laterite (its upgrade authority the tests' key), the programs it
  * calls (Subscriptions, Pyth Pro and the CPMM, from the committed fixtures) and {@link genesisAccounts}, offline, its
- * RPC on `port` and its other ports on the 60 after it.
+ * RPC on `port` and its other ports on the 60 after it. A validator that exits before answering is started again, and
+ * the error names what it printed.
  */
 export async function startValidator(port = RPC_PORT): Promise<Validator> {
+    let output = '';
+    for (let start = 1; start <= STARTS; start++) {
+        const started = await startOnce(port);
+        if ('rpcUrl' in started) return started;
+        output = started.output;
+        await sleep(2_000 * start);
+    }
+    throw new Error(`solana-test-validator did not start on port ${port}: ${output.trim().slice(-500)}`);
+}
+
+async function startOnce(port: number): Promise<Validator | { output: string }> {
     const dir = await mkdtemp(join(tmpdir(), 'laterite-validator-'));
     const accountDir = join(dir, 'accounts');
     await mkdir(accountDir);
@@ -251,7 +294,10 @@ export async function startValidator(port = RPC_PORT): Promise<Validator> {
         '--account-dir',
         accountDir,
     ];
-    const validator: ChildProcess = spawn('solana-test-validator', args, { stdio: 'ignore' });
+    const validator: ChildProcess = spawn('solana-test-validator', args, { stdio: ['ignore', 'pipe', 'pipe'] });
+    let output = '';
+    validator.stdout!.on('data', chunk => (output = (output + chunk).slice(-2_000)));
+    validator.stderr!.on('data', chunk => (output = (output + chunk).slice(-2_000)));
     const rpcUrl = `http://127.0.0.1:${port}`;
     const exited = new Promise(resolve => validator.once('exit', resolve));
     const stop = async () => {
@@ -272,7 +318,7 @@ export async function startValidator(port = RPC_PORT): Promise<Validator> {
         await sleep(500);
     }
     await stop();
-    throw new Error(`solana-test-validator did not start on port ${port}`);
+    return { output };
 }
 
 function fileURL(path: string) {

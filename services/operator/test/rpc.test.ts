@@ -1,22 +1,26 @@
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 
+import type { Signature } from '@solana/kit';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { createFailoverRpc } from '../src/rpc';
 
 const servers: Server[] = [];
 
-/** A JSON-RPC endpoint answering each request with `answer`'s status and `getSlot` result, counting requests. */
-async function endpoint(answer: (request: number) => { delayMs?: number; slot?: number; status: number }) {
+/** A JSON-RPC endpoint answering each request with `answer`'s status and result (`slot`), counting requests. */
+async function endpoint(
+    answer: (request: number) => { delayMs?: number; result?: unknown; slot?: number; status: number },
+) {
     let requests = 0;
     const server = createServer((request, response) => {
-        const { delayMs = 0, slot, status } = answer(requests++);
+        const reply = answer(requests++);
+        const result = 'result' in reply ? reply.result : reply.slot;
         request.resume();
         request.on('end', () =>
             setTimeout(
-                () => response.writeHead(status).end(JSON.stringify({ id: 0, jsonrpc: '2.0', result: slot })),
-                delayMs,
+                () => response.writeHead(reply.status).end(JSON.stringify({ id: 0, jsonrpc: '2.0', result })),
+                reply.delayMs ?? 0,
             ),
         );
     });
@@ -54,6 +58,25 @@ describe('the failover RPC', () => {
         ]);
         expect(await createFailoverRpc([limited.url, spare.url]).getSlot().send()).toBe(9n);
         expect([limited.requests(), spare.requests()]).toEqual([2, 0]);
+    });
+
+    it('asks the next endpoint for a transaction one answers with null, and believes null only from every one', async () => {
+        const transaction = { blockTime: 1, meta: null, slot: 11, transaction: ['', 'base64'] };
+        const [lagging, synced, empty] = await Promise.all([
+            endpoint(() => ({ result: null, status: 200 })),
+            endpoint(() => ({ result: transaction, status: 200 })),
+            endpoint(() => ({ result: null, status: 200 })),
+        ]);
+        const signature = '1'.repeat(64) as Signature;
+        const found = await createFailoverRpc([lagging.url, synced.url]).getTransaction(signature).send();
+        expect(found?.slot).toBe(11n);
+        expect(await createFailoverRpc([lagging.url, empty.url]).getTransaction(signature).send()).toBeNull();
+        expect([lagging.requests(), synced.requests(), empty.requests()]).toEqual([2, 1, 1]);
+        // Any other method's null is an answer.
+        await createFailoverRpc([lagging.url, synced.url])
+            .getAccountInfo(signature as never)
+            .send();
+        expect(synced.requests()).toBe(1);
     });
 
     it('fails when every endpoint has', async () => {

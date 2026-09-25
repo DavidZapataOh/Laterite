@@ -31,6 +31,7 @@ export default defineRailway(() => {
             OPS_TELEGRAM_CHAT_ID: preserve(),
             PYTH_PRO_ACCESS_TOKEN: preserve(),
             SOLANA_RPC_URL: preserve(),
+            TREASURY_KEYPAIR: preserve(),
         },
         healthcheck: '/health',
         healthcheckTimeout: 120,

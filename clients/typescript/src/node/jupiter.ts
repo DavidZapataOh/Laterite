@@ -40,13 +40,15 @@ type ApiInstruction = {
 /** The parts of a `/swap/v2/build` response the builders read. */
 export type JupiterBuildResponse = {
     addressesByLookupTableAddress: Record<string, string[]> | null;
+    /** The blockhash Jupiter read with the route's state, and when (the response carries no `contextSlot`). */
+    blockhashWithMetadata?: { fetchedAt: { secs_since_epoch: number } } | null;
     computeBudgetInstructions: ApiInstruction[];
     inAmount: string;
     otherAmountThreshold: string;
     outAmount: string;
     platformFee?: { amount: string } | null;
-    /** Each hop's input and output mint. */
-    routePlan: { swapInfo: { inputMint: string; outputMint: string } }[];
+    /** Each hop's venue (`label`, its pool `ammKey`) and its input and output mint. */
+    routePlan: { swapInfo: { ammKey?: string; inputMint: string; label?: string; outputMint: string } }[];
     setupInstructions: ApiInstruction[];
     swapInstruction: ApiInstruction;
 };
@@ -202,7 +204,8 @@ export class SwapAuthorityAccountsRequiredError extends Error {
  * account need not, since a venue may name one it has not created yet. A route that names the crank is refused, as a
  * defense in depth: the sweep never lends the crank's signature to a route. Jupiter reads mainnet,
  * so its setup, which only creates the taker's accounts, is dropped, and any other setup is refused. Also returns the
- * quote, so the crank can skip a route whose output would fall below the sweep's minimum.
+ * quote, so the crank can skip a route whose output would fall below the sweep's minimum, the route's venues (Jupiter's
+ * labels, to exclude one that failed) and when Jupiter read the state it quoted (Unix seconds, `null` if not reported).
  */
 export async function buildJupiterSweepRoute(input: {
     amount: bigint;
@@ -216,7 +219,7 @@ export async function buildJupiterSweepRoute(input: {
     rpc: Rpc<GetMultipleAccountsApi>;
     swapAuthority: Address;
     userAssetAccount: Address;
-}): Promise<{ outAmount: bigint; route: Instruction }> {
+}): Promise<{ outAmount: bigint; quotedAt: number | null; route: Instruction; venues: string[] }> {
     const swap = await buildJupiterSwap({
         amount: input.amount,
         apiKey: input.apiKey,
@@ -255,5 +258,7 @@ export async function buildJupiterSweepRoute(input: {
     );
     const missing = written.filter((_, index) => !existing[index]!.exists);
     if (missing.length > 0) throw new SwapAuthorityAccountsRequiredError(missing);
-    return { outAmount: swap.outAmount, route };
+    const venues = [...new Set(swap.response.routePlan.flatMap(({ swapInfo }) => swapInfo.label ?? []))];
+    const quotedAt = swap.response.blockhashWithMetadata?.fetchedAt.secs_since_epoch ?? null;
+    return { outAmount: swap.outAmount, quotedAt, route, venues };
 }

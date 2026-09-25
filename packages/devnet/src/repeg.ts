@@ -1,4 +1,4 @@
-import type { Signature, TransactionSigner } from '@solana/kit';
+import type { GetAccountInfoApi, GetTokenAccountBalanceApi, Rpc, Signature, TransactionSigner } from '@solana/kit';
 
 import type { DevnetAddresses } from './addresses';
 import type { PoolName } from './assets';
@@ -61,9 +61,13 @@ export function repegOrder(
         : { amountIn: repegAmountIn(reserves.base, reserves.quote, 1 / quotePerBaseAtom, fees), side: 'sell' };
 }
 
-/** Swaps from the treasury until `pool` sits at `targetPrice` (quote per whole base unit, raw units). */
+/**
+ * Swaps from the treasury until `pool` sits at `targetPrice` (quote per whole base unit, raw units); refuses a pool
+ * further than `maxDeviationBps` (500) from the target, which a trade must not chase. `client.send` signs with the
+ * treasury and pays from it.
+ */
 export async function repeg(p: {
-    client: Client;
+    client: { rpc: Rpc<GetAccountInfoApi & GetTokenAccountBalanceApi>; send: Client['send'] };
     treasury: TransactionSigner;
     addresses: DevnetAddresses;
     pool: PoolName;

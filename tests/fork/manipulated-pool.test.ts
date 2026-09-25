@@ -114,7 +114,9 @@ describe('a manipulated pool', () => {
                 taker: whale.address,
             });
             if (!pools(trade).includes(mainPool(hostile!))) continue;
-            await sendMessage(
+            // Jupiter quotes mainnet, which can move ahead of the fork's copy of a pool (Whirlpool's 6038 on a tick array
+            // the fork has not seen): such a trade fails in simulation, lands nothing and is asked for again.
+            const landed = await sendMessage(
                 compressTransactionMessageUsingAddressLookupTables(
                     pipe(
                         createTransactionMessage({ version: 0 }),
@@ -123,7 +125,11 @@ describe('a manipulated pool', () => {
                     ),
                     trade.lookupTables,
                 ),
-            );
+            ).catch((error: unknown) => {
+                console.warn(`the whale's trade failed in simulation and is asked for again: ${String(error)}`);
+                return null;
+            });
+            if (!landed) continue;
             bought += WHALE_TRADE;
             for (const { address, role } of trade.swap.accounts ?? []) if (isWritableRole(role)) moved.add(address);
             refused = await simulateMessage((await sweep()).message);

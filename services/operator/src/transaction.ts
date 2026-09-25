@@ -17,7 +17,9 @@ export type TokenBalance = { accountIndex: number; mint: Address; owner?: Addres
 export type FetchedTransaction = {
     blockTime: bigint | null;
     meta: {
+        computeUnitsConsumed?: bigint;
         err: unknown;
+        fee?: bigint;
         innerInstructions?:
             | readonly {
                   index: number;
@@ -26,7 +28,9 @@ export type FetchedTransaction = {
             | null;
         loadedAddresses?: { readonly: readonly Address[]; writable: readonly Address[] };
         logMessages?: readonly string[] | null;
+        postBalances?: readonly bigint[];
         postTokenBalances?: readonly TokenBalance[] | null;
+        preBalances?: readonly bigint[];
         preTokenBalances?: readonly TokenBalance[] | null;
     } | null;
     slot: bigint;
@@ -36,10 +40,17 @@ export type FetchedTransaction = {
 /** An instruction as it ran: its program, accounts and data. */
 export type Executed = { accounts: Address[]; data: ReadonlyUint8Array; programAddress: Address };
 
-/** A finalized transaction, every version included (sweeps are version 1), or `null` while the node lacks it. */
-export async function fetchTransaction(rpc: Rpc<GetTransactionApi>, signature: Signature) {
+/**
+ * A transaction at `commitment` (finalized by default), every version included (sweeps are version 1), or `null` while
+ * the node lacks it.
+ */
+export async function fetchTransaction(
+    rpc: Rpc<GetTransactionApi>,
+    signature: Signature,
+    commitment: 'confirmed' | 'finalized' = 'finalized',
+) {
     return (await rpc
-        .getTransaction(signature, { commitment: 'finalized', encoding: 'base64', maxSupportedTransactionVersion: 1 })
+        .getTransaction(signature, { commitment, encoding: 'base64', maxSupportedTransactionVersion: 1 })
         .send()) as FetchedTransaction | null;
 }
 

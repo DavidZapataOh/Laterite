@@ -136,6 +136,15 @@ export function hasFeed(message: ReadonlyUint8Array, feedId: number): boolean {
 }
 
 /**
+ * When `feedId`'s price in a well-formed update was last updated, by the feed's own timestamp, in Unix seconds: the time
+ * the program's freshness check reads. `null` when the update does not carry the feed or its timestamp.
+ */
+export function feedUpdatedAt(message: ReadonlyUint8Array, feedId: number): bigint | null {
+    const updatedAt = findFeed(parsePythUpdate(message).payload, feedId)?.updatedAt;
+    return updatedAt === undefined ? null : updatedAt / 1_000_000n;
+}
+
+/**
  * The quote of `feedId` in one Solana-format update, as the program's `quote` reads it at `now`: fresh by the
  * feed's own update time and within the confidence bound. Feed 0 is {@link DOLLAR_QUOTE} and takes no update.
  * `maxAgeSeconds` lets a sender require a younger price than the program does, so it still lands in time.

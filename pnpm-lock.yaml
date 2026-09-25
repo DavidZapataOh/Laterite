@@ -398,6 +398,9 @@ importers:
       '@laterite/devnet':
         specifier: workspace:*
         version: link:../../packages/devnet
+      '@solana-program/system':
+        specifier: 0.15.0
+        version: 0.15.0(@solana/kit@8.3.0(typescript@5.9.3))
       '@solana-program/token':
         specifier: 0.17.0
         version: 0.17.0(@solana/kit@8.3.0(typescript@5.9.3))
@@ -407,6 +410,9 @@ importers:
       '@solana/kit':
         specifier: 8.3.0
         version: 8.3.0(typescript@5.9.3)
+      '@solana/subscriptions':
+        specifier: 0.5.0
+        version: 0.5.0(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@8.3.0(typescript@5.9.3))(typescript@5.9.3)
       '@solana/sysvars':
         specifier: 8.3.0
         version: 8.3.0(typescript@5.9.3)
@@ -426,15 +432,18 @@ importers:
       '@solana-program/address-lookup-table':
         specifier: 0.15.0
         version: 0.15.0(@solana/kit@8.3.0(typescript@5.9.3))
-      '@solana-program/system':
-        specifier: 0.15.0
-        version: 0.15.0(@solana/kit@8.3.0(typescript@5.9.3))
+      '@solana/kit-plugin-litesvm':
+        specifier: 0.19.0
+        version: 0.19.0(@solana/kit@8.3.0(typescript@5.9.3))(typescript@5.9.3)
       '@types/node':
         specifier: ^24
         version: 24.13.6
       esbuild:
         specifier: 0.28.2
         version: 0.28.2
+      litesvm:
+        specifier: 1.4.1
+        version: 1.4.1(typescript@5.9.3)
       tsx:
         specifier: 4.23.15
         version: 4.23.15
@@ -450,12 +459,18 @@ importers:
       '@laterite/client':
         specifier: workspace:*
         version: link:../../clients/typescript
+      '@laterite/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@laterite/deployment':
         specifier: workspace:*
         version: link:../../packages/deployment
       '@laterite/devnet':
         specifier: workspace:*
         version: link:../../packages/devnet
+      '@laterite/operator':
+        specifier: workspace:*
+        version: link:../../services/operator
       '@solana-program/address-lookup-table':
         specifier: 0.15.0
         version: 0.15.0(@solana/kit@8.3.0(typescript@5.9.3))
@@ -480,6 +495,9 @@ importers:
       '@types/node':
         specifier: ^24
         version: 24.13.6
+      drizzle-orm:
+        specifier: 0.45.3
+        version: 0.45.3(@types/pg@8.23.1)(pg@8.23.0)
       tsx:
         specifier: 4.23.15
         version: 4.23.15

@@ -40,9 +40,13 @@ export const THRESHOLDS = {
      * left free, above the 548-byte update it carried.
      */
     assetUpdateBytes: 1_745,
-    /** Received less `min_out` of the crank's latest sweep, in basis points of `min_out`. */
-    headroomBps: 20,
-    /** Swap-authority accounts the crank may create in a day before an operator looks at the routes. */
+    /**
+     * Received less `min_out` of the crank's latest sweep, in basis points of `min_out`, per cluster: Jupiter's real
+     * routes on mainnet; on devnet the stand-in pool's 25 bps fee and the 10 bps re-peg band already take 35 of the
+     * 55, so a lower figure there means the re-peg lags Pyth.
+     */
+    headroomBps: { devnet: 5, mainnet: 20 } satisfies Record<string, number>,
+    /** Swap-authority accounts the crank may create in a day; a route needing more waits for an operator. */
     swapAccountCreationsPerDay: 5,
     /** How long the indexer may go without a successful poll. */
     indexerStallMs: 5 * 60 * 1_000,
@@ -177,30 +181,35 @@ export async function pythTokenAlarm(fetchUpdate: () => Promise<unknown>): Promi
     }
 }
 
-/** Fires when the crank's latest sweep landed less than 20 bps above its `min_out`. */
-export async function headroomAlarm(db: Database, crank: Address): Promise<Record<string, string | null>> {
+/** Fires when the crank's latest sweep landed less than the cluster's threshold above its `min_out`. */
+export async function headroomAlarm(
+    db: Database,
+    crank: Address,
+    cluster: keyof typeof THRESHOLDS.headroomBps,
+): Promise<Record<string, string | null>> {
+    const threshold = THRESHOLDS.headroomBps[cluster];
     const [latest] = await db
         .select({ headroomBps: sweeps.headroomBps, signature: sweeps.signature })
         .from(sweeps)
         .where(eq(sweeps.feePayer, crank))
         .orderBy(desc(sweeps.slot))
         .limit(1);
-    const low = latest && latest.headroomBps !== null && latest.headroomBps < THRESHOLDS.headroomBps;
+    const low = latest && latest.headroomBps !== null && latest.headroomBps < threshold;
     return {
         'sweep-headroom': low
-            ? `the crank's latest sweep ${latest.signature} landed ${latest.headroomBps} bps above min_out, below ${THRESHOLDS.headroomBps}: SLIPPAGE_BPS is getting tight for real routes`
+            ? `the crank's latest sweep ${latest.signature} landed ${latest.headroomBps} bps above min_out, below ${threshold} on ${cluster}: SLIPPAGE_BPS is getting tight for its routes`
             : null,
     };
 }
 
-/** Fires when the crank created more swap-authority accounts in the last 24 hours than a day's bound. */
+/** Fires when the crank reached the day's bound on new swap-authority accounts: routes needing another wait. */
 export async function swapAccountAlarm(db: Database, now: Date): Promise<Record<string, string | null>> {
     const since = new Date(now.getTime() - Number(DAY_SECONDS) * 1_000);
     const created = await db.$count(swapAccountCreations, gt(swapAccountCreations.createdAt, since));
     return {
         'swap-account-creations':
-            created > THRESHOLDS.swapAccountCreationsPerDay
-                ? `the crank created ${created} swap-authority accounts in 24 hours, above ${THRESHOLDS.swapAccountCreationsPerDay}: review the routes that need them`
+            created >= THRESHOLDS.swapAccountCreationsPerDay
+                ? `the crank created ${created} swap-authority accounts in 24 hours, the bound: routes needing another wait; review them`
                 : null,
     };
 }

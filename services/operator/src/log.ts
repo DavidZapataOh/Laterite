@@ -15,7 +15,16 @@ export function createLogger(level: string, destination?: DestinationStream): Lo
             messageKey: 'message',
             redact: {
                 censor: '[secret]',
-                paths: ['accessToken', 'authorization', 'botToken', '*.accessToken', '*.authorization', '*.botToken'],
+                paths: [
+                    'accessToken',
+                    'apiKey',
+                    'authorization',
+                    'botToken',
+                    '*.accessToken',
+                    '*.apiKey',
+                    '*.authorization',
+                    '*.botToken',
+                ],
             },
             timestamp: pino.stdTimeFunctions.isoTime,
         },

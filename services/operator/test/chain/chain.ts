@@ -20,6 +20,7 @@ import {
     getLowerPendingInstructions,
     getOnboardingInstructions,
     getReactivationInstructions,
+    getSetPausedInstruction,
     getSetUserPausedInstructions,
     getSweepInstructions,
     getSweepPull,
@@ -34,7 +35,7 @@ import {
     readMarketCalendar,
     rotateSettingsKey,
 } from '@laterite/deployment';
-import { createClient, routeInstruction } from '@laterite/devnet';
+import { createClient, type PoolName, routeInstruction, swapInstruction } from '@laterite/devnet';
 import { addresses as devnet } from '@laterite/devnet/addresses';
 import {
     type Address,
@@ -61,11 +62,17 @@ import {
     setTransactionMessageFeePayerSigner,
 } from '@solana/kit';
 import { getCreateAccountInstruction, getTransferSolInstruction } from '@solana-program/system';
-import { getUpdateMultiplierScaledUiMintInstruction } from '@solana-program/token-2022';
+import {
+    getPauseInstruction,
+    getResumeInstruction,
+    getUpdateMultiplierScaledUiMintInstruction,
+} from '@solana-program/token-2022';
 import { fetchAddressLookupTable } from '@solana-program/address-lookup-table';
 import {
     findAssociatedTokenPda,
+    getCreateAssociatedTokenIdempotentInstructionAsync,
     getInitializeAccount3Instruction,
+    getRevokeInstruction,
     getTransferCheckedInstruction,
     getTransferInstruction,
 } from '@solana-program/token';
@@ -90,7 +97,7 @@ export const params = (paymentTokens: number, overrides: Partial<EnrollParamsArg
 });
 
 /** A Solana-format update of `feeds` at `at`, signed by the key the local Pyth Pro storage trusts. */
-async function pythUpdate(at: bigint, feeds: [number, Quote][]): Promise<Uint8Array> {
+export async function pythUpdate(at: bigint, feeds: [number, Quote][]): Promise<Uint8Array> {
     const payload: number[] = [];
     const push = (bytes: ArrayLike<number>) => payload.push(...Array.from(bytes));
     const le = (value: bigint, size: number) =>
@@ -239,9 +246,9 @@ export class Chain {
         return this.sponsored(instructions);
     }
 
-    /** The crank's USDC sweep of `user` through the CPMM, priced by an SPYx update composed now. */
-    async sweep(user: KeyPairSigner): Promise<Signature> {
-        const crank = await keys.crank();
+    /** A USDC sweep of `user` through the CPMM by `crank` (the crank's key by default), priced by an SPYx update composed now. */
+    async sweep(user: KeyPairSigner, sender?: KeyPairSigner): Promise<Signature> {
+        const crank = sender ?? (await keys.crank());
         const state = await fetchSweepState(this.rpc, { config: this.config, paymentToken: 0, user: user.address });
         const pull = getSweepPull(state);
         const asset = this.config.assets[0]!;
@@ -402,6 +409,25 @@ export class Chain {
         );
     }
 
+    /** Creates `owner`'s associated account in a payment token if needed and pays it `amount` from the counterparty. */
+    async fund(owner: Address, paymentToken: number, amount: bigint): Promise<Signature> {
+        const { decimals, mint, tokenProgram } = this.config.paymentTokens[paymentToken]!;
+        const counterparty = await keys.counterparty();
+        const [[source], [destination]] = await Promise.all([
+            findAssociatedTokenPda({ mint, owner: counterparty.address, tokenProgram }),
+            findAssociatedTokenPda({ mint, owner, tokenProgram }),
+        ]);
+        return this.client.send(counterparty, [
+            await getCreateAssociatedTokenIdempotentInstructionAsync({
+                mint,
+                owner,
+                payer: counterparty,
+                tokenProgram,
+            }),
+            getTransferCheckedInstruction({ amount, authority: counterparty, decimals, destination, mint, source }),
+        ]);
+    }
+
     /** A second token account `owner` holds in a payment token, besides its associated one. */
     async createTokenAccount(owner: Address, paymentToken: number): Promise<Address> {
         const { mint, tokenProgram } = this.config.paymentTokens[paymentToken]!;
@@ -469,6 +495,50 @@ export class Chain {
                 instructions: [update],
                 lookupTable: {},
                 sponsor: crank,
+            }),
+        );
+    }
+
+    /** Turns the kill switch on or off, as the admin does. */
+    async setProgramPaused(paused: boolean): Promise<Signature> {
+        const admin = await keys.authority();
+        const signature = await this.client.send(admin, [
+            getSetPausedInstruction({ admin, config: (await findConfigPda())[0], paused }),
+        ]);
+        await this.refreshConfig();
+        return signature;
+    }
+
+    /** Pauses or resumes SPYx through its Pausable extension, as its issuer can. */
+    async setAssetPaused(paused: boolean): Promise<Signature> {
+        const authority = await keys.issuer();
+        const mint = devnet.tokens.SPYx.mint;
+        const instruction = paused
+            ? getPauseInstruction({ authority, mint })
+            : getResumeInstruction({ authority, mint });
+        return this.client.send(await keys.counterparty(), [instruction]);
+    }
+
+    /** Removes the delegate of `user`'s associated account in a payment token: an approval ended outside Laterite. */
+    async revokeDelegate(user: KeyPairSigner, paymentToken: number): Promise<Signature> {
+        const { mint, tokenProgram } = this.config.paymentTokens[paymentToken]!;
+        const [source] = await findAssociatedTokenPda({ mint, owner: user.address, tokenProgram });
+        return this.client.send(await keys.counterparty(), [getRevokeInstruction({ owner: user, source })]);
+    }
+
+    /** `owner` trades `amountIn` on a devnet pool from its associated accounts: `buy` spends the stablecoin. */
+    async trade(owner: KeyPairSigner, pool: PoolName, side: 'buy' | 'sell', amountIn: bigint): Promise<Signature> {
+        return this.client.send(
+            owner,
+            await swapInstruction({
+                amountIn,
+                ammConfig: devnet.cpmm.ammConfig,
+                minimumAmountOut: 0n,
+                owner,
+                payer: owner,
+                pool: devnet.pools[pool],
+                side,
+                tokens: devnet.tokens,
             }),
         );
     }

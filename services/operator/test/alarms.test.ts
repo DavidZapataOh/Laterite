@@ -114,17 +114,23 @@ describe('alarms on the indexed history', () => {
         user: 'user',
     });
 
-    it("fires when the crank's latest sweep landed less than 20 bps above min_out", async () => {
-        expect(await headroomAlarm(db, crank)).toEqual({ 'sweep-headroom': null });
+    it("fires when the crank's latest sweep landed less than the cluster's threshold above min_out", async () => {
+        expect(await headroomAlarm(db, crank, 'mainnet')).toEqual({ 'sweep-headroom': null });
         await db.insert(sweeps).values([sweep(1n, crank, 1_001_900n), sweep(2n, 'Other' as Address, 1_000_000n)]);
-        expect((await headroomAlarm(db, crank))['sweep-headroom']).toBe(
-            "the crank's latest sweep sweep-1 landed 19 bps above min_out, below 20: SLIPPAGE_BPS is getting tight for real routes",
+        expect((await headroomAlarm(db, crank, 'mainnet'))['sweep-headroom']).toBe(
+            "the crank's latest sweep sweep-1 landed 19 bps above min_out, below 20 on mainnet: SLIPPAGE_BPS is getting tight for its routes",
         );
-        await db.insert(sweeps).values(sweep(3n, crank, 1_002_000n));
-        expect(await headroomAlarm(db, crank)).toEqual({ 'sweep-headroom': null });
+        // Devnet's stand-in pools charge 25 bps and move within a 10 bps band, so 19 is expected there.
+        expect(await headroomAlarm(db, crank, 'devnet')).toEqual({ 'sweep-headroom': null });
+        await db.insert(sweeps).values(sweep(3n, crank, 1_000_400n));
+        expect((await headroomAlarm(db, crank, 'devnet'))['sweep-headroom']).toBe(
+            "the crank's latest sweep sweep-3 landed 4 bps above min_out, below 5 on devnet: SLIPPAGE_BPS is getting tight for its routes",
+        );
+        await db.insert(sweeps).values(sweep(4n, crank, 1_002_000n));
+        expect(await headroomAlarm(db, crank, 'mainnet')).toEqual({ 'sweep-headroom': null });
     });
 
-    it('fires when the crank created more than five swap-authority accounts in a day', async () => {
+    it('fires when the crank reached the bound of five swap-authority accounts in a day', async () => {
         const now = new Date('2026-09-24T12:00:00Z');
         const created = (index: number, hoursAgo: number) => ({
             address: `account-${index}`,
@@ -133,11 +139,11 @@ describe('alarms on the indexed history', () => {
             signature: `creation-${index}`,
             tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
         });
-        await db.insert(swapAccountCreations).values([0, 1, 2, 3, 4].map(i => created(i, i)).concat(created(5, 25)));
+        await db.insert(swapAccountCreations).values([0, 1, 2, 3].map(i => created(i, i)).concat(created(5, 25)));
         expect(await swapAccountAlarm(db, now)).toEqual({ 'swap-account-creations': null });
         await db.insert(swapAccountCreations).values(created(6, 23));
         expect((await swapAccountAlarm(db, now))['swap-account-creations']).toBe(
-            'the crank created 6 swap-authority accounts in 24 hours, above 5: review the routes that need them',
+            'the crank created 5 swap-authority accounts in 24 hours, the bound: routes needing another wait; review them',
         );
     });
 });

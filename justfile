@@ -268,7 +268,7 @@ kill-validator:
     done
     echo "✓ Surfpool stopped"
 
-# Run the mainnet-fork suite (needs network and PYTH_PRO_ACCESS_TOKEN; not part of `just test`)
+# Run the mainnet-fork suite (needs network, PYTH_PRO_ACCESS_TOKEN and a Postgres at DATABASE_URL; not part of `just test`)
 test-fork: build-program
     #!/usr/bin/env bash
     set -euo pipefail

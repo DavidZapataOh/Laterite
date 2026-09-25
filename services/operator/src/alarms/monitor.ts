@@ -1,8 +1,7 @@
 import { type Config, fetchConfig, findConfigPda } from '@laterite/client';
-import { fetchLatestKaminoUpdates } from '@laterite/client/node';
 import type { Database } from '@laterite/db';
 import type { TokenSymbol } from '@laterite/devnet/addresses';
-import type { Address, Rpc, SolanaRpcApi } from '@solana/kit';
+import type { Address, ReadonlyUint8Array, Rpc, SolanaRpcApi } from '@solana/kit';
 
 import type { Logger } from '../log';
 import type { Alarms } from './alarms';
@@ -21,12 +20,13 @@ const FAILURES_TO_ALARM = 3;
 
 export type MonitorInput = {
     alarms: Alarms;
-    cluster: string;
+    cluster: 'devnet' | 'mainnet';
     crank: Address;
     db: Database;
     indexerLastSuccessAt: () => number | null;
+    /** The Kamino Scope relay's latest update of each asset feed. */
+    kaminoUpdates: () => ReadonlyMap<number, { message: ReadonlyUint8Array }>;
     log: Logger;
-    mainnetRpc: Rpc<SolanaRpcApi>;
     /** Fetches a USDT/USD update from Pyth Pro with the service's token. */
     pythUsdtUpdate: () => Promise<unknown>;
     rpc: Rpc<SolanaRpcApi>;
@@ -42,7 +42,7 @@ export class Monitor {
     constructor(private readonly input: MonitorInput) {}
 
     async tick(now = Date.now()): Promise<void> {
-        const { alarms, cluster, crank, db, log, mainnetRpc, rpc, tokens, treasury } = this.input;
+        const { alarms, cluster, crank, db, log, rpc, tokens, treasury } = this.input;
         const seconds = BigInt(Math.floor(now / 1_000));
         let config: Config | undefined;
         const readConfig = async () => (config ??= (await fetchConfig(rpc, (await findConfigPda())[0])).data);
@@ -51,7 +51,7 @@ export class Monitor {
             calendar: async () => ({
                 'market-calendar': calendarAlarm((await readConfig()).marketCalendar, seconds, cluster),
             }),
-            headroom: () => headroomAlarm(db, crank),
+            headroom: () => headroomAlarm(db, crank, cluster),
             indexer: async () => indexerAlarm(this.input.indexerLastSuccessAt(), this.startedAt, now),
             kamino: async () => {
                 const assets = (await readConfig()).assets;
@@ -59,11 +59,7 @@ export class Monitor {
                     feedId: pythFeedId,
                     name: ['SPYX', 'QQQX'][index] ?? `asset ${index}`,
                 }));
-                const latest = await fetchLatestKaminoUpdates(
-                    mainnetRpc,
-                    feeds.map(({ feedId }) => feedId),
-                );
-                return kaminoAlarms(latest, feeds, seconds);
+                return kaminoAlarms(this.input.kaminoUpdates(), feeds, seconds);
             },
             'pyth-pro': () => pythTokenAlarm(this.input.pythUsdtUpdate),
             'swap-accounts': () => swapAccountAlarm(db, new Date(now)),
