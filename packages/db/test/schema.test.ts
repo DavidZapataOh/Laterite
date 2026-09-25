@@ -36,7 +36,7 @@ describe('schema', () => {
     it('applies every migration once', async () => {
         await migrate(db);
         const { rows } = await db.$client.query('select count(*)::int as applied from drizzle.__drizzle_migrations');
-        expect(rows[0].applied).toBe(1);
+        expect(rows[0].applied).toBe(2);
     });
 
     it('keeps a u64 whole and derives the headroom in basis points of min_out', async () => {

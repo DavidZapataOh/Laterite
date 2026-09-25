@@ -34,12 +34,9 @@ const PYTH_TREASURY = 'opsLibxVY7Vz5eYMmSfX8cLFCFVYTtH6fr6MiifMpA7' as Address;
 
 /**
  * The local validator's RPC port (its WebSocket on the next one), clear of Agave's and Surfpool's defaults; its other
- * ports follow it, so runs on ports 100 apart never meet.
+ * ports follow it, so validators on ports 100 apart never meet.
  */
 export const RPC_PORT = Number(process.env.VALIDATOR_RPC_PORT ?? 28_899);
-const GOSSIP_PORT = RPC_PORT + 2;
-const DYNAMIC_PORTS = `${RPC_PORT + 3}-${RPC_PORT + 60}`;
-const FAUCET_PORT = RPC_PORT + 61;
 
 const DOLLAR = 1_000_000n;
 /** The pools' depth in the asset, 1,000 whole tokens, as the program tests peg them. */
@@ -65,8 +62,12 @@ export const keys = {
     /** Signs the price updates the tests compose; the local Pyth Pro storage trusts it. */
     pythSigner: () => seeded(5),
     sponsor: () => seeded(7),
-    /** Holds USDC and USDT from genesis. */
-    users: () => Promise.all([seeded(11), seeded(12)]),
+    /** Holds 10 SOL and 10,000 USDC and USDT from genesis: pays users and is paid by them, and pays their fees. */
+    counterparty: () => seeded(14),
+    /** The attestor a rotation hands over to. */
+    nextAttestor: () => seeded(16),
+    /** Hold USDC and USDT from genesis. */
+    users: () => Promise.all([seeded(11), seeded(12), seeded(15)]),
     /** Enrolled eight days before genesis with the income rule on, so its attestations can expire and close here. */
     veteran: () => seeded(13),
 };
@@ -101,7 +102,7 @@ function tokenAccount(mint: Address, owner: Address, amount: bigint) {
 /**
  * The genesis accounts: devnet's mints (SPYx's multiplier authority the tests' issuer), CPMM config and SPYx pools from
  * the committed copies with each pool at {@link SPYX_QUOTE}, Pyth Pro's devnet storage also trusting the tests' price
- * signer, the users' dollars, and the veteran's `UserConfig`.
+ * signer, the users' and the counterparty's dollars, and the veteran's `UserConfig`.
  */
 async function genesisAccounts(now: bigint): Promise<GenesisAccount[]> {
     const { tokens, pools, cpmm } = devnet;
@@ -153,11 +154,23 @@ async function genesisAccounts(now: bigint): Promise<GenesisAccount[]> {
         data: new Uint8Array(),
         owner: '11111111111111111111111111111111' as Address,
     });
-    for (const user of await keys.users()) {
+    const counterparty = await keys.counterparty();
+    accounts.push({
+        address: counterparty.address,
+        data: new Uint8Array(),
+        lamports: 10_000_000_000n,
+        owner: '11111111111111111111111111111111' as Address,
+    });
+    const holders = [...(await keys.users()).map(user => [user, 100n] as const), [counterparty, 10_000n] as const];
+    for (const [holder, dollars] of holders) {
         for (const symbol of ['USDC', 'USDT'] as const) {
             const { mint, tokenProgram } = tokens[symbol];
-            const [ata] = await findAssociatedTokenPda({ mint, owner: user.address, tokenProgram });
-            accounts.push({ address: ata, data: tokenAccount(mint, user.address, 100n * DOLLAR), owner: tokenProgram });
+            const [ata] = await findAssociatedTokenPda({ mint, owner: holder.address, tokenProgram });
+            accounts.push({
+                address: ata,
+                data: tokenAccount(mint, holder.address, dollars * DOLLAR),
+                owner: tokenProgram,
+            });
         }
     }
     const veteran = await keys.veteran();
@@ -198,9 +211,10 @@ export type Validator = { rpcUrl: string; stop: () => Promise<void>; wsUrl: stri
 
 /**
  * Starts a new chain on Agave's test validator with Laterite (its upgrade authority the tests' key), the programs it
- * calls (Subscriptions, Pyth Pro and the CPMM, from the committed fixtures) and {@link genesisAccounts}, offline.
+ * calls (Subscriptions, Pyth Pro and the CPMM, from the committed fixtures) and {@link genesisAccounts}, offline, its
+ * RPC on `port` and its other ports on the 60 after it.
  */
-export async function startValidator(): Promise<Validator> {
+export async function startValidator(port = RPC_PORT): Promise<Validator> {
     const dir = await mkdtemp(join(tmpdir(), 'laterite-validator-'));
     const accountDir = join(dir, 'accounts');
     await mkdir(accountDir);
@@ -214,13 +228,13 @@ export async function startValidator(): Promise<Validator> {
         '--ledger',
         join(dir, 'ledger'),
         '--rpc-port',
-        String(RPC_PORT),
+        String(port),
         '--faucet-port',
-        String(FAUCET_PORT),
+        String(port + 61),
         '--gossip-port',
-        String(GOSSIP_PORT),
+        String(port + 2),
         '--dynamic-port-range',
-        DYNAMIC_PORTS,
+        `${port + 3}-${port + 60}`,
         '--upgradeable-program',
         LATERITE_PROGRAM_ADDRESS,
         fileURL('target/deploy/laterite.so'),
@@ -238,7 +252,7 @@ export async function startValidator(): Promise<Validator> {
         accountDir,
     ];
     const validator: ChildProcess = spawn('solana-test-validator', args, { stdio: 'ignore' });
-    const rpcUrl = `http://127.0.0.1:${RPC_PORT}`;
+    const rpcUrl = `http://127.0.0.1:${port}`;
     const exited = new Promise(resolve => validator.once('exit', resolve));
     const stop = async () => {
         validator.kill('SIGTERM');
@@ -254,11 +268,11 @@ export async function startValidator(): Promise<Validator> {
         })
             .then(response => response.ok)
             .catch(() => false);
-        if (healthy) return { rpcUrl, stop, wsUrl: `ws://127.0.0.1:${RPC_PORT + 1}` };
+        if (healthy) return { rpcUrl, stop, wsUrl: `ws://127.0.0.1:${port + 1}` };
         await sleep(500);
     }
     await stop();
-    throw new Error(`solana-test-validator did not start on port ${RPC_PORT}`);
+    throw new Error(`solana-test-validator did not start on port ${port}`);
 }
 
 function fileURL(path: string) {

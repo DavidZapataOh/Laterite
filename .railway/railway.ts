@@ -22,6 +22,7 @@ export default defineRailway(() => {
             ],
         },
         env: {
+            ATTESTOR_KEYPAIR: preserve(),
             CRANK_KEYPAIR: preserve(),
             DATABASE_URL: db.env.DATABASE_URL,
             MAINNET_FALLBACK_RPC_URL: preserve(),

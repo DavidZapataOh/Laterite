@@ -27,7 +27,13 @@ import {
     type Quote,
     pullTotal,
 } from '@laterite/client';
-import { devnetConfigParams, ensureDeployment, MARKET_CALENDAR_FILE, readMarketCalendar } from '@laterite/deployment';
+import {
+    devnetConfigParams,
+    ensureDeployment,
+    MARKET_CALENDAR_FILE,
+    readMarketCalendar,
+    rotateSettingsKey,
+} from '@laterite/deployment';
 import { createClient, routeInstruction } from '@laterite/devnet';
 import { addresses as devnet } from '@laterite/devnet/addresses';
 import {
@@ -35,6 +41,7 @@ import {
     type AddressesByLookupTableAddress,
     estimateAndSetResourceLimitsFactory,
     estimateResourceLimitsFactory,
+    generateKeyPairSigner,
     getAddressEncoder,
     getSignatureFromTransaction,
     type Instruction,
@@ -53,10 +60,15 @@ import {
     setTransactionMessageComputeUnitLimit,
     setTransactionMessageFeePayerSigner,
 } from '@solana/kit';
-import { getTransferSolInstruction } from '@solana-program/system';
+import { getCreateAccountInstruction, getTransferSolInstruction } from '@solana-program/system';
 import { getUpdateMultiplierScaledUiMintInstruction } from '@solana-program/token-2022';
 import { fetchAddressLookupTable } from '@solana-program/address-lookup-table';
-import { findAssociatedTokenPda } from '@solana-program/token';
+import {
+    findAssociatedTokenPda,
+    getInitializeAccount3Instruction,
+    getTransferCheckedInstruction,
+    getTransferInstruction,
+} from '@solana-program/token';
 
 import { keys, SPYX_QUOTE, startValidator, type Validator } from './validator';
 
@@ -139,9 +151,12 @@ export class Chain {
         });
     }
 
-    /** A new chain with the deployment `just devnet-deploy` makes: config, plans, swap accounts, calendar and table. */
-    static async start(): Promise<Chain> {
-        const chain = new Chain(await startValidator());
+    /**
+     * A new chain with the deployment `just devnet-deploy` makes (config, plans, swap accounts, calendar and table),
+     * its validator's RPC on `port`.
+     */
+    static async start(port?: number): Promise<Chain> {
+        const chain = new Chain(await startValidator(port));
         const [authority, attestor, sponsor, crank] = await Promise.all([
             keys.authority(),
             keys.attestor(),
@@ -294,12 +309,15 @@ export class Chain {
         return this.sponsored(instructions);
     }
 
-    /** The watcher's `[ed25519, attest]` pair for `attestation`, the crank paying the fee and the record's rent. */
-    async attest(attestation: AttestationArgs): Promise<Signature> {
+    /**
+     * The watcher's `[ed25519, attest]` pair for `attestation`, signed by `attestor`, the crank paying the fee and the
+     * record's rent.
+     */
+    async attest(attestation: AttestationArgs, attestor?: KeyPairSigner): Promise<Signature> {
         const crank = await keys.crank();
         const instructions = await getAttestInstructions({
             attestation,
-            attestor: await keys.attestor(),
+            attestor: attestor ?? (await keys.attestor()),
             genesisHash: this.config.genesisHash,
             payer: crank,
         });
@@ -345,6 +363,81 @@ export class Chain {
             .sendTransaction(getBase64EncodedWireTransaction(transaction), { encoding: 'base64', skipPreflight: true })
             .send();
         await this.confirmed(signature);
+        return signature;
+    }
+
+    /**
+     * Sends payment-token transfers in one transaction, in order, the counterparty paying the fee: each from `from`'s
+     * associated account to `to`'s (a wallet) or to the account `toAccount`, as `TransferChecked` unless `plain`.
+     */
+    async transfer(
+        transfers: {
+            amount: bigint;
+            from: KeyPairSigner;
+            paymentToken: number;
+            plain?: boolean;
+            to?: Address;
+            toAccount?: Address;
+        }[],
+    ): Promise<Signature> {
+        const instructions = await Promise.all(
+            transfers.map(async ({ amount, from, paymentToken, plain, to, toAccount }) => {
+                const { decimals, mint, tokenProgram } = this.config.paymentTokens[paymentToken]!;
+                const [[source], destination] = await Promise.all([
+                    findAssociatedTokenPda({ mint, owner: from.address, tokenProgram }),
+                    toAccount ?? findAssociatedTokenPda({ mint, owner: to!, tokenProgram }).then(([ata]) => ata),
+                ]);
+                return plain
+                    ? getTransferInstruction({ amount, authority: from, destination, source })
+                    : getTransferCheckedInstruction({ amount, authority: from, decimals, destination, mint, source });
+            }),
+        );
+        return this.sendMessage(
+            createSponsoredTransactionMessage({
+                computeUnitPrice: 1_000n as MicroLamports,
+                instructions,
+                lookupTable: {},
+                sponsor: await keys.counterparty(),
+            }),
+        );
+    }
+
+    /** A second token account `owner` holds in a payment token, besides its associated one. */
+    async createTokenAccount(owner: Address, paymentToken: number): Promise<Address> {
+        const { mint, tokenProgram } = this.config.paymentTokens[paymentToken]!;
+        const [counterparty, account] = await Promise.all([keys.counterparty(), generateKeyPairSigner()]);
+        const space = 165n;
+        const rent = await this.rpc.getMinimumBalanceForRentExemption(space).send();
+        await this.sendMessage(
+            createSponsoredTransactionMessage({
+                computeUnitPrice: 1_000n as MicroLamports,
+                instructions: [
+                    getCreateAccountInstruction({
+                        lamports: rent,
+                        newAccount: account,
+                        payer: counterparty,
+                        programAddress: tokenProgram,
+                        space,
+                    }),
+                    getInitializeAccount3Instruction({ account: account.address, mint, owner }),
+                ],
+                lookupTable: {},
+                sponsor: counterparty,
+            }),
+        );
+        return account.address;
+    }
+
+    /** Replaces `Config.attestor` with `attestor` through `update_config`, as `just rotate-key` does. */
+    async rotateAttestor(attestor: Address): Promise<Signature> {
+        const signature = await rotateSettingsKey(
+            this.client,
+            await keys.authority(),
+            this.config,
+            'attestor',
+            attestor,
+        );
+        await this.refreshConfig();
         return signature;
     }
 

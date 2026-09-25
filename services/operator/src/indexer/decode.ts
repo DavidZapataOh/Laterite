@@ -23,36 +23,9 @@ import {
     SWEPT_EVENT_DISCRIMINATOR,
 } from '@laterite/client';
 import type { attestations, sweeps, userEvents, UserEventData } from '@laterite/db';
-import {
-    AccountRole,
-    type Address,
-    containsBytes,
-    getBase16Decoder,
-    getBase58Decoder,
-    getBase58Encoder,
-    getBase64Encoder,
-    getCompiledTransactionMessageDecoder,
-    getTransactionDecoder,
-    type ReadonlyUint8Array,
-} from '@solana/kit';
+import { AccountRole, type Address, containsBytes, getBase16Decoder, getBase58Decoder } from '@solana/kit';
 
-/** A finalized transaction as `getTransaction` returns it with `encoding: 'base64'`. */
-export type FetchedTransaction = {
-    blockTime: bigint | null;
-    meta: {
-        err: unknown;
-        innerInstructions?:
-            | readonly {
-                  index: number;
-                  instructions: readonly { accounts: readonly number[]; data: string; programIdIndex: number }[];
-              }[]
-            | null;
-        loadedAddresses?: { readonly: readonly Address[]; writable: readonly Address[] };
-        logMessages?: readonly string[] | null;
-    } | null;
-    slot: bigint;
-    transaction: readonly [string, 'base64'];
-};
+import { type Executed, executedInstructions, type FetchedTransaction } from '../transaction';
 
 export type Sweep = Omit<typeof sweeps.$inferInsert, 'multiplier'>;
 export type AttestationRow = typeof attestations.$inferInsert;
@@ -61,43 +34,6 @@ export type Close = { closedAt: Date; closedSignature: string; record: Address }
 
 /** What one transaction adds to the history. */
 export type Decoded = { attestations: AttestationRow[]; closes: Close[]; sweeps: Sweep[]; userEvents: UserEventRow[] };
-
-type Executed = { accounts: Address[]; data: ReadonlyUint8Array; programAddress: Address };
-
-/** Laterite's instructions in the order they ran: each top-level one followed by those it invoked. */
-function executedInstructions(transaction: FetchedTransaction): { executed: Executed[]; feePayer: Address } {
-    const wire = getTransactionDecoder().decode(getBase64Encoder().encode(transaction.transaction[0]));
-    const message = getCompiledTransactionMessageDecoder().decode(wire.messageBytes);
-    const loaded = transaction.meta?.loadedAddresses;
-    const keys = [...message.staticAccounts, ...(loaded?.writable ?? []), ...(loaded?.readonly ?? [])];
-    const outer =
-        'instructions' in message
-            ? message.instructions.map(({ accountIndices, data, programAddressIndex }) => ({
-                  accounts: accountIndices ?? [],
-                  data: data ?? new Uint8Array(),
-                  programIdIndex: programAddressIndex,
-              }))
-            : message.instructionHeaders.map((header, index) => ({
-                  accounts: message.instructionPayloads[index]!.instructionAccountIndices,
-                  data: message.instructionPayloads[index]!.instructionData,
-                  programIdIndex: header.programAccountIndex,
-              }));
-    const inner = new Map(
-        (transaction.meta?.innerInstructions ?? []).map(({ index, instructions }) => [index, instructions]),
-    );
-    const resolve = (accounts: readonly number[], data: ReadonlyUint8Array, programIdIndex: number): Executed => ({
-        accounts: accounts.map(index => keys[index]!),
-        data,
-        programAddress: keys[programIdIndex]!,
-    });
-    const executed = outer.flatMap(({ accounts, data, programIdIndex }, index) => [
-        resolve(accounts, data, programIdIndex),
-        ...(inner.get(index) ?? []).map(instruction =>
-            resolve(instruction.accounts, getBase58Encoder().encode(instruction.data), instruction.programIdIndex),
-        ),
-    ]);
-    return { executed, feePayer: keys[0]! };
-}
 
 const asInstruction = ({ accounts, data, programAddress }: Executed) => ({
     accounts: accounts.map(address => ({ address, role: AccountRole.READONLY })),
@@ -135,7 +71,8 @@ export function decodeTransaction(signature: string, transaction: FetchedTransac
     if (!transaction.meta || transaction.meta.err || transaction.blockTime === null) return decoded;
     const blockTime = new Date(Number(transaction.blockTime) * 1_000);
     const at = { blockTime, signature, slot: transaction.slot };
-    const { executed, feePayer } = executedInstructions(transaction);
+    const { executed, keys } = executedInstructions(transaction);
+    const feePayer = keys[0]!;
 
     for (const instruction of executed) {
         const data = getLateriteEventData(instruction);

@@ -13,7 +13,8 @@ import { fetchAllMint } from '@solana-program/token-2022';
 import { and, eq, isNull } from 'drizzle-orm';
 
 import type { Logger } from '../log';
-import { decodeTransaction, type Decoded, type FetchedTransaction } from './decode';
+import { fetchTransaction, type FetchedTransaction } from '../transaction';
+import { decodeTransaction, type Decoded } from './decode';
 
 export type IndexerRpc = Rpc<
     GetAccountInfoApi & GetMultipleAccountsApi & GetSignaturesForAddressApi & GetTransactionApi
@@ -74,13 +75,7 @@ export class Indexer {
         for (let start = 0; start < batch.length; start += CONCURRENCY) {
             await Promise.all(
                 batch.slice(start, start + CONCURRENCY).map(async ({ signature }, offset) => {
-                    fetched[start + offset] = (await this.rpc
-                        .getTransaction(signature, {
-                            commitment: 'finalized',
-                            encoding: 'base64',
-                            maxSupportedTransactionVersion: 1,
-                        })
-                        .send()) as FetchedTransaction | null;
+                    fetched[start + offset] = await fetchTransaction(this.rpc, signature);
                 }),
             );
         }

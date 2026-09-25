@@ -100,6 +100,17 @@ export const attestations = pgTable(
     ],
 );
 
+/**
+ * Where the watcher stopped in each token account it watches: the newest finalized transaction whose transfers it
+ * attested or ruled out, so a restart resumes after it.
+ */
+export const watchCursors = pgTable('watch_cursors', {
+    tokenAccount: text('token_account').primaryKey(),
+    signature: text('signature').notNull(),
+    slot: slot(),
+    updatedAt: time('updated_at').notNull().defaultNow(),
+});
+
 export const userEventKind = pgEnum('user_event_kind', [
     'enrolled',
     'settings_updated',

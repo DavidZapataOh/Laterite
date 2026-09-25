@@ -295,6 +295,9 @@ importers:
       '@solana/kit':
         specifier: 8.3.0
         version: 8.3.0(typescript@5.9.3)
+      '@solana/sysvars':
+        specifier: 8.3.0
+        version: 8.3.0(typescript@5.9.3)
       drizzle-orm:
         specifier: 0.45.3
         version: 0.45.3(@types/pg@8.23.1)(pg@8.23.0)
@@ -314,9 +317,6 @@ importers:
       '@solana-program/system':
         specifier: 0.15.0
         version: 0.15.0(@solana/kit@8.3.0(typescript@5.9.3))
-      '@solana/sysvars':
-        specifier: 8.3.0
-        version: 8.3.0(typescript@5.9.3)
       '@types/node':
         specifier: ^24
         version: 24.13.6

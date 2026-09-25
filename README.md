@@ -172,18 +172,19 @@ The faucet and treasury keys never share a host, nor do the sponsor and the atte
 
 ## Services
 
-`services/operator` is one always-on process on Railway, next to its Postgres. It stores Laterite's history from finalized devnet transactions, whoever sent them, and watches what keeps sweeps running:
+`services/operator` is one always-on process on Railway, next to its Postgres. It stores Laterite's history from finalized devnet transactions, whoever sent them, attests the users' payments, and watches what keeps sweeps running:
 
 - **History:** every sweep from its `Swept` event (read from Laterite's self-CPI among the inner instructions, never from logs) with the asset's ScaledUiAmount multiplier in force at its block time, which the program does not read; every attestation from `Attested` with its record, payer and expiry, and the record's closing; and each user's controls (enrollment, settings, pause and resume, lowering what waits to invest, tier and payment-token changes, exit, return) from the events Laterite logs. Instructions are told apart by their discriminator. The indexer resumes after the last transaction it stored and stores nothing twice.
-- **Alarms:** the crank's and the sponsor's SOL and the treasury's SOL and inventory; the market calendar 90 days before `validThrough`, and at once when it does not cover today; Kamino Scope's SPYX/USD and QQQX/USD posts older than 120 s, missing, or larger than a sweep has room for; Pyth Pro answering 401, 403 or 429 to the USDT/USD request; the crank's latest sweep landing less than 20 bps above `min_out`; more swap-authority accounts created in a day than the bound; the indexer stalling. Each alarm is logged and sent to the operations chat through its own Telegram bot (`OPS_TELEGRAM_BOT_TOKEN`, `OPS_TELEGRAM_CHAT_ID`; never the product's bot) when it starts, every six hours while it lasts and when it resolves. The Fork workflow's weekday run alerts there when it fails.
+- **Attestations:** for each active user whose income rule or change per payment is on, the service watches their associated account in each enabled payment token (an account notification per finalized change, and every account read again every five minutes) and reads its finalized transactions after the last one it handled. Each transfer into the account is an income and each transfer out of it a payment, except zero amounts and transfers with another account of the same owner or with the swap authority (a sweep's pull). A transfer's index counts the transaction's USDC and USDT transfers to or from the user, in the order they ran, so every copy of the transaction numbers it alike. Right before signing, the service reads the user's `UserConfig` and signs nothing the program would refuse (a paused or exited user, a transfer from before `attestableFrom` or older than 7 days, a token the user did not enable, a rule that invests nothing) or has already counted; it signs nothing at all unless `Config.attestor` is its key and `Config.genesisHash` is its RPC's cluster. Each attestation is its own transaction, the crank paying the fee and the record's rent, its compute limit from the simulation plus 10% and its price the 75th percentile of the recent fees on its accounts, within 1,000 and 1,000,000 micro-lamports. Expired records the crank paid for are closed, the rent back to it.
+- **Alarms:** the crank's and the sponsor's SOL and the treasury's SOL and inventory; the market calendar 90 days before `validThrough`, and at once when it does not cover today; Kamino Scope's SPYX/USD and QQQX/USD posts older than 120 s, missing, or larger than a sweep has room for; Pyth Pro answering 401, 403 or 429 to the USDT/USD request; the crank's latest sweep landing less than 20 bps above `min_out`; more swap-authority accounts created in a day than the bound; the indexer stalling; the attestor's key or cluster not matching `Config`, the program refusing its signature, and the watcher failing to read its accounts. Each alarm is logged and sent to the operations chat through its own Telegram bot (`OPS_TELEGRAM_BOT_TOKEN`, `OPS_TELEGRAM_CHAT_ID`; never the product's bot) when it starts, every six hours while it lasts and when it resolves. The Fork workflow's weekday run alerts there when it fails.
 
-Only one process operates at a time (a Postgres advisory lock), so a deploy's new process waits as a healthy standby until the old one exits. `GET /health` answers 200 when the database answers and the indexer is current.
+Only one process operates at a time (a Postgres advisory lock), so a deploy's new process waits as a healthy standby until the old one exits. `GET /health` answers 200 when the database answers, the indexer and the watcher are current, and `Config` names the attestor's key on the RPC's cluster; it also reports the records the crank holds open and the rent they lock.
 
 The schema lives in `packages/db/src/schema.ts`; `pnpm --filter @laterite/db generate` writes a migration for a change, `just db-check` fails when the committed migrations differ from the schema, and `just db-migrate` applies them. Railway applies them before each deploy (`node migrate.js` in the image).
 
 ```bash
 eval "$(just db-up)"   # a disposable Postgres 18; `just db-down` removes it
-just services-test     # the schema, the service and the indexer against real transactions on a local validator (port 28899)
+just services-test     # the schema, the service, the indexer and the watcher against real transactions on local validators (ports 28899 and 28999)
 just operator-image    # the image Railway builds
 ```
 
@@ -191,15 +192,17 @@ just operator-image    # the image Railway builds
 
 `.railway/railway.ts` declares the project: the Postgres and the `operator` service, built from `services/operator/Dockerfile` at the repository's `main`, migrated before each deploy, gated on `/health`, one replica. Apply it with the Railway CLI (`railway config plan`, then `railway config apply`). Secrets never enter the repository: set each with `railway variable set <NAME> --stdin --service operator`, reading the value from its file or `.env` so it never appears on a command line:
 
-| Variable                                         | Value                                                                 |
-| ------------------------------------------------ | --------------------------------------------------------------------- |
-| `CRANK_KEYPAIR`                                  | `keys/devnet-crank.json`: the service's fee and rent payer            |
-| `SOLANA_RPC_URL`                                 | A devnet RPC                                                          |
-| `MAINNET_RPC_URL`, `MAINNET_FALLBACK_RPC_URL`    | Two mainnet RPCs from different providers, for the Kamino Scope relay |
-| `PYTH_PRO_ACCESS_TOKEN`                          | The Pyth Pro token (never logged, never sent to the app or a browser) |
-| `OPS_TELEGRAM_BOT_TOKEN`, `OPS_TELEGRAM_CHAT_ID` | The operations bot's token and the chat it alerts                     |
+| Variable                                         | Value                                                                   |
+| ------------------------------------------------ | ----------------------------------------------------------------------- |
+| `CRANK_KEYPAIR`                                  | `keys/devnet-crank.json`: the service's fee and rent payer              |
+| `ATTESTOR_KEYPAIR`                               | `keys/devnet-attestor.json`: `Config.attestor`, signs attestations only |
+| `SOLANA_RPC_URL`                                 | A devnet RPC                                                            |
+| `SOLANA_WS_URL`                                  | Its WebSocket endpoint, when not the same URL on `wss://`               |
+| `MAINNET_RPC_URL`, `MAINNET_FALLBACK_RPC_URL`    | Two mainnet RPCs from different providers, for the Kamino Scope relay   |
+| `PYTH_PRO_ACCESS_TOKEN`                          | The Pyth Pro token (never logged, never sent to the app or a browser)   |
+| `OPS_TELEGRAM_BOT_TOKEN`, `OPS_TELEGRAM_CHAT_ID` | The operations bot's token and the chat it alerts                       |
 
-`DATABASE_URL` references the Postgres, and Railway sets `PORT`. The service refuses to start when a variable is missing or malformed, naming it, and when its RPC's genesis hash is not the one Laterite's config holds.
+`DATABASE_URL` references the Postgres, and Railway sets `PORT`. The service refuses to start when a variable is missing or malformed, naming it, when the attestor's key is the crank's, and when its RPC's genesis hash is not the one Laterite's config holds.
 
 ## License
 

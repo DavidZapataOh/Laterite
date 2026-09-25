@@ -15,7 +15,8 @@ import {
 } from '@solana/kit';
 import { describe, expect, it } from 'vitest';
 
-import { decodeTransaction, type FetchedTransaction } from '../src/indexer/decode';
+import { decodeTransaction } from '../src/indexer/decode';
+import type { FetchedTransaction } from '../src/transaction';
 
 const FORGER = 'Forger1111111111111111111111111111111111111' as Address;
 const PAYER = 'Payer11111111111111111111111111111111111111' as Address;

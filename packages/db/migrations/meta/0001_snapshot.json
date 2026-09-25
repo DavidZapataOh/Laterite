@@ -1,0 +1,764 @@
+{
+  "id": "0fba63fe-f7bf-4ead-a3ee-8c4113c6a79e",
+  "prevId": "6975b158-5f51-4fba-8abd-d7aaa1676efa",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.alarms": {
+      "name": "alarms",
+      "schema": "",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "firing": {
+          "name": "firing",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "changed_at": {
+          "name": "changed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "notified_at": {
+          "name": "notified_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.attestations": {
+      "name": "attestations",
+      "schema": "",
+      "columns": {
+        "signature": {
+          "name": "signature",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_index": {
+          "name": "event_index",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot": {
+          "name": "slot",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "block_time": {
+          "name": "block_time",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user": {
+          "name": "user",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "attestation_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_token": {
+          "name": "payment_token",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(20, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_time": {
+          "name": "event_time",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_signature": {
+          "name": "source_signature",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transfer_index": {
+          "name": "transfer_index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "invested": {
+          "name": "invested",
+          "type": "numeric(20, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pending_after": {
+          "name": "pending_after",
+          "type": "numeric(20, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "record": {
+          "name": "record",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payer": {
+          "name": "payer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "closed_signature": {
+          "name": "closed_signature",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "closed_at": {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "attestations_user_block_time": {
+          "name": "attestations_user_block_time",
+          "columns": [
+            {
+              "expression": "user",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "block_time",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "attestations_transfer": {
+          "name": "attestations_transfer",
+          "columns": [
+            {
+              "expression": "user",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "source_signature",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "transfer_index",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "attestations_record": {
+          "name": "attestations_record",
+          "columns": [
+            {
+              "expression": "record",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "attestations_open_expires_at": {
+          "name": "attestations_open_expires_at",
+          "columns": [
+            {
+              "expression": "expires_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"attestations\".\"closed_signature\" is null",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "attestations_signature_event_index_pk": {
+          "name": "attestations_signature_event_index_pk",
+          "columns": [
+            "signature",
+            "event_index"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.eligibility_declarations": {
+      "name": "eligibility_declarations",
+      "schema": "",
+      "columns": {
+        "wallet": {
+          "name": "wallet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "declaration_version": {
+          "name": "declaration_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "country": {
+          "name": "country",
+          "type": "char(2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "declared_at": {
+          "name": "declared_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "eligibility_declarations_wallet_declaration_version_pk": {
+          "name": "eligibility_declarations_wallet_declaration_version_pk",
+          "columns": [
+            "wallet",
+            "declaration_version"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.indexer_state": {
+      "name": "indexer_state",
+      "schema": "",
+      "columns": {
+        "program": {
+          "name": "program",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "signature": {
+          "name": "signature",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot": {
+          "name": "slot",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.swap_account_creations": {
+      "name": "swap_account_creations",
+      "schema": "",
+      "columns": {
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "mint": {
+          "name": "mint",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_program": {
+          "name": "token_program",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "signature": {
+          "name": "signature",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.sweeps": {
+      "name": "sweeps",
+      "schema": "",
+      "columns": {
+        "signature": {
+          "name": "signature",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_index": {
+          "name": "event_index",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot": {
+          "name": "slot",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "block_time": {
+          "name": "block_time",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fee_payer": {
+          "name": "fee_payer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user": {
+          "name": "user",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_token": {
+          "name": "payment_token",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "asset": {
+          "name": "asset",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "engine": {
+          "name": "engine",
+          "type": "numeric(20, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pending": {
+          "name": "pending",
+          "type": "numeric(20, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "asset_price": {
+          "name": "asset_price",
+          "type": "numeric(20, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "asset_exponent": {
+          "name": "asset_exponent",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "received": {
+          "name": "received",
+          "type": "numeric(20, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "min_out": {
+          "name": "min_out",
+          "type": "numeric(20, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "multiplier": {
+          "name": "multiplier",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "headroom_bps": {
+          "name": "headroom_bps",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "div((received - min_out) * 10000, min_out)::integer",
+            "type": "stored"
+          }
+        }
+      },
+      "indexes": {
+        "sweeps_user_block_time": {
+          "name": "sweeps_user_block_time",
+          "columns": [
+            {
+              "expression": "user",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "block_time",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "sweeps_fee_payer_slot": {
+          "name": "sweeps_fee_payer_slot",
+          "columns": [
+            {
+              "expression": "fee_payer",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "slot",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "sweeps_signature_event_index_pk": {
+          "name": "sweeps_signature_event_index_pk",
+          "columns": [
+            "signature",
+            "event_index"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.telegram_links": {
+      "name": "telegram_links",
+      "schema": "",
+      "columns": {
+        "wallet": {
+          "name": "wallet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chat_id": {
+          "name": "chat_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "message_signature": {
+          "name": "message_signature",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "linked_at": {
+          "name": "linked_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "revoked_at": {
+          "name": "revoked_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "telegram_links_wallet_chat_id_pk": {
+          "name": "telegram_links_wallet_chat_id_pk",
+          "columns": [
+            "wallet",
+            "chat_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user_events": {
+      "name": "user_events",
+      "schema": "",
+      "columns": {
+        "signature": {
+          "name": "signature",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_index": {
+          "name": "event_index",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot": {
+          "name": "slot",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "block_time": {
+          "name": "block_time",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user": {
+          "name": "user",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "user_event_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "user_events_user_block_time": {
+          "name": "user_events_user_block_time",
+          "columns": [
+            {
+              "expression": "user",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "block_time",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "user_events_signature_event_index_pk": {
+          "name": "user_events_signature_event_index_pk",
+          "columns": [
+            "signature",
+            "event_index"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.watch_cursors": {
+      "name": "watch_cursors",
+      "schema": "",
+      "columns": {
+        "token_account": {
+          "name": "token_account",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "signature": {
+          "name": "signature",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot": {
+          "name": "slot",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.attestation_kind": {
+      "name": "attestation_kind",
+      "schema": "public",
+      "values": [
+        "income",
+        "payment"
+      ]
+    },
+    "public.user_event_kind": {
+      "name": "user_event_kind",
+      "schema": "public",
+      "values": [
+        "enrolled",
+        "settings_updated",
+        "paused",
+        "resumed",
+        "pending_lowered",
+        "tier_changed",
+        "payment_tokens_changed",
+        "exited",
+        "reactivated"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

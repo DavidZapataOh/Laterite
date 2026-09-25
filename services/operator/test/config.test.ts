@@ -6,13 +6,17 @@ import { describe, expect, it } from 'vitest';
 import { ConfigError, loadConfig } from '../src/config';
 import { createLogger } from '../src/log';
 
-const seed = new Uint8Array(32).fill(9);
-const signer = await createKeyPairSignerFromPrivateKeyBytes(seed);
-/** A keypair file as `solana-keygen` writes it: the seed, then the public key. */
-const keypairFile = JSON.stringify([...seed, ...getAddressEncoder().encode(signer.address)]);
+/** A keypair file as `solana-keygen` writes it, the seed filled with `byte`: the seed, then the public key. */
+async function keypairFile(byte: number) {
+    const seed = new Uint8Array(32).fill(byte);
+    const signer = await createKeyPairSignerFromPrivateKeyBytes(seed);
+    return { file: JSON.stringify([...seed, ...getAddressEncoder().encode(signer.address)]), signer };
+}
+const [crank, attestor] = await Promise.all([keypairFile(9), keypairFile(8)]);
 
 const env = {
-    CRANK_KEYPAIR: keypairFile,
+    ATTESTOR_KEYPAIR: attestor.file,
+    CRANK_KEYPAIR: crank.file,
     DATABASE_URL: 'postgresql://postgres:password@postgres.railway.internal:5432/railway',
     MAINNET_FALLBACK_RPC_URL: 'https://api.mainnet-beta.solana.com',
     MAINNET_RPC_URL: 'https://mainnet.example-rpc.com/?api-key=secret-key',
@@ -23,21 +27,38 @@ const env = {
 };
 
 describe('configuration', () => {
-    it("reads the host's variables, the crank's key from its keypair file", async () => {
+    it("reads the host's variables, the crank's and the attestor's keys from their keypair files", async () => {
         const config = await loadConfig(env);
-        expect(config.crank.address).toBe(signer.address);
+        expect(config.crank.address).toBe(crank.signer.address);
+        expect(config.attestor.address).toBe(attestor.signer.address);
+        // The attestor signs messages and cannot sign a transaction.
+        expect(Object.keys(config.attestor).sort()).toEqual(['address', 'signMessages']);
         expect(config).toMatchObject({
             logLevel: 'info',
             mainnetRpcUrls: [env.MAINNET_RPC_URL, env.MAINNET_FALLBACK_RPC_URL],
             ops: { botToken: env.OPS_TELEGRAM_BOT_TOKEN, chatId: env.OPS_TELEGRAM_CHAT_ID },
             port: 8080,
+            rpcSubscriptionsUrl: 'wss://api.devnet.solana.com',
         });
-        expect((await loadConfig({ ...env, LOG_LEVEL: 'debug', PORT: '3000' })).port).toBe(3000);
+        const other = await loadConfig({
+            ...env,
+            LOG_LEVEL: 'debug',
+            PORT: '3000',
+            SOLANA_WS_URL: 'ws://127.0.0.1:8900',
+        });
+        expect(other).toMatchObject({ port: 3000, rpcSubscriptionsUrl: 'ws://127.0.0.1:8900' });
+    });
+
+    it('refuses the crank as attestor', async () => {
+        const error = await loadConfig({ ...env, ATTESTOR_KEYPAIR: crank.file }).catch((thrown: unknown) => thrown);
+        expect(error).toBeInstanceOf(ConfigError);
+        expect((error as ConfigError).variables).toEqual(['ATTESTOR_KEYPAIR']);
     });
 
     it('names every missing or malformed variable at once and never its value', async () => {
         const broken = {
             ...env,
+            ATTESTOR_KEYPAIR: 'not-json',
             CRANK_KEYPAIR: '[1,2,3]',
             DATABASE_URL: 'https://not-postgres',
             OPS_TELEGRAM_BOT_TOKEN: 'not-a-bot-token',
@@ -47,13 +68,14 @@ describe('configuration', () => {
         const error = await loadConfig(broken).catch((thrown: unknown) => thrown);
         expect(error).toBeInstanceOf(ConfigError);
         expect((error as ConfigError).variables).toEqual([
+            'ATTESTOR_KEYPAIR',
             'CRANK_KEYPAIR',
             'DATABASE_URL',
             'OPS_TELEGRAM_BOT_TOKEN',
             'PYTH_PRO_ACCESS_TOKEN',
             'SOLANA_RPC_URL',
         ]);
-        expect((error as Error).message).not.toMatch(/\[1,2,3\]|not-postgres|not-a-bot-token/);
+        expect((error as Error).message).not.toMatch(/\[1,2,3\]|not-json|not-postgres|not-a-bot-token/);
     });
 });
 

@@ -2,7 +2,7 @@ import { fetchConfig, findConfigPda } from '@laterite/client';
 import { fetchPythProUpdate, PYTH_USDT_FEED_ID } from '@laterite/client/node';
 import { createDatabase } from '@laterite/db';
 import { addresses as devnet } from '@laterite/devnet/addresses';
-import { getBase58Decoder } from '@solana/kit';
+import { createSolanaRpcSubscriptions, getBase58Decoder } from '@solana/kit';
 import { sql } from 'drizzle-orm';
 
 import { Alarms, telegramNotifier } from './alarms/alarms';
@@ -15,11 +15,14 @@ import { acquireLeadership } from './leader';
 import { createLogger, type Logger } from './log';
 import { every } from './loop';
 import { createFailoverRpc } from './rpc';
+import { Watcher } from './watcher/watcher';
 
 /** The cluster this build serves: its addresses come from `@laterite/devnet`. */
 const CLUSTER = 'devnet';
 const INDEXER_INTERVAL_MS = 3_000;
 const MONITOR_INTERVAL_MS = 30_000;
+const WATCHER_INTERVAL_MS = 1_000;
+const RECORDS_INTERVAL_MS = 60_000;
 
 async function main(log: Logger) {
     const config = await loadConfig();
@@ -48,6 +51,15 @@ async function main(log: Logger) {
         log,
         `[laterite ${CLUSTER}]`,
     );
+    const watcher = new Watcher({
+        alarms,
+        attestor: config.attestor,
+        crank: config.crank,
+        db,
+        log,
+        rpc,
+        rpcSubscriptions: createSolanaRpcSubscriptions(config.rpcSubscriptionsUrl),
+    });
     const monitor = new Monitor({
         alarms,
         cluster: CLUSTER,
@@ -81,6 +93,21 @@ async function main(log: Logger) {
                     role,
                 };
             },
+            // A key that Config does not name, or an RPC on another cluster, fails the deploy's health check.
+            watcher: async () => {
+                const { mismatch } = await watcher.deploymentCheck();
+                const since = watcher.lastSuccessAt ?? startedAt;
+                return {
+                    attestor: config.attestor.address,
+                    mismatch,
+                    ok: mismatch === null && (role === 'standby' || Date.now() - since <= THRESHOLDS.indexerStallMs),
+                    records: watcher.records && {
+                        lockedLamports: watcher.records.lockedLamports.toString(),
+                        open: watcher.records.open,
+                    },
+                    watchedAccounts: watcher.watchedAccounts().length,
+                };
+            },
         },
         log,
     );
@@ -92,6 +119,7 @@ async function main(log: Logger) {
         if (stopping.signal.aborted) return;
         log.info({ signal, role }, 'shutting down');
         stopping.abort();
+        watcher.stop();
         server.close();
         // A standby holds nothing: its pending lock request ends with the process.
         if (role === 'leader') {
@@ -104,7 +132,10 @@ async function main(log: Logger) {
     process.once('SIGTERM', () => void shutdown('SIGTERM'));
     process.once('SIGINT', () => void shutdown('SIGINT'));
 
-    log.info({ crank: config.crank.address, genesisHash }, 'waiting for the operator lock');
+    log.info(
+        { attestor: config.attestor.address, crank: config.crank.address, genesisHash },
+        'waiting for the operator lock',
+    );
     release = await acquireLeadership(db, error => {
         log.fatal({ err: error }, 'lost the operator lock');
         process.exit(1);
@@ -114,6 +145,8 @@ async function main(log: Logger) {
     running = Promise.all([
         every('indexer', INDEXER_INTERVAL_MS, () => indexer.poll(), log, stopping.signal),
         every('monitor', MONITOR_INTERVAL_MS, () => monitor.tick(), log, stopping.signal),
+        every('watcher', WATCHER_INTERVAL_MS, () => watcher.tick(), log, stopping.signal),
+        every('records', RECORDS_INTERVAL_MS, () => watcher.closeRecords(), log, stopping.signal),
     ]);
 }
 
