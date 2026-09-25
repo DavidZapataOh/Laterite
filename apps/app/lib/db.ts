@@ -1,7 +1,10 @@
 import 'server-only';
 
 import { attachDatabasePool } from '@vercel/functions';
-import { createDatabase, type Database } from '@laterite/db/database';
+import { and, eq } from 'drizzle-orm';
+import { createDatabase, type Database, eligibilityDeclarations } from '@laterite/db/database';
+
+import { DECLARATION_VERSION } from './declaration';
 
 let db: Database | undefined;
 
@@ -15,4 +18,19 @@ export function database(): Database {
         attachDatabasePool(db.$client);
     }
     return db;
+}
+
+/** Whether `wallet` declared the current version of the eligibility declaration. */
+export async function isDeclared(db: Database, wallet: string): Promise<boolean> {
+    const [row] = await db
+        .select({ wallet: eligibilityDeclarations.wallet })
+        .from(eligibilityDeclarations)
+        .where(
+            and(
+                eq(eligibilityDeclarations.wallet, wallet),
+                eq(eligibilityDeclarations.declarationVersion, DECLARATION_VERSION),
+            ),
+        )
+        .limit(1);
+    return row !== undefined;
 }

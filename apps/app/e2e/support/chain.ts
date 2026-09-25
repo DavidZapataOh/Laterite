@@ -1,18 +1,32 @@
+import { readFileSync } from 'node:fs';
+
 import {
     Engine,
     findConfigPda,
-    findPlanAddress,
     findSwapAuthorityPda,
     findUserConfigPda,
     findVaultPda,
     getConfigEncoder,
+    getOnboardingLookupTableAddresses,
     getUserConfigEncoder,
     LATERITE_PROGRAM_ADDRESS,
+    planId,
     TIERS,
     UserStatus,
 } from '@laterite/client';
 import { addresses } from '@laterite/devnet/addresses';
-import { AccountDiscriminator, getPlanEncoder, SUBSCRIPTIONS_PROGRAM_ADDRESS } from '@solana/subscriptions';
+import { deployment } from '@laterite/devnet/deployment';
+import {
+    ADDRESS_LOOKUP_TABLE_PROGRAM_ADDRESS,
+    getAddressLookupTableEncoder,
+} from '@solana-program/address-lookup-table';
+import {
+    AccountDiscriminator,
+    findPlanPda,
+    getPlanEncoder,
+    PlanStatus,
+    SUBSCRIPTIONS_PROGRAM_ADDRESS,
+} from '@solana/subscriptions';
 import {
     AccountState,
     findAssociatedTokenPda,
@@ -24,7 +38,7 @@ import { type Address, getBase64Decoder, type ReadonlyUint8Array } from '@solana
 import type { Config } from '@laterite/client';
 
 import { testConfig } from './config';
-import { ENROLLED_AT, faucet, testKey, users } from './keys';
+import { ENROLLED_AT, faucet, sponsor, testKey, users } from './keys';
 
 /** Another program the delegated wallet's USDC account approves. */
 export const otherApp = testKey('other-app');
@@ -56,18 +70,18 @@ const account = (pubkey: Address, owner: Address, data: ReadonlyUint8Array, lamp
 
 const DOLLAR = 1_000_000n;
 
-async function userConfig(user: Address, tier: number, status: UserStatus) {
+async function userConfig(user: Address, tier: number, status: UserStatus, enrolledAt = ENROLLED_AT) {
     const [address, bump] = await findUserConfigPda({ user });
     const data = getUserConfigEncoder().encode({
         asset: 0,
-        attestableFrom: ENROLLED_AT,
+        attestableFrom: enrolledAt,
         bump,
         changeMultiplier: 0,
         cushions: [20_000_000n, 20_000_000n],
         engine: Engine.Daily,
         engineAmount: 1_000_000n,
         engineRanAt: 0n,
-        enrolledAt: ENROLLED_AT,
+        enrolledAt,
         goalAmount: 0n,
         goalLabel: new Uint8Array(32),
         incomeRule: true,
@@ -122,8 +136,9 @@ async function plans(config: Config) {
     return Promise.all(
         [0, 1].flatMap(paymentToken =>
             [0, 1].map(async tier => {
+                const [plan, bump] = await findPlanPda({ owner: vault, planId: planId(paymentToken, tier) });
                 const data = getPlanEncoder().encode({
-                    bump: 255,
+                    bump,
                     data: {
                         destinations: [swapAuthority, none, none, none],
                         endTs: 0n,
@@ -135,30 +150,67 @@ async function plans(config: Config) {
                     },
                     discriminator: AccountDiscriminator.Plan,
                     owner: vault,
-                    status: 0,
+                    status: PlanStatus.Active,
                 });
-                return account(await findPlanAddress(paymentToken, tier), SUBSCRIPTIONS_PROGRAM_ADDRESS, data);
+                return account(plan, SUBSCRIPTIONS_PROGRAM_ADDRESS, data);
             }),
         ),
     );
 }
 
+const fixtures = new URL('../../../../programs/laterite/tests/fixtures/', import.meta.url);
+
+/** SPYx and QQQx as devnet holds them (Token-2022 with their extensions), from the program tests' committed copies. */
+const assets = (['SPYx', 'QQQx'] as const).map(symbol => {
+    const { mint, tokenProgram } = addresses.tokens[symbol];
+    return account(mint, tokenProgram, readFileSync(new URL(`devnet/${mint}.bin`, fixtures)), 1_000_000_000);
+});
+
 /**
- * Every account the tests' chain starts with: Laterite's `Config` (`changes` applied) and plans, the stand-in
- * stablecoins with the tests' faucet as mint authority, the faucet's SOL, and each genesis user's accounts.
+ * The onboarding lookup table at its devnet address, frozen, holding what the deployment puts in it: extended at
+ * genesis, so its addresses are usable from the first slot.
+ */
+async function lookupTable(config: Config): Promise<GenesisAccount> {
+    const data = getAddressLookupTableEncoder().encode({
+        addresses: await getOnboardingLookupTableAddresses(config),
+        authority: null,
+        deactivationSlot: 2n ** 64n - 1n,
+        lastExtendedSlot: 0n,
+        lastExtendedSlotStartIndex: 0,
+    });
+    return account(deployment.lookupTable, ADDRESS_LOOKUP_TABLE_PROGRAM_ADDRESS, data, 1_000_000_000);
+}
+
+/** The programs the tests' chain runs: Laterite from this build, and Subscriptions from the committed fixture. */
+export const programs = [
+    { address: LATERITE_PROGRAM_ADDRESS, file: new URL('../../../../target/deploy/laterite.so', import.meta.url) },
+    { address: SUBSCRIPTIONS_PROGRAM_ADDRESS, file: new URL('subscriptions.so', fixtures) },
+];
+
+/**
+ * Every account the tests' chain starts with: Laterite's `Config` (the tests' sponsor, `changes` applied), plans and
+ * onboarding lookup table, SPYx and QQQx, the stand-in stablecoins with the tests' faucet as mint authority, the
+ * faucet's and the sponsor's SOL, and each genesis user's accounts.
  */
 export async function genesis(changes: Partial<Config> = {}): Promise<GenesisAccount[]> {
-    const config = testConfig(changes);
+    const config = testConfig({ sponsor: sponsor.address, ...changes });
     const [configAddress] = await findConfigPda();
+    const system = '11111111111111111111111111111111' as Address;
     return [
         account(configAddress, LATERITE_PROGRAM_ADDRESS, getConfigEncoder().encode(config), 5_034_280),
         ...(await plans(config)),
+        await lookupTable(config),
+        ...assets,
         ...stables,
-        account(faucet.address, '11111111111111111111111111111111' as Address, new Uint8Array(), 100_000_000_000),
+        account(faucet.address, system, new Uint8Array(), 100_000_000_000),
+        account(sponsor.address, system, new Uint8Array(), 100_000_000_000),
         await userConfig(users.active.address, 1, UserStatus.Active),
         await userConfig(users.paused.address, 0, UserStatus.Paused),
         await userConfig(users.exited.address, 1, UserStatus.Exited),
         await tokenAccount(users.exited.address, 'USDC', 60n * DOLLAR),
+        // enrolled a month before the others: its first week is long over
+        await userConfig(users.returning.address, 1, UserStatus.Exited, ENROLLED_AT - 30n * 86_400n),
+        await tokenAccount(users.returning.address, 'USDC', 60n * DOLLAR),
         await tokenAccount(users.holder.address, 'USDC', 250n * DOLLAR),
         await tokenAccount(users.holder.address, 'USDT', 120n * DOLLAR),
         await tokenAccount(users.delegated.address, 'USDC', 80n * DOLLAR, otherApp.address),

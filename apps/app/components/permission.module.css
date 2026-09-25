@@ -1,0 +1,82 @@
+/*
+ * The permission in numbered clauses, measured from the approved comp in the screen's column units (--u):
+ * a terracotta number in mono, then one line of extended Archivo, sand rules between the clauses.
+ */
+
+.back {
+    color: inherit;
+}
+
+.clauses {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.clause {
+    display: grid;
+    grid-template-columns: calc(10.5 * var(--u)) 1fr;
+    align-items: baseline;
+    row-gap: calc(1.2 * var(--u));
+    padding: calc(2.9 * var(--u)) 0;
+    border-bottom: 2px solid var(--sand);
+}
+.clause:first-child {
+    padding-top: calc(1.2 * var(--u));
+}
+.clause:last-child {
+    border-bottom: 0;
+}
+
+.number {
+    color: var(--laterite);
+    font-size: max(12px, calc(3.9 * var(--u)));
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+/* the clause itself: one line, as the comp sets it */
+.text {
+    font-size: max(13.5px, calc(3.95 * var(--u)));
+    font-weight: 700;
+    font-stretch: 104%;
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+}
+
+/* the fine print the program's rule needs: small and narrow under its clause, so the clauses keep the page */
+.hint {
+    grid-column: 2;
+    font-family: var(--font-martian-mono-narrow), ui-monospace, monospace;
+    font-size: max(11px, calc(2.9 * var(--u)));
+    font-stretch: 75%;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: var(--char);
+    text-wrap: pretty;
+}
+
+.what {
+    margin-top: calc(2 * var(--u));
+    font-family: var(--font-martian-mono-narrow), ui-monospace, monospace;
+    font-size: max(11px, calc(3 * var(--u)));
+    font-stretch: 75%;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+}
+.whatBody {
+    max-width: 62ch;
+    font-weight: 400;
+    margin: 0;
+    font-size: max(12px, calc(3.4 * var(--u)));
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+/* the one action stays close to what it signs: a phone shows it with the clauses */
+.foot {
+    padding-top: calc(4 * var(--u));
+}

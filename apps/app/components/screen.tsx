@@ -13,13 +13,17 @@ export type BandProps = {
     unit?: string;
     /** Set the unit small and light, so the figure takes the line. */
     quietUnit?: boolean;
-    /** One mono line under the figure. */
-    note?: ReactNode;
+    /** One mono line under the figure; as clauses, a break falls only between them. */
+    note?: ReactNode | string[];
+    /** Set the note small, as a receipt's small print, so the figure keeps the band. */
+    quietNote?: boolean;
     /** True while the figure is still being read. */
     busy?: boolean;
 };
 
 type ScreenProps = {
+    /** A step back, above the band's label. */
+    back?: ReactNode;
     /** Accessible name of the home symbol. */
     home: string;
     /** The skip link's text. */
@@ -35,13 +39,15 @@ type ScreenProps = {
     children?: ReactNode;
     /** The brick-shaped actions at the foot. */
     foot?: ReactNode;
+    /** The foot's own class, for a screen that sets it closer to what comes before. */
+    footClassName?: string;
 };
 
 /**
  * The app's one screen: a terracotta band carrying the state's figure, a course of kiln bricks with the Seal on
  * the seam, and label and value rows on lime. Desktop centres the phone composition on full-bleed fields.
  */
-export function Screen({ home, skip, chips, band, action, seal, children, foot }: ScreenProps) {
+export function Screen({ back, home, skip, chips, band, action, seal, children, foot, footClassName }: ScreenProps) {
     return (
         <div className={styles.screen}>
             <a className="skip-link" href="#main">
@@ -56,6 +62,7 @@ export function Screen({ home, skip, chips, band, action, seal, children, foot }
             <main id="main" className={styles.main}>
                 <section className={`${styles.field} ${styles.band} on-dark`} aria-busy={band.busy || undefined}>
                     <div className={styles.column}>
+                        {back ? <div className={`${styles.back} mono`}>{back}</div> : null}
                         <h1 className={styles.heading}>
                             <span className={`${styles.label} mono`}>{band.label}</span>
                             <span className={styles.figureLine} data-unit={band.quietUnit ? 'quiet' : undefined}>
@@ -72,7 +79,11 @@ export function Screen({ home, skip, chips, band, action, seal, children, foot }
                                 {band.unit ? <span className={`${styles.unit} mono`}>{band.unit}</span> : null}
                             </span>
                         </h1>
-                        {band.note ? <p className={`${styles.note} mono`}>{band.note}</p> : null}
+                        {band.note ? (
+                            <p className={`${styles.note} mono`} data-note={band.quietNote ? 'quiet' : undefined}>
+                                {Array.isArray(band.note) ? <Clauses clauses={band.note} /> : band.note}
+                            </p>
+                        ) : null}
                         {action ? <div className={styles.action}>{action}</div> : null}
                     </div>
                 </section>
@@ -86,12 +97,35 @@ export function Screen({ home, skip, chips, band, action, seal, children, foot }
                 </div>
                 <div className={`${styles.column} ${styles.body}`}>
                     {children}
-                    {foot ? <div className={styles.foot}>{foot}</div> : null}
+                    {foot ? (
+                        <div className={footClassName ? `${styles.foot} ${footClassName}` : styles.foot}>{foot}</div>
+                    ) : null}
                 </div>
             </main>
         </div>
     );
 }
+
+/**
+ * A note in clauses: each keeps to itself, so a break falls between them, and the separator never ends or starts a
+ * line.
+ */
+function Clauses({ clauses }: { clauses: string[] }) {
+    return (
+        <span className={styles.clauses}>
+            <span className={styles.clauseLine}>
+                {clauses.map((clause, index) => (
+                    <span key={index} className={styles.clause}>
+                        {clause}
+                    </span>
+                ))}
+            </span>
+        </span>
+    );
+}
+
+/** The class of the foot's one brick: large, in mono, as typed. */
+export const footBrick = styles.footBrick;
 
 /**
  * About how many ems `text` advances in Archivo 900 at width 112: figures and punctuation are narrower than capitals,

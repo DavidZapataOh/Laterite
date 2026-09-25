@@ -23,7 +23,8 @@
             "unavailable": "Unavailable",
             "perWeek": "${amount}/WK",
             "zero": "$0/WK",
-            "preview": "Preview"
+            "preview": "Preview",
+            "unsigned": "Unsigned"
         },
         "welcome": {
             "label": "Weekly cap",
@@ -189,6 +190,53 @@
                 "payment_tokens_changed": "Payment tokens changed",
                 "exited": "Left",
                 "reactivated": "Came back"
+            }
+        },
+        "permission": {
+            "back": "Your rules",
+            "label": "One permission",
+            "unit": "/ wk max",
+            "noteSol": "0 SOL",
+            "noteFees": "Laterite pays fees",
+            "clauses": {
+                "title": "What the permission does",
+                "cap": "Spends at most {cap} a week, in all.",
+                "capHint": "Laterite’s program holds your buys to {cap} a week together{trial, select, yes {, {trialCap} in your first week} other {}}. The Subscriptions program holds {count, plural, one {your {tokens}} other {each of your {tokens}}} to {cap} a week.",
+                "asset": "Only buys {asset}, into your own wallet.",
+                "elsewhere": "Can’t send your dollars anywhere else.",
+                "exit": "Pause or exit whenever you want.",
+                "price": "Each buy is priced by Pyth, on-chain.",
+                "priceHint": "A buy must bring at least what fresh Pyth prices, verified on-chain at the careful end of their range, say it is worth, less 0.55%. USDT counts at its own Pyth price, USDC at $1."
+            },
+            "what": {
+                "SPYx": {
+                    "summary": "What is SPYx? A token that tracks the S&P 500",
+                    "body": "An xStock: a token Backed Assets issues that tracks the SPDR S&P 500 ETF. On devnet it is a test copy with no value."
+                },
+                "QQQx": {
+                    "summary": "What is QQQx? A token that tracks the Nasdaq-100",
+                    "body": "An xStock: a token Backed Assets issues that tracks the Invesco QQQ ETF. On devnet it is a test copy with no value."
+                }
+            },
+            "checking": "Testing it on devnet",
+            "simulated": "Tested on devnet: it goes through. You pay 0 SOL, Laterite {sol} SOL.",
+            "sign": "Sign once",
+            "signing": "Approve in {wallet}",
+            "sending": "Sending to devnet",
+            "problems": {
+                "rejected": "You did not sign. Nothing was sent.",
+                "modified": "Your wallet changed the transaction, so Laterite did not send it.",
+                "version": "This wallet cannot sign this transaction. Try Phantom, Solflare or Backpack.",
+                "wallet": "Your wallet could not sign. Nothing was sent.",
+                "paused": "Laterite’s program is paused. Nothing was signed.",
+                "full": "The beta is full. Nothing was signed.",
+                "limited": "Too many tries from this wallet or network. Try again in {wait}.",
+                "asset-account": "Laterite paid for your {asset} account once, and it was closed. Choose the other asset, or open that account again in your wallet.",
+                "enrolled": "This wallet is already enrolled.",
+                "simulation": "Devnet refused it in a test run ({program} error {code}). Nothing was signed.",
+                "expired": "It waited too long and expired. Sign again.",
+                "network": "Laterite could not reach devnet. Nothing was sent.",
+                "other": "Laterite could not sponsor this transaction. Nothing was sent."
             }
         }
     },

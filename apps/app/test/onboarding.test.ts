@@ -15,11 +15,13 @@ import {
     enrollParams,
     goalLabelBytes,
     initialChoices,
+    intentBody,
     offeredTiers,
     onboardingIntent,
     paidDefaults,
     parseDollars,
     problemOf,
+    readIntentBody,
     tokenOffers,
 } from '@/lib/onboarding';
 
@@ -169,6 +171,23 @@ describe('the intent', () => {
         const state = userState([{ amount: 0n }, { amount: 0n }]);
         expect(() => onboardingIntent(choices({ incomeRule: false }), state)).toThrow(LateriteCheckError);
         expect(() => onboardingIntent(choices({ paymentTokens: 0 }), state)).toThrow(LateriteCheckError);
+    });
+});
+
+describe('the intent the sponsor route receives', () => {
+    it('carries the kind and the exact EnrollParams, and nothing else', () => {
+        const intent = onboardingIntent(choices({ goalLabel: 'Casa', tier: 1 }), userState([{ amount: 0n }]));
+        const body = intentBody(intent);
+        expect(JSON.parse(JSON.stringify(body))).toEqual(body);
+        expect(readIntentBody(body)).toEqual({
+            ...intent,
+            params: getEnrollParamsDecoder().decode(getEnrollParamsEncoder().encode(intent.params)),
+        });
+        expect(readIntentBody({ ...body, kind: 'exit' })).toBeNull();
+        expect(readIntentBody({ ...body, params: body.params.slice(4) })).toBeNull();
+        expect(readIntentBody({ ...body, params: `${body.params}AAAA` })).toBeNull();
+        expect(readIntentBody({ kind: 'enroll', params: '%%%' })).toBeNull();
+        expect(readIntentBody(null)).toBeNull();
     });
 });
 

@@ -293,3 +293,46 @@ export const faucetGrants = pgTable(
         index('faucet_grants_ip_granted_at').on(table.ip, table.grantedAt),
     ],
 );
+
+export const sponsorshipKind = pgEnum('sponsorship_kind', ['enroll', 'reactivate']);
+
+/** Where a sponsored transaction stands: built and simulated, co-signed and sent, then landed or failed. */
+export const sponsorshipOutcome = pgEnum('sponsorship_outcome', ['prepared', 'sent', 'landed', 'failed']);
+
+/**
+ * Every transaction the sponsor route built for a wallet: the hash of the exact message it co-signs if the wallet
+ * signs it, the simulation's compute units and the sponsor's cost, and what became of it. Sent ones are counted per
+ * wallet, per address and in all to rate limit the sponsor; `asset_account` names the asset whose account the
+ * transaction creates, which the sponsor pays at most once per wallet and asset.
+ */
+export const sponsorships = pgTable(
+    'sponsorships',
+    {
+        id: bigint('id', { mode: 'number' }).primaryKey().generatedAlwaysAsIdentity(),
+        wallet: text('wallet').notNull(),
+        ip: text('ip'),
+        kind: sponsorshipKind('kind').notNull(),
+        /** The sha256 of the message, hex. */
+        message: text('message').notNull().unique(),
+        /** The mint of the asset whose account the transaction creates, or `null`. */
+        assetAccount: text('asset_account'),
+        computeUnits: integer('compute_units').notNull(),
+        computeUnitLimit: integer('compute_unit_limit').notNull(),
+        computeUnitPrice: u64('compute_unit_price').notNull(),
+        /** What the sponsor's balance loses in the simulation: the fee and the rent of what it creates. */
+        sponsorLamports: u64('sponsor_lamports').notNull(),
+        /** The last block height at which the message's blockhash lets it land. */
+        lastValidBlockHeight: bigint('last_valid_block_height', { mode: 'bigint' }).notNull(),
+        preparedAt: time('prepared_at').notNull().defaultNow(),
+        sentAt: time('sent_at'),
+        signature: text('signature'),
+        outcome: sponsorshipOutcome('outcome').notNull().default('prepared'),
+        /** Why it failed: the program's error or the RPC's. */
+        reason: text('reason'),
+    },
+    table => [
+        index('sponsorships_wallet_prepared_at').on(table.wallet, table.preparedAt),
+        index('sponsorships_ip_prepared_at').on(table.ip, table.preparedAt),
+        index('sponsorships_sent_at').on(table.sentAt),
+    ],
+);

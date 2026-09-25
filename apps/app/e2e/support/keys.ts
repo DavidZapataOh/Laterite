@@ -24,10 +24,14 @@ export function keypairJson({ jwk }: TestKey): string {
 /** The tests' own faucet: mint authority of the test validator's stand-in USDC and USDT, never a devnet key. */
 export const faucet = testKey('faucet');
 
+/** The tests' own sponsor: `Config.sponsor` on the test validator, never a devnet key. */
+export const sponsor = testKey('sponsor');
+
 /**
  * The wallets that declared eligibility before the tests: enrolled and active, enrolled and paused, and exited, whose
  * `UserConfig` the validator holds; a newcomer, who never enrolled and holds no test dollars; a holder with USDC and
- * USDT accounts; and one whose USDC account already approves another program.
+ * USDT accounts; one whose USDC account already approves another program; and a second exited wallet with USDC, which
+ * the permission journeys bring back.
  */
 export const users = {
     active: testKey('active'),
@@ -36,6 +40,7 @@ export const users = {
     holder: testKey('holder'),
     newcomer: testKey('newcomer'),
     paused: testKey('paused'),
+    returning: testKey('returning'),
 };
 
 /** Enrollment of every genesis user: 2026-09-20 14:00 UTC. */

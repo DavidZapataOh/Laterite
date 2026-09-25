@@ -16,14 +16,20 @@ export type TestWallet = {
     rejectSign?: boolean;
     /** Sign a message other than the one asked for, as a tampered wallet would. */
     signOther?: boolean;
+    /** Decline every transaction signature. */
+    rejectTransaction?: boolean;
+    /** Change a byte of every transaction it signs, as a wallet that rewrites transactions would. */
+    modifyTransaction?: boolean;
+    /** Hold every transaction signature until the test calls `window.approveTransaction()`. */
+    holdTransaction?: boolean;
 };
 
 type Injected = Omit<TestWallet, 'key'> & { address: string; jwk: JsonWebKey };
 
 /**
  * Registers Wallet Standard wallets in the page before any script runs, as a wallet extension or an in-app browser
- * does: each connects to its key's account on devnet and signs messages with it through WebCrypto's Ed25519. Test
- * doubles of the real wallets; they sign no transaction.
+ * does: each connects to its key's account on devnet and signs messages and transactions with it through WebCrypto's
+ * Ed25519. Test doubles of the real wallets.
  */
 export async function installWallets(page: Page, wallets: TestWallet[]) {
     const injected: Injected[] = wallets.map(({ key, ...wallet }) => ({
@@ -43,6 +49,8 @@ export async function installWallets(page: Page, wallets: TestWallet[]) {
         const icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciLz4=' as const;
         let release: () => void = () => {};
         (window as unknown as { approve: () => void }).approve = () => release();
+        let releaseTransaction: () => void = () => {};
+        (window as unknown as { approveTransaction: () => void }).approveTransaction = () => releaseTransaction();
 
         for (const test of wallets) {
             const account = {
@@ -82,8 +90,33 @@ export async function installWallets(page: Page, wallets: TestWallet[]) {
                         version: '1.1.0',
                     },
                     'solana:signTransaction': {
-                        signTransaction: async () => {
-                            throw new Error('The test wallet signs no transaction.');
+                        // a wire transaction is its signatures (a one-byte count here) then its message, whose header
+                        // and account list name the signers in order: the wallet signs in its own account's slot
+                        signTransaction: async (...inputs: { transaction: Uint8Array }[]) => {
+                            if (test.holdTransaction)
+                                await new Promise<void>(resolve => (releaseTransaction = resolve));
+                            if (test.rejectTransaction) throw rejected();
+                            return Promise.all(
+                                inputs.map(async ({ transaction }) => {
+                                    const signed = new Uint8Array(transaction);
+                                    const count = signed[0]!;
+                                    const message = 1 + 64 * count;
+                                    const versioned = (signed[message]! & 0x80) !== 0;
+                                    const keys = message + (versioned ? 1 : 0) + 3 + 1;
+                                    const slot = Array.from({ length: count }).findIndex((_, index) =>
+                                        signed
+                                            .subarray(keys + 32 * index, keys + 32 * index + 32)
+                                            .every((byte, i) => byte === account.publicKey[i]),
+                                    );
+                                    if (slot < 0) throw new Error('The wallet is not a signer of this transaction.');
+                                    if (test.modifyTransaction) signed[signed.length - 1]! ^= 1;
+                                    const signature = new Uint8Array(
+                                        await crypto.subtle.sign('Ed25519', await key, signed.subarray(message)),
+                                    );
+                                    signed.set(signature, 1 + 64 * slot);
+                                    return { signedTransaction: signed };
+                                }),
+                            );
                         },
                         supportedTransactionVersions: ['legacy', 0],
                         version: '1.0.0',

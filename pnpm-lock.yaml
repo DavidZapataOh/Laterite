@@ -68,6 +68,9 @@ importers:
       '@solana/react':
         specifier: 8.3.0
         version: 8.3.0(@solana/kit@8.3.0(typescript@5.9.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3)
+      '@solana/subscriptions':
+        specifier: 0.5.0
+        version: 0.5.0(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@7.1.1(typescript@5.9.3))(typescript@5.9.3)
       '@vercel/functions':
         specifier: 3.9.9
         version: 3.9.9(ws@8.21.3)
@@ -93,9 +96,9 @@ importers:
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
-      '@solana/subscriptions':
-        specifier: 0.5.0
-        version: 0.5.0(@solana/kit@8.3.0(typescript@5.9.3))(@solana/sysvars@7.1.1(typescript@5.9.3))(typescript@5.9.3)
+      '@solana-program/address-lookup-table':
+        specifier: 0.15.0
+        version: 0.15.0(@solana/kit@8.3.0(typescript@5.9.3))
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.3.3
@@ -117,6 +120,9 @@ importers:
       tailwindcss:
         specifier: ^4
         version: 4.3.3
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
       typescript:
         specifier: ^5
         version: 5.9.3

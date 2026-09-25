@@ -1,0 +1,43 @@
+/* a quiet line that opens in place: no box, a drawn chevron that turns down once open */
+.disclosure {
+    color: inherit;
+}
+
+.summary {
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 44px;
+    list-style: none;
+    cursor: pointer;
+}
+.summary::-webkit-details-marker {
+    display: none;
+}
+.summary:hover > span {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.3em;
+}
+
+.chevron {
+    flex: none;
+    width: 0.9em;
+    height: 0.9em;
+    transition: transform var(--dur-lay) var(--ease-lay);
+}
+.disclosure[open] .chevron {
+    transform: rotate(90deg);
+}
+
+.body {
+    padding-bottom: 0.4em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chevron {
+        transition: none;
+    }
+}

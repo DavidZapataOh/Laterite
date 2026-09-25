@@ -1,10 +1,7 @@
 import { isAddress } from '@solana/kit';
 import { ipAddress } from '@vercel/functions';
-import { and, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
-import { eligibilityDeclarations } from '@laterite/db/database';
-import { database } from '@/lib/db';
-import { DECLARATION_VERSION } from '@/lib/declaration';
+import { database, isDeclared } from '@/lib/db';
 import { FAUCET_AMOUNT, faucetSigner, reserveGrant, sendFaucet, settleGrant } from '@/lib/faucet';
 import { isBlocked, requestRegion } from '@/lib/geo';
 
@@ -28,17 +25,7 @@ export async function POST(request: NextRequest) {
     }
     if (typeof wallet !== 'string' || !isAddress(wallet)) return refuse('wallet is not an address', 400);
     const db = database();
-    const [declared] = await db
-        .select({ wallet: eligibilityDeclarations.wallet })
-        .from(eligibilityDeclarations)
-        .where(
-            and(
-                eq(eligibilityDeclarations.wallet, wallet),
-                eq(eligibilityDeclarations.declarationVersion, DECLARATION_VERSION),
-            ),
-        )
-        .limit(1);
-    if (!declared) return refuse('the wallet has not declared its eligibility', 403);
+    if (!(await isDeclared(db, wallet))) return refuse('the wallet has not declared its eligibility', 403);
     const reservation = await reserveGrant(db, wallet, ipAddress(request) ?? null);
     if ('retryAfterSeconds' in reservation) {
         return refuse('the faucet already funded this wallet or address today', 429, {

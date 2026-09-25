@@ -9,17 +9,17 @@ import {
     useWalletStatus,
 } from '@solana/kit-plugin-wallet/react';
 import { useRequest } from '@solana/react';
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { button } from '@laterite/ui/button';
 import { readAccount } from '@/lib/account';
-import type { OnboardingIntent } from '@/lib/onboarding';
 import { client, isUserRejection, type UiWallet } from '@/lib/solana';
 import { BarChips } from './chips';
 import { Dashboard } from './dashboard';
 import { DeclarationLayer } from './declaration-layer';
 import { Notice } from './notice';
-import { Onboarding } from './onboarding';
+import { type Draft, Onboarding, type Review } from './onboarding';
+import { Permission } from './permission';
 import { type BandProps, Row, Rows, Screen } from './screen';
 import { WalletChip } from './wallet-chip';
 import { WalletLayer } from './wallet-layer';
@@ -41,8 +41,9 @@ export function Shell() {
     const disconnect = useDisconnect(client);
     const layer = useRef<HTMLDialogElement>(null);
     const [chosen, setChosen] = useState<UiWallet | null>(null);
-    // what the wallet chose to sign; the permission screen opens on it
-    const [, setReview] = useState<OnboardingIntent | null>(null);
+    // what the wallet chose to sign, which the permission screen opens on, and its choices for the way back
+    const [review, setReview] = useState<Review | null>(null);
+    const [draft, setDraft] = useState<Draft | null>(null);
 
     const address = connected?.account.address as Address | undefined;
     const account = useRequest(
@@ -51,6 +52,13 @@ export function Shell() {
     const eligibility = useRequest(
         useMemo(() => (address ? (signal: AbortSignal) => readEligibility(address, signal) : null), [address]),
     );
+
+    const refreshAccount = account.refresh;
+    const signed = useCallback(() => {
+        setReview(null);
+        setDraft(null);
+        refreshAccount();
+    }, [refreshAccount]);
 
     const choose = (wallet: UiWallet) => {
         layer.current?.close();
@@ -116,14 +124,30 @@ export function Shell() {
             </>
         );
         if (state?.kind === 'new' || state?.kind === 'exited') {
-            return (
+            const returning = state.kind === 'exited' ? state.config : null;
+            return review ? (
+                <Permission
+                    key={address}
+                    common={common}
+                    wallet={address}
+                    review={review}
+                    account={returning}
+                    notices={notices}
+                    onBack={() => setReview(null)}
+                    onSigned={signed}
+                />
+            ) : (
                 <Onboarding
                     key={address}
                     common={common}
                     wallet={address}
-                    account={state.kind === 'exited' ? state.config : null}
+                    account={returning}
                     notices={notices}
-                    onReview={setReview}
+                    draft={draft}
+                    onReview={next => {
+                        setDraft(next.draft);
+                        setReview(next);
+                    }}
                 />
             );
         }

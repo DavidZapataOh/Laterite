@@ -133,6 +133,44 @@
     font-size: max(16px, calc(5 * var(--u)));
 }
 
+/*
+ * The band's note breaks only between its clauses. Every clause carries its separator in a margin the line pulls
+ * back, which the clipped box hides wherever a clause starts a line.
+ */
+.clauses {
+    display: block;
+    overflow: hidden;
+}
+.clauseLine {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -3ch;
+}
+.clause {
+    padding-left: 3ch;
+    white-space: nowrap;
+}
+.clause::before {
+    content: '·';
+    display: inline-block;
+    width: 3ch;
+    margin-left: -3ch;
+    text-align: center;
+}
+
+/* a quiet note reads as small print under the figure, near the label's size */
+.note[data-note='quiet'] {
+    font-size: max(11px, calc(3.4 * var(--u)));
+}
+
+/* a step back, above the label: quiet, as the label is */
+.back {
+    margin: calc(-6 * var(--u)) 0 calc(2 * var(--u));
+    font-size: max(12px, calc(3.9 * var(--u)));
+    font-weight: 700;
+    letter-spacing: 0.14em;
+}
+
 /* ---- the seam: a course of kiln bricks, the seal riding on it ------------- */
 
 .seam {
@@ -235,4 +273,22 @@
     height: max(44px, calc(13.6 * var(--u)));
     font-size: max(11px, calc(3.5 * var(--u)));
     font-weight: 700;
+}
+
+/* the foot's one brick: the comp sets it large, in mono, as typed */
+.footBrick.footBrick {
+    height: max(52px, calc(15 * var(--u)));
+    font-family: var(--font-martian-mono), ui-monospace, monospace;
+    font-size: max(15px, calc(4.6 * var(--u)));
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    border: 0;
+    cursor: pointer;
+}
+.footBrick.footBrick:disabled {
+    cursor: not-allowed;
+    background: var(--clay);
+    color: var(--soot);
+    box-shadow: 0 var(--edge) 0 var(--ash);
+    transform: none;
 }

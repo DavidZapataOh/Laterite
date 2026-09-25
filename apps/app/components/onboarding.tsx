@@ -4,7 +4,7 @@ import type { Address } from '@solana/kit';
 import { useRequest } from '@solana/react';
 import { type CSSProperties, type ReactNode, useId, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { TIERS, type UserConfig } from '@laterite/client';
+import { type Config, TIERS, type UserConfig } from '@laterite/client';
 import { button } from '@laterite/ui/button';
 import { chip } from '@laterite/ui/chip';
 import { Choice } from '@laterite/ui/choice';
@@ -29,12 +29,21 @@ import { dollars, PAYDAY, paydayPreview } from '@/lib/preview';
 import { client, shortAddress } from '@/lib/solana';
 import { Notice } from './notice';
 import styles from './onboarding.module.css';
-import { type BandProps, Receipt, Screen } from './screen';
+import { type BandProps, footBrick, Receipt, Screen } from './screen';
 
 type ScreenCommon = { home: string; skip: string; chips: ReactNode };
 
 /** The amounts typed as text, parsed when the choices are read. */
 type Typed = { cushion: string; engine: string; goal: string };
+
+/** What the wallet chose on this screen, kept while it reviews them, so the way back finds them as they were. */
+export type Draft = { picked: Partial<Choices>; tokens: number | null; typed: Typed };
+
+/**
+ * What "Review and sign" hands on: the intent to sign, the `Config` it was checked against and the cluster's clock
+ * then, and the draft.
+ */
+export type Review = { config: Config; draft: Draft; intent: OnboardingIntent; now: bigint };
 
 /** Asks the devnet faucet for test USDC and USDT. */
 async function askFaucet(wallet: Address): Promise<'failed' | 'granted' | 'limited'> {
@@ -91,6 +100,7 @@ export function Onboarding({
     wallet,
     account,
     notices,
+    draft,
     onReview,
 }: {
     common: ScreenCommon;
@@ -99,17 +109,19 @@ export function Onboarding({
     account: UserConfig | null;
     /** Notices and layers the shell owns (the declaration, errors). */
     notices: ReactNode;
-    onReview: (intent: OnboardingIntent) => void;
+    /** The choices a review came back from. */
+    draft?: Draft | null;
+    onReview: (review: Review) => void;
 }) {
     const t = useTranslations('app');
     const locale = useLocale();
     const data = useRequest(
         useMemo(() => (signal: AbortSignal) => readOnboarding(client.rpc, wallet, signal), [wallet]),
     );
-    const [picked, setPicked] = useState<Partial<Choices>>({});
+    const [picked, setPicked] = useState<Partial<Choices>>(draft?.picked ?? {});
     // the tokens chosen by hand; until then, every token the wallet holds
-    const [tokens, setTokens] = useState<number | null>(null);
-    const [typed, setTyped] = useState<Typed>({ cushion: '20', engine: '1', goal: '' });
+    const [tokens, setTokens] = useState<number | null>(draft?.tokens ?? null);
+    const [typed, setTyped] = useState<Typed>(draft?.typed ?? { cushion: '20', engine: '1', goal: '' });
     const [faucet, setFaucet] = useState<'failed' | 'granted' | 'idle' | 'limited' | 'minting'>('idle');
     const money = (raw: bigint, cents = true) => dollars(raw, locale, cents);
 
@@ -219,15 +231,7 @@ export function Onboarding({
             band={{
                 figure: money(preview.invested),
                 label: t('onboarding.label', { amount: money(PAYDAY, false) }),
-                // each clause keeps to itself: a break falls between them, and the separator never ends or starts a line
-                note: (
-                    <span className={styles.clauses}>
-                        <span className={styles.clauseLine}>
-                            <span className={styles.clause}>{limit}</span>
-                            <span className={styles.clause}>{tail}</span>
-                        </span>
-                    </span>
-                ),
+                note: [limit, tail],
                 quietUnit: true,
                 unit: t('onboarding.unit'),
             }}
@@ -235,10 +239,17 @@ export function Onboarding({
             foot={
                 <button
                     type="button"
-                    className={`${button.primary} ${styles.review}`}
+                    className={`${button.primary} ${footBrick}`}
                     disabled={problem !== null}
                     aria-describedby={problem ? problemId : undefined}
-                    onClick={() => onReview(onboardingIntent(choices, state))}
+                    onClick={() =>
+                        onReview({
+                            config,
+                            draft: { picked, tokens, typed },
+                            intent: onboardingIntent(choices, state),
+                            now: state.now,
+                        })
+                    }
                 >
                     {t('onboarding.review')}
                 </button>

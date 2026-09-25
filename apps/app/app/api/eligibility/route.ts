@@ -1,10 +1,9 @@
 import { isAddress } from '@solana/kit';
-import { and, eq } from 'drizzle-orm';
 import { type NextRequest, NextResponse } from 'next/server';
 import { createTranslator } from 'next-intl';
 import { eligibilityDeclarations } from '@laterite/db/database';
 import { isLocale } from '@laterite/i18n';
-import { database } from '@/lib/db';
+import { database, isDeclared } from '@/lib/db';
 import {
     DECLARATION_VERSION,
     declarationMessage,
@@ -23,17 +22,8 @@ const MAX_BODY = 4096;
 export async function GET(request: NextRequest) {
     const wallet = request.nextUrl.searchParams.get('wallet');
     if (!wallet || !isAddress(wallet)) return refuse('wallet is not an address', 400);
-    const [row] = await database()
-        .select({ wallet: eligibilityDeclarations.wallet })
-        .from(eligibilityDeclarations)
-        .where(
-            and(
-                eq(eligibilityDeclarations.wallet, wallet),
-                eq(eligibilityDeclarations.declarationVersion, DECLARATION_VERSION),
-            ),
-        )
-        .limit(1);
-    return NextResponse.json({ declared: row !== undefined, version: DECLARATION_VERSION }, { headers });
+    const declared = await isDeclared(database(), wallet);
+    return NextResponse.json({ declared, version: DECLARATION_VERSION }, { headers });
 }
 
 /**

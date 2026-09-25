@@ -1,13 +1,6 @@
 import 'server-only';
 
-import {
-    type Address,
-    createClient,
-    createKeyPairSignerFromBytes,
-    type Instruction,
-    type KeyPairSigner,
-    type Signature,
-} from '@solana/kit';
+import { type Address, createClient, type Instruction, type KeyPairSigner, type Signature } from '@solana/kit';
 import { solanaRpc } from '@solana/kit-plugin-rpc';
 import { getCreateAssociatedTokenIdempotentInstructionAsync, getMintToCheckedInstruction } from '@solana-program/token';
 import { and, count, eq, gt, min, sql } from 'drizzle-orm';
@@ -15,6 +8,7 @@ import { addresses } from '@laterite/devnet/addresses';
 import { type Database, faucetGrants } from '@laterite/db/database';
 
 import { DOLLAR } from './onboarding';
+import { signerFromEnv } from './signer';
 
 /** What one grant mints of each devnet stablecoin: $100 of test USDC and $100 of test USDT. */
 export const FAUCET_AMOUNT = 100n * DOLLAR;
@@ -31,19 +25,8 @@ const STABLES = ['USDC', 'USDT'] as const;
 /** Serializes grants, so two requests never both pass the count. */
 const FAUCET_LOCK = 0x6661_7563;
 
-/** Reads `FAUCET_KEYPAIR`, the devnet faucet's key (a JSON array of 64 bytes, as the Solana CLI writes it). */
-export async function faucetSigner(env: NodeJS.ProcessEnv = process.env): Promise<KeyPairSigner> {
-    let bytes: unknown;
-    try {
-        bytes = JSON.parse(env.FAUCET_KEYPAIR ?? '');
-    } catch {
-        // reported below without the value
-    }
-    if (!Array.isArray(bytes) || bytes.length !== 64 || !bytes.every(b => Number.isInteger(b) && b >= 0 && b < 256)) {
-        throw new Error('FAUCET_KEYPAIR is not a JSON array of 64 bytes');
-    }
-    return createKeyPairSignerFromBytes(new Uint8Array(bytes));
-}
+/** Reads `FAUCET_KEYPAIR`, the devnet faucet's key. */
+export const faucetSigner = (env: NodeJS.ProcessEnv = process.env) => signerFromEnv('FAUCET_KEYPAIR', env);
 
 /** The faucet's instructions: the wallet's USDC and USDT accounts unless they exist, then $100 minted into each. */
 export async function faucetInstructions(faucet: KeyPairSigner, wallet: Address): Promise<Instruction[]> {

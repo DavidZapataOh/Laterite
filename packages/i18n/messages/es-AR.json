@@ -23,7 +23,8 @@
             "unavailable": "No disponible",
             "perWeek": "${amount}/SEM",
             "zero": "$0/SEM",
-            "preview": "Vista previa"
+            "preview": "Vista previa",
+            "unsigned": "Sin firmar"
         },
         "welcome": {
             "label": "Tope semanal",
@@ -189,6 +190,53 @@
                 "payment_tokens_changed": "Cambiaste los tokens",
                 "exited": "Saliste",
                 "reactivated": "Volviste"
+            }
+        },
+        "permission": {
+            "back": "Tus reglas",
+            "label": "Un permiso",
+            "unit": "/ sem máx",
+            "noteSol": "0 SOL",
+            "noteFees": "Laterite paga tasas",
+            "clauses": {
+                "title": "Qué hace el permiso",
+                "cap": "Gasta hasta {cap} por semana, en total.",
+                "capHint": "El programa de Laterite limita tus compras a {cap} por semana entre todo{trial, select, yes {, {trialCap} en tu primera semana} other {}}. El programa Subscriptions limita {count, plural, one {tu {tokens}} other {cada uno de tus {tokens}}} a {cap} por semana.",
+                "asset": "Solo compra {asset}, para tu billetera.",
+                "elsewhere": "No puede mandar tus dólares a otro lado.",
+                "exit": "Pausá o salí cuando quieras.",
+                "price": "Cada compra usa precios de Pyth on-chain.",
+                "priceHint": "Cada compra tiene que traer al menos lo que valen, según precios frescos de Pyth verificados on-chain en el extremo prudente de su rango, menos 0,55%. USDT cuenta a su propio precio de Pyth y USDC a $1."
+            },
+            "what": {
+                "SPYx": {
+                    "summary": "¿Qué es SPYx? Un token que sigue al S&P 500",
+                    "body": "Un xStock: un token que emite Backed Assets y sigue al ETF SPDR S&P 500. En devnet es una copia de prueba sin valor."
+                },
+                "QQQx": {
+                    "summary": "¿Qué es QQQx? Un token que sigue al Nasdaq-100",
+                    "body": "Un xStock: un token que emite Backed Assets y sigue al ETF Invesco QQQ. En devnet es una copia de prueba sin valor."
+                }
+            },
+            "checking": "Probándolo en devnet",
+            "simulated": "Probado en devnet: pasa. Vos pagás 0 SOL, Laterite {sol} SOL.",
+            "sign": "Firmar una vez",
+            "signing": "Aprobá en {wallet}",
+            "sending": "Enviando a devnet",
+            "problems": {
+                "rejected": "No firmaste. No se envió nada.",
+                "modified": "Tu billetera cambió la transacción, así que Laterite no la envió.",
+                "version": "Esta billetera no puede firmar esta transacción. Probá con Phantom, Solflare o Backpack.",
+                "wallet": "Tu billetera no pudo firmar. No se envió nada.",
+                "paused": "El programa de Laterite está en pausa. No se firmó nada.",
+                "full": "La beta está completa. No se firmó nada.",
+                "limited": "Demasiados intentos desde esta billetera o red. Probá de nuevo en {wait}.",
+                "asset-account": "Laterite ya pagó una vez tu cuenta de {asset}, y se cerró. Elegí el otro activo o abrí esa cuenta de nuevo en tu billetera.",
+                "enrolled": "Esta billetera ya está adentro.",
+                "simulation": "Devnet la rechazó en una prueba (error {code} de {program}). No se firmó nada.",
+                "expired": "Esperó demasiado y venció. Firmá de nuevo.",
+                "network": "Laterite no pudo llegar a devnet. No se envió nada.",
+                "other": "Laterite no pudo patrocinar esta transacción. No se envió nada."
             }
         }
     },

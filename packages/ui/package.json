@@ -14,6 +14,8 @@
         "./chip": "./src/chip.ts",
         "./choice": "./src/choice.tsx",
         "./field": "./src/field.ts",
+        "./disclosure": "./src/disclosure.tsx",
+        "./back": "./src/back.tsx",
         "./use-hydrated": "./src/use-hydrated.ts",
         "./use-in-view": "./src/use-in-view.ts",
         "./use-scroll-progress": "./src/use-scroll-progress.ts",

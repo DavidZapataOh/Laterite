@@ -156,8 +156,8 @@ i18n-test:
     pnpm --filter @laterite/i18n typecheck
     pnpm --filter @laterite/i18n test
 
-# Build the product app against a local validator on VALIDATOR_RPC_PORT (48899), then run its unit and route tests and its browser journeys against DATABASE_URL
-app-test:
+# Build the program and the product app against a local validator on VALIDATOR_RPC_PORT (48899), then run its unit and route tests and its browser journeys, on chains running this build of Laterite, against DATABASE_URL
+app-test: build-program
     NEXT_PUBLIC_SOLANA_RPC_URL=http://127.0.0.1:${VALIDATOR_RPC_PORT:-48899} pnpm --filter @laterite/app build
     pnpm --filter @laterite/app test
     pnpm --filter @laterite/app test:e2e
@@ -678,6 +678,22 @@ db-down name="laterite-postgres":
 # Apply the committed migrations to DATABASE_URL
 db-migrate:
     pnpm --filter @laterite/db migrate
+
+# One real enrollment on devnet with no SOL (the owner's step): the app, built for devnet, runs locally with the sponsor and faucet keys from keys/, and a new wallet declares, takes test dollars and enrolls through its routes. Needs a migrated DATABASE_URL
+app-devnet-enrollment:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    [ -n "${DATABASE_URL:-}" ] || { echo 'DATABASE_URL is required: eval "$(just db-up)" && just db-migrate' >&2; exit 1; }
+    if [ -f .env ]; then set -a; . ./.env; set +a; fi
+    rpc="${DEVNET_RPC_URL:-https://api.devnet.solana.com}"
+    NEXT_PUBLIC_SOLANA_RPC_URL="$rpc" pnpm --filter @laterite/app build
+    # the keys go from their files into the server's environment only; nothing prints them
+    SPONSOR_KEYPAIR="$(cat keys/devnet-sponsor.json)" FAUCET_KEYPAIR="$(cat keys/devnet-faucet.json)" SOLANA_RPC_URL="$rpc" \
+        pnpm --filter @laterite/app exec next start -p 3402 >/dev/null &
+    server=$!
+    trap 'kill $server' EXIT
+    until curl -sf -o /dev/null 'http://127.0.0.1:3402/api/eligibility?wallet=11111111111111111111111111111111'; do sleep 1; done
+    APP_URL=http://127.0.0.1:3402 SOLANA_RPC_URL="$rpc" pnpm --filter @laterite/app devnet-enrollment
 
 # Fail when the committed migrations differ from packages/db/src/schema.ts
 db-check:

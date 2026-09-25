@@ -9,6 +9,7 @@ on:
       - 'packages/db/**'
       - 'packages/devnet/**'
       - 'clients/typescript/**'
+      - 'programs/laterite/**'
       - 'justfile'
       - 'pnpm-lock.yaml'
       - '.github/actions/setup/action.yml'
@@ -26,7 +27,7 @@ permissions:
 jobs:
   app:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     services:
       postgres:
         # The Postgres Railway runs, as `just db-up` pins it.
@@ -46,10 +47,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
+      # the browser journeys enroll on a local chain running this build of the program
       - uses: ./.github/actions/setup
         with:
-          install-rust: 'false'
-          install-solana-verify: 'false'
           install-anchor: 'false'
       - name: Install Chromium for the browser journeys
         run: pnpm --filter @laterite/app exec playwright install --with-deps chromium

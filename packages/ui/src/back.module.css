@@ -1,0 +1,33 @@
+/* a quiet step back: the text and a drawn arrow, underlined on hover, as tall as a thumb needs */
+.back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9em;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+}
+.back:hover > span {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.3em;
+}
+.back:disabled {
+    cursor: default;
+    opacity: 0.55;
+}
+.back:disabled:hover > span {
+    text-decoration: none;
+}
+
+.arrow {
+    flex: none;
+    width: 1.35em;
+    height: 1em;
+}

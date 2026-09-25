@@ -1,9 +1,11 @@
-import type { Address } from '@solana/kit';
+import { type Address, getBase64Decoder, getBase64Encoder } from '@solana/kit';
 import {
     assertValidRules,
     type Config,
     Engine,
     type EnrollParamsArgs,
+    getEnrollParamsDecoder,
+    getEnrollParamsEncoder,
     TIERS,
     type UserState,
     UserStatus,
@@ -171,6 +173,33 @@ export function onboardingIntent(choices: Choices, state: UserState): Onboarding
     const status = state.userConfig?.status;
     if (status !== undefined && status !== UserStatus.Exited) throw new Error('the wallet is already enrolled');
     return { kind: status === UserStatus.Exited ? 'reactivate' : 'enroll', params };
+}
+
+/** An intent as the permission screen sends it to the sponsor route: its kind and its `EnrollParams` in base64. */
+export type IntentBody = { kind: OnboardingIntent['kind']; params: string };
+
+export function intentBody({ kind, params }: OnboardingIntent): IntentBody {
+    return { kind, params: getBase64Decoder().decode(getEnrollParamsEncoder().encode(params)) };
+}
+
+/** The intent a request carries, or null unless it is a known kind with exactly one encoded `EnrollParams`. */
+export function readIntentBody(body: unknown): OnboardingIntent | null {
+    const { kind, params } = (body ?? {}) as Partial<Record<keyof IntentBody, unknown>>;
+    if ((kind !== 'enroll' && kind !== 'reactivate') || typeof params !== 'string') return null;
+    const decoder = getEnrollParamsDecoder();
+    let bytes: Uint8Array;
+    try {
+        bytes = getBase64Encoder().encode(params) as Uint8Array;
+    } catch {
+        return null;
+    }
+    // Node's decoder skips what follows padding: only the canonical encoding of exactly one value is read
+    if (bytes.length !== decoder.fixedSize || getBase64Decoder().decode(bytes) !== params) return null;
+    try {
+        return { kind, params: decoder.decode(bytes) };
+    } catch {
+        return null;
+    }
 }
 
 /**
