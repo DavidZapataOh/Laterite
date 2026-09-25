@@ -50,11 +50,13 @@ jobs:
         # A scheduled run fails when mainnet changes under the suite: Kamino Scope's feed list, a venue, Jupiter's API.
         if: failure() && github.event_name == 'schedule'
         env:
-          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+          OPS_TELEGRAM_BOT_TOKEN: ${{ secrets.OPS_TELEGRAM_BOT_TOKEN }}
+          OPS_TELEGRAM_CHAT_ID: ${{ secrets.OPS_TELEGRAM_CHAT_ID }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           text="[laterite] FIRING fork-suite: the weekday mainnet-fork run failed; mainnet may have changed under the sweep (Kamino Scope's feeds, a venue, Jupiter's API): $RUN_URL"
-          curl -sSf --json "$(jq -cn --arg text "$text" '{text: $text}')" "$ALERT_WEBHOOK_URL"
+          jq -cn --arg chat "$OPS_TELEGRAM_CHAT_ID" --arg text "$text" '{chat_id: $chat, text: $text}' |
+            curl -sSf -o /dev/null --json @- "https://api.telegram.org/bot$OPS_TELEGRAM_BOT_TOKEN/sendMessage"
       - name: Upload the measurements and the trace
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

@@ -23,11 +23,12 @@ export default defineRailway(() => {
         },
         deploy: { restartPolicyMaxRetries: 10, restartPolicyType: 'ON_FAILURE' },
         env: {
-            ALERT_WEBHOOK_URL: preserve(),
             CRANK_KEYPAIR: preserve(),
             DATABASE_URL: db.env.DATABASE_URL,
             MAINNET_FALLBACK_RPC_URL: preserve(),
             MAINNET_RPC_URL: preserve(),
+            OPS_TELEGRAM_BOT_TOKEN: preserve(),
+            OPS_TELEGRAM_CHAT_ID: preserve(),
             PYTH_PRO_ACCESS_TOKEN: preserve(),
             SOLANA_RPC_URL: preserve(),
         },

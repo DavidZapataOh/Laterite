@@ -24,12 +24,13 @@ const keypair = z.pipe(
 );
 
 const schema = z.object({
-    ALERT_WEBHOOK_URL: url,
     CRANK_KEYPAIR: keypair,
     DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
     LOG_LEVEL: z._default(z.enum(['debug', 'info', 'warn', 'error']), 'info'),
     MAINNET_FALLBACK_RPC_URL: url,
     MAINNET_RPC_URL: url,
+    OPS_TELEGRAM_BOT_TOKEN: z.string().check(z.regex(/^\d+:[\w-]{30,}$/)),
+    OPS_TELEGRAM_CHAT_ID: z.string().check(z.regex(/^-?\d+$/)),
     PORT: z._default(z.coerce.number().check(z.int(), z.positive()), 8080),
     PYTH_PRO_ACCESS_TOKEN: z.string().check(z.minLength(1)),
     SOLANA_RPC_URL: url,
@@ -37,11 +38,11 @@ const schema = z.object({
 
 /** The service's configuration, from the host's environment: Railway's variables and sealed secrets. */
 export type Config = {
-    alertWebhookUrl: string;
     crank: KeyPairSigner;
     databaseUrl: string;
     logLevel: 'debug' | 'error' | 'info' | 'warn';
     mainnetRpcUrls: [string, string];
+    ops: { botToken: string; chatId: string };
     port: number;
     pythProAccessToken: string;
     rpcUrl: string;
@@ -63,11 +64,11 @@ export async function loadConfig(env: NodeJS.ProcessEnv = process.env): Promise<
     }
     const value = parsed.data;
     return {
-        alertWebhookUrl: value.ALERT_WEBHOOK_URL,
         crank: await createKeyPairSignerFromBytes(value.CRANK_KEYPAIR),
         databaseUrl: value.DATABASE_URL,
         logLevel: value.LOG_LEVEL,
         mainnetRpcUrls: [value.MAINNET_RPC_URL, value.MAINNET_FALLBACK_RPC_URL],
+        ops: { botToken: value.OPS_TELEGRAM_BOT_TOKEN, chatId: value.OPS_TELEGRAM_CHAT_ID },
         port: value.PORT,
         pythProAccessToken: value.PYTH_PRO_ACCESS_TOKEN,
         rpcUrl: value.SOLANA_RPC_URL,

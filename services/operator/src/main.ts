@@ -5,7 +5,7 @@ import { addresses as devnet } from '@laterite/devnet/addresses';
 import { getBase58Decoder } from '@solana/kit';
 import { sql } from 'drizzle-orm';
 
-import { Alarms, webhookNotifier } from './alarms/alarms';
+import { Alarms, telegramNotifier } from './alarms/alarms';
 import { THRESHOLDS } from './alarms/checks';
 import { Monitor } from './alarms/monitor';
 import { ConfigError, loadConfig } from './config';
@@ -42,7 +42,12 @@ async function main(log: Logger) {
         onChain.assets.map(({ mint }) => mint),
         log,
     );
-    const alarms = new Alarms(db, webhookNotifier(config.alertWebhookUrl), log, `[laterite ${CLUSTER}]`);
+    const alarms = new Alarms(
+        db,
+        telegramNotifier(config.ops.botToken, config.ops.chatId),
+        log,
+        `[laterite ${CLUSTER}]`,
+    );
     const monitor = new Monitor({
         alarms,
         cluster: CLUSTER,

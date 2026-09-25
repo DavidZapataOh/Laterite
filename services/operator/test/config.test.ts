@@ -12,11 +12,12 @@ const signer = await createKeyPairSignerFromPrivateKeyBytes(seed);
 const keypairFile = JSON.stringify([...seed, ...getAddressEncoder().encode(signer.address)]);
 
 const env = {
-    ALERT_WEBHOOK_URL: 'https://hooks.slack.com/services/T0/B0/secret-path',
     CRANK_KEYPAIR: keypairFile,
     DATABASE_URL: 'postgresql://postgres:password@postgres.railway.internal:5432/railway',
     MAINNET_FALLBACK_RPC_URL: 'https://api.mainnet-beta.solana.com',
     MAINNET_RPC_URL: 'https://mainnet.example-rpc.com/?api-key=secret-key',
+    OPS_TELEGRAM_BOT_TOKEN: '123456789:secret-bot-token-000000000000000000000',
+    OPS_TELEGRAM_CHAT_ID: '-1001234567890',
     PYTH_PRO_ACCESS_TOKEN: 'secret-token',
     SOLANA_RPC_URL: 'https://api.devnet.solana.com',
 };
@@ -28,6 +29,7 @@ describe('configuration', () => {
         expect(config).toMatchObject({
             logLevel: 'info',
             mainnetRpcUrls: [env.MAINNET_RPC_URL, env.MAINNET_FALLBACK_RPC_URL],
+            ops: { botToken: env.OPS_TELEGRAM_BOT_TOKEN, chatId: env.OPS_TELEGRAM_CHAT_ID },
             port: 8080,
         });
         expect((await loadConfig({ ...env, LOG_LEVEL: 'debug', PORT: '3000' })).port).toBe(3000);
@@ -38,6 +40,7 @@ describe('configuration', () => {
             ...env,
             CRANK_KEYPAIR: '[1,2,3]',
             DATABASE_URL: 'https://not-postgres',
+            OPS_TELEGRAM_BOT_TOKEN: 'not-a-bot-token',
             PYTH_PRO_ACCESS_TOKEN: '',
         };
         delete (broken as Partial<typeof env>).SOLANA_RPC_URL;
@@ -46,10 +49,11 @@ describe('configuration', () => {
         expect((error as ConfigError).variables).toEqual([
             'CRANK_KEYPAIR',
             'DATABASE_URL',
+            'OPS_TELEGRAM_BOT_TOKEN',
             'PYTH_PRO_ACCESS_TOKEN',
             'SOLANA_RPC_URL',
         ]);
-        expect((error as Error).message).not.toMatch(/\[1,2,3\]|not-postgres/);
+        expect((error as Error).message).not.toMatch(/\[1,2,3\]|not-postgres|not-a-bot-token/);
     });
 });
 
@@ -63,12 +67,18 @@ describe('logs', () => {
             },
         });
         const log = createLogger('info', sink);
-        log.info({ accessToken: 'secret-token', slot: '12' }, 'indexed');
+        log.info({ accessToken: 'secret-token', ops: { botToken: 'secret-bot' }, slot: '12' }, 'indexed');
         log.debug('hidden');
         expect(lines).toHaveLength(1);
         const entry = JSON.parse(lines[0]!);
-        expect(entry).toMatchObject({ accessToken: '[secret]', level: 'info', message: 'indexed', slot: '12' });
+        expect(entry).toMatchObject({
+            accessToken: '[secret]',
+            level: 'info',
+            message: 'indexed',
+            ops: { botToken: '[secret]' },
+            slot: '12',
+        });
         expect(Date.parse(entry.time)).not.toBeNaN();
-        expect(lines[0]).not.toContain('secret-token');
+        expect(lines[0]).not.toMatch(/secret-token|secret-bot/);
     });
 });

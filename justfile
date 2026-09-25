@@ -289,7 +289,7 @@ _devnet-urls cluster:
     #!/usr/bin/env bash
     case "{{cluster}}" in
         local) echo "http://127.0.0.1:18899 ws://127.0.0.1:18900" ;;
-        devnet) echo "https://api.devnet.solana.com wss://api.devnet.solana.com" ;;
+        devnet) rpc="${DEVNET_RPC_URL:-https://api.devnet.solana.com}"; echo "$rpc ${rpc/#https:/wss:}" ;;
         *) echo "Error: unknown cluster {{cluster}} (local or devnet)" >&2; exit 1 ;;
     esac
 
@@ -314,8 +314,12 @@ devnet-local state="fresh": devnet-keys
     case "{{state}}" in
         fresh) ;;
         deployed)
+            # The copied lookup table was extended at a devnet slot, so the chain starts past it, at the first slot of
+            # devnet's current epoch: the validator dates slots from the epoch's start, which keeps its clock on time
+            epoch=$(solana epoch-info -u devnet --output json)
+            warp=$(node -p "const e = $epoch; e.absoluteSlot - e.slotIndex")
             deployment=(--clone-upgradeable-program "$(just program-id)"
-                --clone $(pnpm --silent --filter @laterite/deployment accounts))
+                --clone $(pnpm --silent --filter @laterite/deployment accounts) --warp-slot "$warp")
             cp "$(just _devnet-deployment-file devnet)" "$record" ;;
         *) echo "Error: unknown state {{state}} (fresh or deployed)" >&2; exit 1 ;;
     esac

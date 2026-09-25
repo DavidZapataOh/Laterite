@@ -175,7 +175,7 @@ The faucet and treasury keys never share a host, nor do the sponsor and the atte
 `services/operator` is one always-on process on Railway, next to its Postgres. It stores Laterite's history from finalized devnet transactions, whoever sent them, and watches what keeps sweeps running:
 
 - **History:** every sweep from its `Swept` event (read from Laterite's self-CPI among the inner instructions, never from logs) with the asset's ScaledUiAmount multiplier in force at its block time, which the program does not read; every attestation from `Attested` with its record, payer and expiry, and the record's closing; and each user's controls (enrollment, settings, pause and resume, lowering what waits to invest, tier and payment-token changes, exit, return) from the events Laterite logs. Instructions are told apart by their discriminator. The indexer resumes after the last transaction it stored and stores nothing twice.
-- **Alarms:** the crank's and the sponsor's SOL and the treasury's SOL and inventory; the market calendar 90 days before `validThrough`, and at once when it does not cover today; Kamino Scope's SPYX/USD and QQQX/USD posts older than 120 s, missing, or larger than a sweep has room for; Pyth Pro answering 401, 403 or 429 to the USDT/USD request; the crank's latest sweep landing less than 20 bps above `min_out`; more swap-authority accounts created in a day than the bound; the indexer stalling. Each alarm is logged and posted to `ALERT_WEBHOOK_URL`, a Slack incoming webhook or a Discord one followed by `/slack`, when it starts, every six hours while it lasts and when it resolves. The Fork workflow's weekday run posts there when it fails.
+- **Alarms:** the crank's and the sponsor's SOL and the treasury's SOL and inventory; the market calendar 90 days before `validThrough`, and at once when it does not cover today; Kamino Scope's SPYX/USD and QQQX/USD posts older than 120 s, missing, or larger than a sweep has room for; Pyth Pro answering 401, 403 or 429 to the USDT/USD request; the crank's latest sweep landing less than 20 bps above `min_out`; more swap-authority accounts created in a day than the bound; the indexer stalling. Each alarm is logged and sent to the operations chat through its own Telegram bot (`OPS_TELEGRAM_BOT_TOKEN`, `OPS_TELEGRAM_CHAT_ID`; never the product's bot) when it starts, every six hours while it lasts and when it resolves. The Fork workflow's weekday run alerts there when it fails.
 
 Only one process operates at a time (a Postgres advisory lock), so a deploy's new process waits as a healthy standby until the old one exits. `GET /health` answers 200 when the database answers and the indexer is current.
 
@@ -191,13 +191,13 @@ just operator-image    # the image Railway builds
 
 `.railway/railway.ts` declares the project: the Postgres and the `operator` service, built from `services/operator/Dockerfile` at the repository's `main`, migrated before each deploy, gated on `/health`, one replica. Apply it with the Railway CLI (`railway config plan`, then `railway config apply`). Secrets never enter the repository: set each with `railway variable set <NAME> --stdin --service operator`, reading the value from its file or `.env` so it never appears on a command line:
 
-| Variable                                      | Value                                                                 |
-| --------------------------------------------- | --------------------------------------------------------------------- |
-| `CRANK_KEYPAIR`                               | `keys/devnet-crank.json`: the service's fee and rent payer            |
-| `SOLANA_RPC_URL`                              | A devnet RPC                                                          |
-| `MAINNET_RPC_URL`, `MAINNET_FALLBACK_RPC_URL` | Two mainnet RPCs from different providers, for the Kamino Scope relay |
-| `PYTH_PRO_ACCESS_TOKEN`                       | The Pyth Pro token (never logged, never sent to the app or a browser) |
-| `ALERT_WEBHOOK_URL`                           | The operations channel's incoming webhook                             |
+| Variable                                         | Value                                                                 |
+| ------------------------------------------------ | --------------------------------------------------------------------- |
+| `CRANK_KEYPAIR`                                  | `keys/devnet-crank.json`: the service's fee and rent payer            |
+| `SOLANA_RPC_URL`                                 | A devnet RPC                                                          |
+| `MAINNET_RPC_URL`, `MAINNET_FALLBACK_RPC_URL`    | Two mainnet RPCs from different providers, for the Kamino Scope relay |
+| `PYTH_PRO_ACCESS_TOKEN`                          | The Pyth Pro token (never logged, never sent to the app or a browser) |
+| `OPS_TELEGRAM_BOT_TOKEN`, `OPS_TELEGRAM_CHAT_ID` | The operations bot's token and the chat it alerts                     |
 
 `DATABASE_URL` references the Postgres, and Railway sets `PORT`. The service refuses to start when a variable is missing or malformed, naming it, and when its RPC's genesis hash is not the one Laterite's config holds.
 

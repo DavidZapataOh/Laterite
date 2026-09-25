@@ -6,7 +6,7 @@ import { createTestDatabase } from '@laterite/db/testing';
 import type { Address } from '@solana/kit';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
-import { Alarms, REPEAT_MS, webhookNotifier } from '../src/alarms/alarms';
+import { Alarms, REPEAT_MS, telegramNotifier } from '../src/alarms/alarms';
 import { headroomAlarm, swapAccountAlarm } from '../src/alarms/checks';
 import { createLogger } from '../src/log';
 
@@ -26,7 +26,7 @@ describe('alarms', () => {
         new Alarms(
             db,
             async text => {
-                if (failing) throw new Error('webhook down');
+                if (failing) throw new Error('Telegram down');
                 sent.push(text);
             },
             log,
@@ -55,7 +55,7 @@ describe('alarms', () => {
         expect(await alarms().firing()).toEqual([]);
     });
 
-    it('delivers a notification the webhook missed on the next run, across restarts', async () => {
+    it('delivers a notification Telegram missed on the next run, across restarts', async () => {
         failing = true;
         await alarms().set({ 'market-calendar': 'expired' });
         failing = false;
@@ -64,24 +64,33 @@ describe('alarms', () => {
         expect(sent).toEqual(['[laterite devnet] FIRING market-calendar: expired']);
     });
 
-    it("posts each notification to the webhook in Slack's format", async () => {
-        const bodies: unknown[] = [];
+    it("sends each notification to the operations chat through Telegram's sendMessage", async () => {
+        const requests: unknown[] = [];
         const server = createServer((request, response) => {
             let body = '';
             request.on('data', chunk => (body += chunk));
             request.on('end', () => {
-                bodies.push({ body: JSON.parse(body), type: request.headers['content-type'] });
-                response.writeHead(200).end('ok');
+                requests.push({ body: JSON.parse(body), path: request.url, type: request.headers['content-type'] });
+                const ok = request.url === '/bot1:token/sendMessage';
+                response.writeHead(ok ? 200 : 401).end(JSON.stringify({ ok }));
             });
         });
         await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
-        const url = `http://127.0.0.1:${(server.address() as AddressInfo).port}/hook`;
-        await webhookNotifier(url)('[laterite devnet] FIRING indexer: stalled');
+        const api = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+        await telegramNotifier('1:token', '-100', { api })('[laterite devnet] FIRING indexer: stalled');
+        const refused = await telegramNotifier('1:revoked', '-100', { api })('x').catch((error: Error) => error);
         server.close();
-        expect(bodies).toEqual([
-            { body: { text: '[laterite devnet] FIRING indexer: stalled' }, type: 'application/json' },
-        ]);
-        await expect(webhookNotifier(url)('x')).rejects.toThrow();
+        expect(requests[0]).toEqual({
+            body: {
+                chat_id: '-100',
+                link_preview_options: { is_disabled: true },
+                text: '[laterite devnet] FIRING indexer: stalled',
+            },
+            path: '/bot1:token/sendMessage',
+            type: 'application/json',
+        });
+        expect(refused).toBeInstanceOf(Error);
+        expect(String(refused)).not.toContain('revoked');
     });
 });
 

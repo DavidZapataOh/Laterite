@@ -9,19 +9,24 @@ export type Notify = (text: string) => Promise<void>;
 /** How often a firing alarm is repeated to the operator. */
 export const REPEAT_MS = 6 * 60 * 60 * 1_000;
 
-/**
- * Posts `text` to an incoming webhook in Slack's format (`{"text": …}`), which Slack takes as is and Discord takes at
- * its webhook URL followed by `/slack`.
- */
-export function webhookNotifier(url: string, fetch: typeof globalThis.fetch = globalThis.fetch): Notify {
+/** Sends `text` to the operations chat through the Telegram Bot API's `sendMessage`. */
+export function telegramNotifier(
+    botToken: string,
+    chatId: string,
+    {
+        api = 'https://api.telegram.org',
+        fetch = globalThis.fetch,
+    }: { api?: string; fetch?: typeof globalThis.fetch } = {},
+): Notify {
     return async text => {
-        const response = await fetch(url, {
-            body: JSON.stringify({ text }),
+        const response = await fetch(`${api}/bot${botToken}/sendMessage`, {
+            body: JSON.stringify({ chat_id: chatId, link_preview_options: { is_disabled: true }, text }),
             headers: { 'Content-Type': 'application/json' },
             method: 'POST',
             signal: AbortSignal.timeout(10_000),
         });
-        if (!response.ok) throw new Error(`The alert webhook answered ${response.status}`);
+        // The request URL holds the token, so the error names only the status.
+        if (!response.ok) throw new Error(`Telegram answered ${response.status}`);
     };
 }
 
