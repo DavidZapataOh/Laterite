@@ -174,8 +174,12 @@ for (const [path, key] of [
                     controlLines: Math.round(b.height / controls!.firstElementChild!.getBoundingClientRect().height),
                     sameLine: a.top < b.bottom && b.top < a.bottom,
                     labelLines: Math.round(a.height / parseFloat(getComputedStyle(label!).lineHeight)),
-                    // room left on the line once the label, the row's gap and every chip are laid out: text renders a few
-                    // pixels wider on some platforms, so a row that fits with nothing to spare wraps there
+                    text: [label!, ...controls!.children].reduce((sum, element) => {
+                        const range = document.createRange();
+                        range.selectNodeContents(element);
+                        return sum + range.getBoundingClientRect().width;
+                    }, 0),
+                    // room left on the line once the label, the row's gap and every chip are laid out
                     spare:
                         group.clientWidth -
                         a.width -
@@ -189,7 +193,11 @@ for (const [path, key] of [
         );
         for (const row of rows.filter(row => !row.label?.match(/^(Tokens)$/) || key === users.holder)) {
             expect(row, row.label ?? '').toMatchObject({ controlLines: 1, labelLines: 1, sameLine: true });
-            expect(row.spare, `${row.label} leaves ${row.spare.toFixed(1)}px`).toBeGreaterThanOrEqual(6);
+            // Linux's Chromium, Android's included, sets the same text about 4% wider than macOS's: every row keeps that
+            // much room, and 6px more, wherever the test runs
+            expect(row.spare, `${row.label} leaves ${row.spare.toFixed(1)}px`).toBeGreaterThanOrEqual(
+                6 + 0.04 * row.text,
+            );
         }
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
         // an over-long goal name scrolls in its own box: the amount stays whole inside the field

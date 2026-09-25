@@ -12,7 +12,7 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: calc(2.2 * var(--u)) calc(2 * var(--u));
+    gap: calc(2.2 * var(--u)) calc(1.6 * var(--u));
     min-height: calc(16 * var(--u));
     padding: calc(2.4 * var(--u)) 0;
     border-bottom: 2px solid var(--sand);
@@ -44,7 +44,7 @@
     min-width: 0;
     margin-left: auto;
     justify-content: flex-end;
-    gap: calc(1.4 * var(--u));
+    gap: var(--u);
 }
 /* a typed box spans the control column, as the comp's cushion and goal do */
 .controls:has(> .wide) {
@@ -56,7 +56,7 @@
 .amount,
 .wide {
     height: max(40px, calc(11 * var(--u)));
-    padding: 0 max(8px, calc(2.2 * var(--u)));
+    padding: 0 max(6px, calc(1.7 * var(--u)));
     font-size: max(11px, calc(3.2 * var(--u)));
     font-stretch: 75%;
     font-variant-numeric: tabular-nums;
